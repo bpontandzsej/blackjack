@@ -1,0 +1,26 @@
+A szakdolgozat a Huszonegy, más néven Blackjack nevű kártyajáték megvalósítása kliens-
+szerver modell alapján, ahol a szerver játssza az osztó/bank, a kliensek pedig a játékosok
+szerepét. A játékot egy hagyományos pakli francia kártyával játsszák. A klienshez tartozik egy
+grafikus felület, amelyen a játékasztal, valamint egy chatablak szerepel, utóbbin keresztül a
+játékosok kommunikálhatnak és a szerver információkat közölhet a játékosokkal. Egy játékban
+1-6 számú játékos játszhat, akik külön-külön az osztó ellen játszanak, tehát nem egymás ellen.
+A játék előtt a kliensek csatlakoznak a szerverhez. Amint az első kliens csatlakozott, elindul
+egy visszaszámláló. Ha a játékosok száma elérte a maximum limitet vagy a visszaszámláló
+elérte a nullát, a felek megkapják a zsetonjaikat és elindul a játék, amely a következőképpen
+zajlik: körökre bontva játszik az osztó a játékosok ellen, egy kör egy játékbeli leosztásnak felel
+meg. Egy körön belül a játékosok megteszik a tétjeiket, majd az osztó minden játékosnak és
+saját magának oszt 2-2 lapot, a saját lapjai közül csak 1 kerül felfedésre, a kliensek lapjai
+láthatóak lesznek az osztó és egymás számára is, akik ekkor a következő lépések közül
+választhatnak: kérhetnek még lapot vagy megállhatnak. Amint a játékosok lépései lezajlottak,
+az osztó az eddig ismeretlen lapját felfedi, majd a kliensekhez hasonló módon húzhat még lapot
+vagy megállhat. A leosztást a játékos-osztó pár közül az nyeri, akinek a lapjainak összértéke
+közelebb áll a 21-hez, de nem lépi azt túl. Amennyiben az osztó nyer, megkapja a játékos által
+feltett tétet, viszont ha a játékos nyer, visszakapja a tétet, valamint az osztó ezzel megegyező
+számú további zsetont ad a játékosnak. Egyenlőség esetén a játékos visszakapja a tétet. A játék
+akkor ér véget amikor a osztó vagy az összes játékos zsetonjai elfogynak.
+
+
+status:
+0 vár
+1 következik
+2 volt
