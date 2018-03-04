@@ -8,7 +8,7 @@ public class BlackjackClientConnectView extends JFrame{
     private JButton connectButton;
     
     public BlackjackClientConnectView(){
-        this.setTitle("BlackJack");
+        this.setTitle("BlackJack - connect");
         this.setSize(320, 240);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         getContentPane().setLayout(null);
