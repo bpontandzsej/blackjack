@@ -33,6 +33,7 @@ public class BlackjackTable extends Thread{
 
     public void run(){
         System.out.println("elindult a szal");
+        sendToAll("_strt_");
 
         fillMoney();
 
@@ -42,9 +43,9 @@ public class BlackjackTable extends Thread{
             sendStatusToAll(true);
 
             for(Player player : players){
-                player.sendMSG("#bet");
+                player.sendMSG(getStatus(true, "_bet__"));
                 player.setBet(Integer.parseInt(player.getMSG()));
-                //sendStatusToAll(true);
+                sendStatusToAll(true);
             }
             for(Player player : players){
                 player.addCard(deck.takeCard());
@@ -57,8 +58,8 @@ public class BlackjackTable extends Thread{
 
             for(Player player : players){
                 String s = "";
-                while(!s.equals("#stop")){
-                    if(getSum(player.getSum())>21){
+                while(!(s.equals("#stop")) && (getSum(player.getSum())<21)){
+                    /*if(getSum(player.getSum())>21){
                         player.sendMSG("#lose");
                         player.getMSG();
                         break;
@@ -68,8 +69,8 @@ public class BlackjackTable extends Thread{
                             player.getMSG();
                             break;
                         }
-                    }
-                    player.sendMSG("#turn");
+                    }*/
+                    player.sendMSG(getStatus(true, "_turn_"));
                     s = player.getMSG();
                     if(s.equals("#card")){
                         player.addCard(deck.takeCard());
@@ -79,16 +80,16 @@ public class BlackjackTable extends Thread{
 
                 }
                 player.setRealSum(getSum(player.getSum()));
-                //sendStatusToAll(true);
+                sendStatusToAll(true);
             }
             dealer.setRealSum(getSum(dealer.getSum()));
-            //sendStatusToAll(false);
+            sendStatusToAll(false);
             System.out.println(checkAll());
             while(getSum(dealer.getSum())<17 && checkAll()<=0){
                 System.out.println(checkAll());
                 dealer.addCard(deck.takeCard());
                 dealer.setRealSum(getSum(dealer.getSum()));
-                //sendStatusToAll(false);
+                sendStatusToAll(false);
             }
             System.out.println(checkAll());
             for(Player player : players){
@@ -158,36 +159,41 @@ public class BlackjackTable extends Thread{
         dealer.clearCards();
     }
 
-    private String getStatus(boolean hideSecond){
-        String status = "";
-        status += mergeInteger("money", dealer.getMoney());
-        status += mergeString("cards", dealer.cardsToString(hideSecond));
+    private String getStatus(boolean hideSecond, String pre){
+        String status = pre;
+        status += str(dealer.getMoney()) + ";";
+        status += dealer.cardsToString(hideSecond) + ";";
         if(hideSecond){
-            status += mergeString("sum", "0");
-            status += mergeInteger("realsum", 0);
+            status += "0;";
+            status += str(0);
         } else {
-            status += mergeString("sum", dealer.getSum());
-            status += mergeInteger("realsum", dealer.getRealSum());
+            status += dealer.getSum() + ";";
+            status += str(dealer.getRealSum());
         }
-
+        status += "@";
+//dealer: 
 
 
         for(Player player : players){
-            status += "$$$$$" + mergeInteger("id", player.getId());
-            status += mergeString("name", player.getName());
-            status += mergeInteger("status", player.getStatus());
-            status += mergeInteger("money", player.getMoney());
-            status += mergeInteger("bet", player.getBet());
-            status += mergeString("cards", player.cardsToString());
-            status += mergeString("sum", player.getSum());
-            status += mergeInteger("realsum", player.getRealSum());
+            status += str(player.getId()) + ";";
+            status += player.getName()  + ";";
+            status += str(player.getStatus()) + ";";
+            status += str(player.getMoney()) + ";";
+            status += str(player.getBet()) + ";";
+            status += player.cardsToString() + ";";
+            status += player.getSum() + ";";
+            status += str(player.getRealSum()) + "$";
         }
-        return status;
+        return status.substring(0, status.length()-1);
     }
 
     private String mergeInteger(String a, int b){
         return a + "-" + Integer.toString(b) + ";";
 
+    }
+
+    private String str(int s){
+        return Integer.toString(s);
     }
 
     private String mergeString(String a, String b){
@@ -197,7 +203,14 @@ public class BlackjackTable extends Thread{
 
     private void sendStatusToAll(boolean hideSecond){
         for(Player player : players){
-            player.sendMSG(getStatus(hideSecond));
+            player.sendMSG(getStatus(hideSecond, "_stat_"));
+            player.getMSG();
+        }
+    }
+
+    private void sendToAll(String msg){
+        for(Player player : players){
+            player.sendMSG(msg);
             player.getMSG();
         }
     }

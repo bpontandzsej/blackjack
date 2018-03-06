@@ -7,7 +7,9 @@ import java.net.UnknownHostException;
 import java.util.Scanner;
 
 import blackjackclient.BlackjackClientConnect;
+import blackjackclient.BlackjackClientTable;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -21,7 +23,11 @@ public class BlackjackClient extends Application{
     private PrintWriter sender;
     private Scanner receiver;
 
+    private BlackjackClientConnect connectPane;
+    private BlackjackClientTable tablePane;
+
     private Stage stage;
+    private boolean running;
 
     public static void main(String[] args){
         launch();
@@ -33,8 +39,8 @@ public class BlackjackClient extends Application{
             connectToServer();
             stage = primarystage;
             stage.setTitle("Blackjack - Connect");
-
-            BlackjackClientConnect connectPane = new BlackjackClientConnect();
+            stage.setResizable(false);
+            connectPane = new BlackjackClientConnect();
             connectPane.getConnecButton().setOnAction(new EventHandler<ActionEvent>(){
                 @Override
                 public void handle(ActionEvent event) {
@@ -56,7 +62,15 @@ public class BlackjackClient extends Application{
         clientSocket = new Socket("localhost", 1234);
         sender = new PrintWriter(clientSocket.getOutputStream(), true);
         receiver = new Scanner(clientSocket.getInputStream());
-               
+        running = true;
+        Thread inputChecker = new Thread(){
+            public void run(){
+                while(running){
+                    inbox(getMSG());
+                }
+            }
+        };
+        inputChecker.start();
     }
 
     private void sendMSG(String msg){
@@ -66,5 +80,66 @@ public class BlackjackClient extends Application{
     private String getMSG(){
         return receiver.nextLine();
     }
+
+    private void inbox(String msg){
+        System.out.println(msg);
+        //connectPane.setWaitingText();
+        switch(msg.substring(0, 6)){
+            case "_strt_":
+                //need to generate the gui
+                Platform.runLater(new Runnable(){
+                    @Override
+                    public void run() {
+                        createBlankTableScene();
+                    }
+                });
+                sendMSG("");
+                
+                
+            break;
+            case "_stat_":
+                Platform.runLater(new Runnable(){
+                    @Override
+                    public void run() {
+                        createTableScene(msg.substring(6));
+                    }
+                });
+                sendMSG("");
+            break;
+            case "_bet__":
+                Platform.runLater(new Runnable(){
+                    @Override
+                    public void run() {
+                        createTableScene(msg.substring(6));
+                    }
+                });
+            break;
+            case "_turn_":
+                Platform.runLater(new Runnable(){
+                    @Override
+                    public void run() {
+                        createTableScene(msg.substring(6));
+                    }
+                });
+            break;
+            case "_chat_":
+
+            break;
+        }
+    }
+
+    private void createBlankTableScene(){
+        Pane pane = new Pane();
+        Scene scene = new Scene(pane, 1100, 500);
+        stage.setScene(scene);
+    }
+
+    private void createTableScene(String state){
+        tablePane = new BlackjackClientTable(state);
+        Scene scene = new Scene(tablePane, 1100, 500);
+        stage.setScene(scene);
+    }
+
+
 
 }
