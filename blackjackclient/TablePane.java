@@ -11,10 +11,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import java.lang.Object;
 
-public class BlackjackClientTable extends Pane{
+public class TablePane extends Pane{
     private Pane chatPane;
 
-    public BlackjackClientTable(String state){
+    public TablePane(String state){
         /*String [] blocks = state.split("$");
         GridPane chat = new GridPane();
         chat.setPrefSize(200, 200);

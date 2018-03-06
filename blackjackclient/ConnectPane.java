@@ -7,12 +7,12 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 
-public class BlackjackClientConnect extends GridPane{
+public class ConnectPane extends GridPane{
     private TextField nicknameInput;
     private Button connectButton;
     private Text connectingText;
 
-    public BlackjackClientConnect(){
+    public ConnectPane(){
         setAlignment(Pos.CENTER);
 
         Label nickname = new Label("Nickname: ");

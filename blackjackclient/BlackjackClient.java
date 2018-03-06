@@ -6,8 +6,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
-import blackjackclient.BlackjackClientConnect;
-import blackjackclient.BlackjackClientTable;
+import blackjackclient.ConnectPane;
+import blackjackclient.TablePane;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -23,8 +23,8 @@ public class BlackjackClient extends Application{
     private PrintWriter sender;
     private Scanner receiver;
 
-    private BlackjackClientConnect connectPane;
-    private BlackjackClientTable tablePane;
+    private ConnectPane connectPane;
+    private TablePane tablePane;
 
     private Stage stage;
     private boolean running;
@@ -40,7 +40,7 @@ public class BlackjackClient extends Application{
             stage = primarystage;
             stage.setTitle("Blackjack - Connect");
             stage.setResizable(false);
-            connectPane = new BlackjackClientConnect();
+            connectPane = new ConnectPane();
             connectPane.getConnecButton().setOnAction(new EventHandler<ActionEvent>(){
                 @Override
                 public void handle(ActionEvent event) {
@@ -125,6 +125,9 @@ public class BlackjackClient extends Application{
             case "_chat_":
 
             break;
+            case "_bye__":
+
+            break;
         }
     }
 
@@ -135,7 +138,7 @@ public class BlackjackClient extends Application{
     }
 
     private void createTableScene(String state){
-        tablePane = new BlackjackClientTable(state);
+        tablePane = new TablePane(state);
         Scene scene = new Scene(tablePane, 1100, 500);
         stage.setScene(scene);
     }

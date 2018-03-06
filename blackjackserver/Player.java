@@ -62,6 +62,9 @@ public class Player extends Person{
 
     public int getStatus(){
         return this.status;
-    }    
-    
+    }
+
+    public void sayBye(){
+        sendMSG("_bye__");
+    }
 }
