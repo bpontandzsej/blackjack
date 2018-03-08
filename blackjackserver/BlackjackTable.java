@@ -182,7 +182,7 @@ public class BlackjackTable extends Thread{
             status += str(player.getBet()) + ";";
             status += player.cardsToString() + ";";
             status += player.getSum() + ";";
-            status += str(player.getRealSum()) + "$";
+            status += str(player.getRealSum()) + "#";
         }
         return status.substring(0, status.length()-1);
     }

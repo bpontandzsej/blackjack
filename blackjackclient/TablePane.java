@@ -10,6 +10,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import java.lang.Object;
+import blackjackclient.CardPane;;
 
 public class TablePane extends Pane{
     private Pane chatPane;
@@ -54,12 +55,14 @@ public class TablePane extends Pane{
         //players
         //add(, 1, 1);*/
 
+        String[] dealerAndPlayers = state.split("@");
+
 
 
         getChildren().add(createChatPane());
         getChildren().add(createBetPane());
-        getChildren().add(createDealerPane());
-        getChildren().add(createPlayersPane());
+        getChildren().add(createDealerPane(dealerAndPlayers[0]));
+        getChildren().add(createPlayersPane(dealerAndPlayers[1]));
     }
 
     private Pane createChatPane(){
@@ -98,7 +101,7 @@ public class TablePane extends Pane{
         return null;
     }
 
-    private Pane createDealerPane(){
+    private Pane createDealerPane(String dealerState){
         Pane dealerPane = new Pane();
         setSize(dealerPane, 200, 200);
         dealerPane.setStyle("-fx-background-color: red;");
@@ -107,13 +110,56 @@ public class TablePane extends Pane{
         return dealerPane;
     }
 
-    private Pane createPlayersPane(){
+    private Pane createPlayersPane(String playersState){
         Pane playersPane = new Pane();
+        String[] players = playersState.split("#");
+        System.out.println(players[0]);
+        int i;
+        for(i=0; i<players.length; i++){
+            Pane player = createPlayer(players[i]);
+            player.relocate(i*150, 0);
+            playersPane.getChildren().add(player);
+        }
+        for(int j = i; j<6; j++){
+            Pane blankPane = new Pane();
+            setSize(blankPane, 150, 300);
+            blankPane.relocate(i*150, 0);
+            playersPane.getChildren().add(blankPane);
+        }
+        
+
         setSize(playersPane, 900, 300);
         playersPane.setStyle("-fx-background-color: yellow;");
         playersPane.relocate(200, 200);
 
         return playersPane;
+    }
+
+    private Pane createPlayer(String player){
+        String[] data = player.split(";");
+        System.out.println(data);
+        Pane playerPane = new Pane();
+        setSize(playerPane, 150, 300);
+        Label bet = new Label(data[4]);
+        setSize(bet, 150, 25);
+        bet.relocate(0, 0);
+
+        Label name = new Label("[" + data[0] + "]" + data[1]);
+        setSize(name, 150, 25);
+        name.relocate(0, 25);
+
+        Label money = new Label(data[3]);
+        setSize(money, 150, 25);
+        money.relocate(0, 50);
+
+        Label sum = new Label(data[6]);
+        setSize(sum, 150, 25);
+        sum.relocate(0, 75);
+
+        playerPane.getChildren().addAll(bet, name, money, sum);
+
+
+        return playerPane;
     }
 
     private void setSize(javafx.scene.layout.Region obj, int width, int height){
