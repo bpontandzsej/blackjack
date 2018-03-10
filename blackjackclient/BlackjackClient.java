@@ -41,7 +41,7 @@ public class BlackjackClient extends Application{
             stage.setTitle("Blackjack - Connect");
             stage.setResizable(false);
             connectPane = new ConnectPane();
-            connectPane.getConnecButton().setOnAction(new EventHandler<ActionEvent>(){
+            connectPane.getConnectButton().setOnAction(new EventHandler<ActionEvent>(){
                 @Override
                 public void handle(ActionEvent event) {
                     connectPane.setWaitingText();
@@ -101,7 +101,7 @@ public class BlackjackClient extends Application{
                 Platform.runLater(new Runnable(){
                     @Override
                     public void run() {
-                        createTableScene(msg.substring(6));
+                        createTableScene(msg.substring(6), "");
                     }
                 });
                 sendMSG("");
@@ -110,7 +110,7 @@ public class BlackjackClient extends Application{
                 Platform.runLater(new Runnable(){
                     @Override
                     public void run() {
-                        createTableScene(msg.substring(6));
+                        createTableScene(msg.substring(6), "bet");
                     }
                 });
             break;
@@ -118,7 +118,7 @@ public class BlackjackClient extends Application{
                 Platform.runLater(new Runnable(){
                     @Override
                     public void run() {
-                        createTableScene(msg.substring(6));
+                        createTableScene(msg.substring(6), "turn");
                     }
                 });
             break;
@@ -137,8 +137,35 @@ public class BlackjackClient extends Application{
         stage.setScene(scene);
     }
 
-    private void createTableScene(String state){
-        tablePane = new TablePane(state);
+    private void createTableScene(String state, String whichPane){
+        tablePane = new TablePane(state, whichPane);
+        switch(whichPane){
+            case "bet":
+                tablePane.getBetButton().setOnAction(new EventHandler<ActionEvent>(){
+                    @Override
+                    public void handle(ActionEvent event) {
+                        sendMSG(tablePane.getBet());    
+                    }
+                });
+            break;
+
+            case "turn":
+                tablePane.getCardButton().setOnAction(new EventHandler<ActionEvent>(){
+                    @Override
+                    public void handle(ActionEvent event) {
+                        sendMSG("#card");    
+                    }
+                });
+                tablePane.getStopButton().setOnAction(new EventHandler<ActionEvent>(){
+                    @Override
+                    public void handle(ActionEvent event) {
+                        sendMSG("#stop");    
+                    }
+                });
+            break;
+        }
+
+
         Scene scene = new Scene(tablePane, 1100, 500);
         stage.setScene(scene);
     }

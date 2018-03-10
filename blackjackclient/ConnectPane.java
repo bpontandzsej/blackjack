@@ -28,7 +28,7 @@ public class ConnectPane extends GridPane{
         add(connectingText, 1, 1, 2, 1);
     }
 
-    public Button getConnecButton(){
+    public Button getConnectButton(){
         return connectButton;
     }
 

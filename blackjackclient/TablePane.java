@@ -14,55 +14,35 @@ import blackjackclient.CardPane;;
 
 public class TablePane extends Pane{
     private Pane chatPane;
+    private TextField betInput;
+    private Button sendBet;
+    private Button cardBTN;
+    private Button stopBTN;
 
-    public TablePane(String state){
-        /*String [] blocks = state.split("$");
-        GridPane chat = new GridPane();
-        chat.setPrefSize(200, 200);
-        Text messages = new Text("fdfdsfsf\ngdgggsgs\ngdfgdg");
-        chat.add(messages, 0, 0, 2, 1);
-        TextField input = new TextField();
-        chat.add(input, 0, 1);
-        Button send = new Button("Send");
-        send.setPrefSize(50, 20);
-        chat.add(send, 1, 1);
-        
-
-        //chat
-        add(chat, 0, 0);
-
-        String [] dealerBlocks = blocks[0].split(";");
-        BorderPane dealer = new BorderPane();
-        dealer.setPrefSize(900, 200);
-        Text dealerName = new Text(dealerBlocks[0]);
-        dealer.setTop(dealerName);
-
-        Text cards = new Text(dealerBlocks[1]);
-        dealer.setCenter(cards);
-
-        Text dealerMoney = new Text(dealerBlocks[2]);
-        dealer.setBottom(dealerMoney);
-
-
-
-
-        //dealer
-        add(dealer, 1, 0);
-
-        //action panel
-        add(, 0, 1);
-
-        //players
-        //add(, 1, 1);*/
-
+    public TablePane(String state, String whichPane){
         String[] dealerAndPlayers = state.split("@");
 
-
-
         getChildren().add(createChatPane());
-        getChildren().add(createBetPane());
+        switch(whichPane){
+            case "bet":
+                getChildren().add(createBetPane());
+            break;
+
+            case "turn":
+            getChildren().add(createTurnPane());
+            break;
+        }
+        
         getChildren().add(createDealerPane(dealerAndPlayers[0]));
         getChildren().add(createPlayersPane(dealerAndPlayers[1]));
+        if(state.indexOf("x:x") == -1){
+            try{
+                Thread.sleep(1000);
+            } catch(Exception e){
+
+            }
+            
+        }
     }
 
     private Pane createChatPane(){
@@ -71,7 +51,7 @@ public class TablePane extends Pane{
         chatPane.setStyle("-fx-background-color: green;");
         chatPane.relocate(0, 0);
         
-        Text messages = new Text("-Chat chat chat\n-Megfogtad a kilin\n-Chat chat chat");
+        Text messages = new Text("");
         messages.relocate(0, 0);
 
         TextField input = new TextField();
@@ -90,22 +70,74 @@ public class TablePane extends Pane{
 
     private Pane createBetPane(){
         Pane betPane = new Pane();
-        setSize(betPane, 900, 200);
+        setSize(betPane, 200, 200);
         betPane.setStyle("-fx-background-color: blue;");
-        betPane.relocate(200, 0);
+        betPane.relocate(0, 300);
+
+        betInput = new TextField();
+        setSize(betInput, 150, 30);
+        betInput.relocate(0, 0);
+
+        sendBet = new Button("Send");
+        setSize(sendBet, 50, 30);
+        sendBet.relocate(150, 50);
+
+        betPane.getChildren().addAll(betInput, sendBet);
 
         return betPane;
     }
 
+    public String getBet(){
+        return betInput.getText();
+    }
+
+    public Button getBetButton(){
+        return sendBet;
+    }
+
     private Pane createTurnPane(){
-        return null;
+        Pane turnPane = new Pane();
+        setSize(turnPane, 200, 200);
+        turnPane.setStyle("-fx-background-color: brown;");
+        turnPane.relocate(0, 300);
+
+        cardBTN = new Button("Card");
+        setSize(cardBTN, 50, 30);
+        cardBTN.relocate(0, 0);
+
+        stopBTN = new Button("Stop");
+        setSize(stopBTN, 50, 30);
+        stopBTN.relocate(0, 50);
+
+        turnPane.getChildren().addAll(cardBTN, stopBTN);
+
+        return turnPane;
+    }
+
+    public Button getCardButton(){
+        return cardBTN;
+    }
+    
+    public Button getStopButton(){
+        return stopBTN;
     }
 
     private Pane createDealerPane(String dealerState){
+        String[] data = dealerState.split(";");
         Pane dealerPane = new Pane();
-        setSize(dealerPane, 200, 200);
+        setSize(dealerPane, 900, 200);
         dealerPane.setStyle("-fx-background-color: red;");
-        dealerPane.relocate(0, 300);
+        dealerPane.relocate(200, 0);
+
+        Label sum = new Label(data[3]);
+        setSize(sum, 150, 25);
+        sum.relocate(0, 0);
+
+        Label cards = new Label(data[1]);
+        setSize(cards, 150, 25);
+        cards.relocate(0, 25);
+
+        dealerPane.getChildren().addAll(cards, sum);
 
         return dealerPane;
     }
@@ -113,7 +145,6 @@ public class TablePane extends Pane{
     private Pane createPlayersPane(String playersState){
         Pane playersPane = new Pane();
         String[] players = playersState.split("#");
-        System.out.println(players[0]);
         int i;
         for(i=0; i<players.length; i++){
             Pane player = createPlayer(players[i]);
@@ -137,7 +168,6 @@ public class TablePane extends Pane{
 
     private Pane createPlayer(String player){
         String[] data = player.split(";");
-        System.out.println(data);
         Pane playerPane = new Pane();
         setSize(playerPane, 150, 300);
         Label bet = new Label(data[4]);
@@ -156,7 +186,11 @@ public class TablePane extends Pane{
         setSize(sum, 150, 25);
         sum.relocate(0, 75);
 
-        playerPane.getChildren().addAll(bet, name, money, sum);
+        Label cards = new Label(data[5]);
+        setSize(cards, 150, 25);
+        cards.relocate(0, 100);
+
+        playerPane.getChildren().addAll(bet, name, money, sum, cards);
 
 
         return playerPane;
