@@ -18,9 +18,3 @@ közelebb áll a 21-hez, de nem lépi azt túl. Amennyiben az osztó nyer, megka
 feltett tétet, viszont ha a játékos nyer, visszakapja a tétet, valamint az osztó ezzel megegyező
 számú további zsetont ad a játékosnak. Egyenlőség esetén a játékos visszakapja a tétet. A játék
 akkor ér véget amikor a osztó vagy az összes játékos zsetonjai elfogynak.
-
-
-status:
-0 vár
-1 következik
-2 volt

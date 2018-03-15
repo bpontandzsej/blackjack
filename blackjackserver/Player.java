@@ -28,6 +28,7 @@ public class Player extends Person{
          * GET NAME from the CLIENT except of the DEALER
          */
         this.name = getMSG();
+        //sendMSG(Integer.toString(id));
         System.out.println(name);        
     }
 

@@ -26,6 +26,10 @@ public class BlackjackTable extends Thread{
                 System.out.print("Nem sikerult a kommunikacio megteremtese a klienssel");
             }
         }
+        for(Player player : players){
+            player.sendMSG("_id___" + Integer.toString(player.getId()));
+            player.getMSG();
+        }
         dealer = new Dealer();
         startMoney = Integer.parseInt(serverProperties.getProperty("startmoney"));
         System.out.println("letrejott a szal");
@@ -57,28 +61,26 @@ public class BlackjackTable extends Thread{
             sendStatusToAll(true);
 
             for(Player player : players){
+                player.setStatus(1);
+                sendStatusToAll(true);
                 String s = "";
                 while(!(s.equals("#stop")) && (getSum(player.getSum())<21)){
-                    /*if(getSum(player.getSum())>21){
-                        player.sendMSG("#lose");
-                        player.getMSG();
-                        break;
-                    } else {
-                        if(getSum(player.getSum())==21) {
-                            player.sendMSG("#blackjack");
-                            player.getMSG();
-                            break;
-                        }
-                    }*/
                     player.sendMSG(getStatus(true, "_turn_"));
                     s = player.getMSG();
                     if(s.equals("#card")){
                         player.addCard(deck.takeCard());
-                    }
+                    } /*else {
+
+                        if(s.substring(0, 6).equals("_chat_")){
+                            sendToAll(s);
+                        }
+                    }*/
 
                     sendStatusToAll(true);
 
                 }
+                
+                player.setStatus(2);
                 player.setRealSum(getSum(player.getSum()));
                 sendStatusToAll(true);
             }
@@ -265,18 +267,3 @@ public class BlackjackTable extends Thread{
         return sumAll;
     }
 }
-
-
-/**
- * 
- * zsetonok kiosztása+
- * kör kezdete+
- * tétek megtétele+
- * 2 lap osztása mindenkinek+
- * még/elég kérdezése mindent játékostól+
- * új lap, amíg még kér+
- * osztó helyzetkiértékelés
- * új lap az osztónak, amíg vesztes helyzet és <17
- * ha van még játékos és az osztónak van pénze: goto kör kezdete
- * 
- */
