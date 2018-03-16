@@ -36,7 +36,6 @@ public class Person{
 
     public String getSum(){
         String s = "";
-        //ArrayList<Integer> sum = new ArrayList<Integer>();
         int[] sum = new int[8];
         sum[0] = 0;
         int n = 1;
@@ -65,10 +64,13 @@ public class Person{
                 n = n*2;
             }
         }
-        for(int i = 0; i<n; i++){
-            //if(sum[i] <= 21){
+        for(int i = 0; i<sum.length; i++){
+            if(sum[i] <= 21){
                 s += Integer.toString(sum[i]) + "/";
-            //}
+            }
+        }
+        if(s.length() == 0){
+            s+= Integer.toString(sum[sum.length-1]);
         }
 
         return s.substring(0, s.length()-1);

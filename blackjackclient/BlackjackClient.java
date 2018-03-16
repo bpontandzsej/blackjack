@@ -100,7 +100,6 @@ public class BlackjackClient extends Application{
                 sendMSG("");
             break;
             case "_strt_":
-                //need to generate the gui
                 Platform.runLater(new Runnable(){
                     @Override
                     public void run() {

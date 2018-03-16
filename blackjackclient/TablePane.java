@@ -10,6 +10,8 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
@@ -20,6 +22,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import sun.security.ssl.SSLContextImpl.TLS10Context;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.lang.Object;
 import java.util.ArrayList;
 import javafx.beans.value.ChangeListener;
@@ -194,10 +198,31 @@ public class TablePane extends Pane{
         dealerPane.setStyle("-fx-background-color: red;");
         dealerPane.relocate(200, 0);
 
+        HBox moneyPane = new HBox(5);
+        setSize(moneyPane, 900, 25);
+        moneyPane.relocate(0, 25);
+        moneyPane.setAlignment(Pos.CENTER);
+
+        ImageView moneyIcon = new ImageView(new Image("/blackjackclient/media/money.png"));
+        moneyIcon.setFitHeight(25); 
+        moneyIcon.setFitWidth(25);
+
+        Label money = new Label(data[0]);
+
+        moneyPane.getChildren().addAll(moneyIcon, money);
+
+        HBox sumPane = new HBox(5);
+        setSize(sumPane, 900, 25);
+        sumPane.relocate(0, 150);
+        sumPane.setAlignment(Pos.CENTER);
+
+        ImageView sumIcon = new ImageView(new Image("/blackjackclient/media/sum.png"));
+        sumIcon.setFitHeight(25); 
+        sumIcon.setFitWidth(25);
+
         Label sum = new Label(data[3]);
-        setSize(sum, 900, 25);
-        sum.relocate(0, 150);
-        sum.setAlignment(Pos.CENTER);
+
+        sumPane.getChildren().addAll(sumIcon, sum);
 
         HBox cardsPane = new HBox(5);
         cardsPane.setAlignment(Pos.CENTER);
@@ -207,7 +232,7 @@ public class TablePane extends Pane{
             createCardsPane(cardsPane, data[1]);
         }
 
-        dealerPane.getChildren().addAll(cardsPane, sum);
+        dealerPane.getChildren().addAll(moneyPane, cardsPane, sumPane);
 
         return dealerPane;
     }
@@ -239,25 +264,51 @@ public class TablePane extends Pane{
         String[] data = player.split(";");
         Pane playerPane = new Pane();
         setSize(playerPane, 150, 300);
-        Label bet = new Label(data[4]);
-        setSize(bet, 150, 25);
-        bet.relocate(0, 0);
-        bet.setAlignment(Pos.CENTER);
 
-        Label name = new Label("[" + data[0] + "]" + data[1]);
+        HBox betPane = new HBox(5);
+        setSize(betPane, 150, 25);
+        betPane.relocate(0, 0);
+        betPane.setAlignment(Pos.CENTER);
+
+        ImageView tokenIcon = new ImageView(new Image("/blackjackclient/media/token.png"));
+        tokenIcon.setFitHeight(25); 
+        tokenIcon.setFitWidth(25);
+
+        Label bet = new Label(data[4]);
+
+        betPane.getChildren().addAll(tokenIcon, bet);
+
+        Label name = new Label("[" + Integer.toString(Integer.parseInt(data[0])+1) + "] " + data[1]);
         setSize(name, 150, 25);
         name.relocate(0, 25);
         name.setAlignment(Pos.CENTER);
 
+        HBox moneyPane = new HBox(5);
+        setSize(moneyPane, 150, 25);
+        moneyPane.relocate(0, 50);
+        moneyPane.setAlignment(Pos.CENTER);
+
+        ImageView moneyIcon = new ImageView(new Image("/blackjackclient/media/money.png"));
+        moneyIcon.setFitHeight(25); 
+        moneyIcon.setFitWidth(25);
+
         Label money = new Label(data[3]);
-        setSize(money, 150, 25);
-        money.relocate(0, 50);
-        money.setAlignment(Pos.CENTER);
+
+        moneyPane.getChildren().addAll(moneyIcon, money);
+
+        HBox sumPane = new HBox(5);
+        setSize(sumPane, 150, 25);
+        sumPane.relocate(0, 75);
+        sumPane.setAlignment(Pos.CENTER);
+
+        ImageView sumIcon = new ImageView(new Image("/blackjackclient/media/sum.png"));
+        sumIcon.setFitHeight(25); 
+        sumIcon.setFitWidth(25);
 
         Label sum = new Label(data[6]);
-        setSize(sum, 150, 25);
-        sum.relocate(0, 75);
-        sum.setAlignment(Pos.CENTER);
+
+        sumPane.getChildren().addAll(sumIcon, sum);
+        
 
         VBox cardsPane = new VBox(5);
         cardsPane.setMinWidth(150);
@@ -267,17 +318,17 @@ public class TablePane extends Pane{
         if(data[5].length()>0){
             createCardsPane(cardsPane, data[5]);
         }
-        ScrollPane cp = new ScrollPane(cardsPane);
-        cp.setHbarPolicy(ScrollBarPolicy.NEVER);
-        cp.setVbarPolicy(ScrollBarPolicy.NEVER);
-        setSize(cp, 150, 200);
-        cp.relocate(0, 100);
+        ScrollPane scrollCardsPane = new ScrollPane(cardsPane);
+        scrollCardsPane.setHbarPolicy(ScrollBarPolicy.NEVER);
+        scrollCardsPane.setVbarPolicy(ScrollBarPolicy.NEVER);
+        setSize(scrollCardsPane, 150, 200);
+        scrollCardsPane.relocate(0, 100);
         
 
         if(myId.equals(data[0])){
             name.setStyle("-fx-background-color: gray;");
         }
-        playerPane.getChildren().addAll(bet, name, money, sum, cp);
+        playerPane.getChildren().addAll(betPane, name, moneyPane, sumPane, scrollCardsPane);
         
         switch(data[2]){
             case "0":
@@ -316,6 +367,7 @@ public class TablePane extends Pane{
         cardPane.setStyle("-fx-background-color: orange;");
         String[] card = cardString.split(":");
         setSize(cardPane, 50, 70);
+        
         if(!cardString.equals("x:x")){
             String number = "";
             if(Integer.parseInt(card[1])>1 && Integer.parseInt(card[1])<11){
@@ -339,24 +391,26 @@ public class TablePane extends Pane{
             Label tl = new Label(number);
             Label br = new Label(number);
     
-            String color = "";
+            Image color = null;
     
             switch(card[0]){
-                case "h":
-                    color = new String(new int[] { 0x2660 }, 0, 1);
+                case "h":                 
+                    color = new Image("/blackjackclient/media/hearts.png");
                 break;
                 case "s":
-                    color = new String(new int[] { 0x2665 }, 0, 1);
+                    color = new Image("/blackjackclient/media/spades.png");
                 break;
                 case "d":
-                    color = new String(new int[] { 0x2666 }, 0, 1);
+                    color = new Image("/blackjackclient/media/diamonds.png");
                 break;
                 case "c":
-                    color = new String(new int[] { 0x2663 }, 0, 1);
+                    color = new Image("/blackjackclient/media/clubs.png");
                 break;
             }
     
-            Label c = new Label(color);
+            ImageView c = new ImageView(color);
+            c.setFitHeight(25); 
+            c.setFitWidth(25); 
             
             cardPane.setTop(tl);
             cardPane.setCenter(c);

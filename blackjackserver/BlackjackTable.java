@@ -55,6 +55,7 @@ public class BlackjackTable extends Thread{
                 player.addCard(deck.takeCard());
                 player.addCard(deck.takeCard());
                 player.setStatus(0);
+                player.setRealSum(getSum(player.getSum()));
             }
             dealer.addCard(deck.takeCard());
             dealer.addCard(deck.takeCard());
@@ -75,7 +76,7 @@ public class BlackjackTable extends Thread{
                             sendToAll(s);
                         }
                     }*/
-
+                    player.setRealSum(getSum(player.getSum()));
                     sendStatusToAll(true);
 
                 }
@@ -87,11 +88,13 @@ public class BlackjackTable extends Thread{
             dealer.setRealSum(getSum(dealer.getSum()));
             sendStatusToAll(false);
             System.out.println(checkAll());
+            wait(2);
             while(getSum(dealer.getSum())<17 && checkAll()<=0){
                 System.out.println(checkAll());
                 dealer.addCard(deck.takeCard());
                 dealer.setRealSum(getSum(dealer.getSum()));
                 sendStatusToAll(false);
+                wait(2);
             }
             System.out.println(checkAll());
             for(Player player : players){
@@ -116,13 +119,13 @@ public class BlackjackTable extends Thread{
                 }
             }
             sendStatusToAll(false);
+            wait(2);
             for(Player player : new ArrayList<Player>(players)){
                 if(player.getMoney()<=0){
                     player.sayBye();
                     players.remove(player);
                 }
-            }
-            
+            }            
         }
 
 
@@ -130,6 +133,14 @@ public class BlackjackTable extends Thread{
             player.sendMSG("#byebye");
         }
         System.out.println("lelepett mindenki");
+    }
+
+    private void wait(int seconds){
+        try{
+            Thread.sleep(seconds*1000);
+        } catch(InterruptedException e){
+
+        }
     }
 
     /**
@@ -173,8 +184,6 @@ public class BlackjackTable extends Thread{
             status += str(dealer.getRealSum());
         }
         status += "@";
-//dealer: 
-
 
         for(Player player : players){
             status += str(player.getId()) + ";";
