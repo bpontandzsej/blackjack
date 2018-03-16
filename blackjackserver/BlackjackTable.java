@@ -8,14 +8,14 @@ import blackjackserver.Dealer;
 import blackjackserver.Deck;
 
 public class BlackjackTable extends Thread{
-    private final int id;
+    //private final int id;
     private ArrayList<Player> players;
     private Dealer dealer;
     private final int startMoney;
     private Deck deck;
 
     public BlackjackTable(int id, ArrayList<Socket> sockets, Properties serverProperties/*Properties tableProperties*/){
-        this.id = id;
+        //this.id = id;
         players = new ArrayList<Player>();
         int playerId = 0;
         for(Socket socket : sockets){
@@ -198,19 +198,17 @@ public class BlackjackTable extends Thread{
         return status.substring(0, status.length()-1);
     }
 
-    private String mergeInteger(String a, int b){
+    /*private String mergeInteger(String a, int b){
         return a + "-" + Integer.toString(b) + ";";
-
-    }
+    }*/
 
     private String str(int s){
         return Integer.toString(s);
     }
 
-    private String mergeString(String a, String b){
+    /*private String mergeString(String a, String b){
         return a + "-" + b + ";";
-
-    }
+    }*/
 
     private void sendStatusToAll(boolean hideSecond){
         for(Player player : players){

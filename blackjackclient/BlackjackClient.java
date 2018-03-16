@@ -32,10 +32,10 @@ public class BlackjackClient extends Application{
 
     static ArrayList<String> chatArray;
 
-    private String myName;
+    //private String myName;
     private String myId;
 
-    private String lastState;
+    //private String lastState;
 
     public static void main(String[] args){
         launch();
