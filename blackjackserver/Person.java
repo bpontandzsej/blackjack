@@ -35,42 +35,46 @@ public class Person{
     }
 
     public String getSum(){
-        String s = "";
-        int[] sum = new int[8];
-        sum[0] = 0;
-        int n = 1;
+        ArrayList<Integer> sums = new ArrayList<Integer>();
+        sums.add(0);
         for(Card c : cards){
             int number = c.getNumber();
             if(number != 1){
-                for(int i = 0; i<n; i++){
-                    if(number > 10){
-                        sum[i] += 10;
-                    } else {
-                        sum[i] += number;
-                    }
-
+                int plus;
+                if(number > 10){
+                    plus = 10;
+                } else {
+                    plus = number;
+                }
+                for(int i=0; i<sums.size(); i++){
+                    sums.set(i, sums.get(i)+plus);
                 }
             } else {
-                for(int i = 0; i<n; i++){
-                    sum[i+n] = sum[i];
+                ArrayList<Integer> copy = new ArrayList<Integer>(sums);
+                for(int i=0; i<sums.size(); i++){
+                    sums.set(i, sums.get(i)+11);
                 }
-                for(int i = 0; i<n*2; i++){
-                    if(i<n){
-                        sum[i] += 11;
-                    } else {
-                        sum[i] += 1;
-                    }
+                for(int i=0; i<copy.size(); i++){
+                    copy.set(i, copy.get(i)+1);
                 }
-                n = n*2;
+                sums.addAll(copy);
             }
         }
-        for(int i = 0; i<sum.length; i++){
-            if(sum[i] <= 21){
-                s += Integer.toString(sum[i]) + "/";
+        Collections.sort(sums);
+        Collections.reverse(sums);
+        String s = "";
+        for(Integer sum : sums){
+            if(sum<=21){
+                s += Integer.toString(sum) + "/";
             }
         }
         if(s.length() == 0){
-            s+= Integer.toString(sum[sum.length-1]);
+            int def = sums.get(0);
+            for(Integer sum : sums){
+                if(def>sum) def = sum;
+
+            }
+            s += Integer.toString(def) + "/";
         }
 
         return s.substring(0, s.length()-1);

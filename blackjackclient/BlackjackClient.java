@@ -55,7 +55,7 @@ public class BlackjackClient extends Application{
                 public void handle(ActionEvent event) {
                     connectPane.setWaitingText();
                     sendMSG(connectPane.getNicknameInput());
-                    myName = connectPane.getNicknameInput();
+                    //myName = connectPane.getNicknameInput();
                     //myId = getMSG();
                 }
             });
@@ -107,7 +107,7 @@ public class BlackjackClient extends Application{
                     }
                 });
                 sendMSG("");
-                lastState = msg;
+                //lastState = msg;
                 
             break;
             case "_stat_":
@@ -118,7 +118,7 @@ public class BlackjackClient extends Application{
                     }
                 });
                 sendMSG("");
-                lastState = msg;
+                //lastState = msg;
             break;
             case "_bet__":
                 Platform.runLater(new Runnable(){
@@ -127,7 +127,7 @@ public class BlackjackClient extends Application{
                         createTableScene(msg.substring(6), "bet", chatArray);
                     }
                 });
-                lastState = msg;
+                //lastState = msg;
             break;
             case "_turn_":
                 Platform.runLater(new Runnable(){
@@ -136,7 +136,7 @@ public class BlackjackClient extends Application{
                         createTableScene(msg.substring(6), "turn", chatArray);
                     }
                 });
-                lastState = msg;
+                //lastState = msg;
             break;
             /*case "_chat_": 
                 chatArray.add(msg.substring(6));

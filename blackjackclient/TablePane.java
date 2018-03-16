@@ -212,24 +212,33 @@ public class TablePane extends Pane{
         moneyPane.getChildren().addAll(moneyIcon, money);
 
         HBox sumPane = new HBox(5);
-        setSize(sumPane, 900, 25);
-        sumPane.relocate(0, 150);
-        sumPane.setAlignment(Pos.CENTER);
+        if(!data[3].equals("0")){
+            setSize(sumPane, 900, 25);
+            sumPane.relocate(0, 150);
+            sumPane.setAlignment(Pos.CENTER);
 
-        ImageView sumIcon = new ImageView(new Image("/blackjackclient/media/sum.png"));
-        sumIcon.setFitHeight(25); 
-        sumIcon.setFitWidth(25);
+            ImageView sumIcon = new ImageView(new Image("/blackjackclient/media/sum.png"));
+            sumIcon.setFitHeight(25); 
+            sumIcon.setFitWidth(25);
 
-        Label sum = new Label(data[3]);
+            Label sum = new Label();
+            if(data[3].equals("21")){
+                sum.setText("BLACKJACK");
+            } else {
+                sum.setText(data[3]);
+                
+            }
 
-        sumPane.getChildren().addAll(sumIcon, sum);
+            sumPane.getChildren().addAll(sumIcon, sum);
+        }
+        
 
         HBox cardsPane = new HBox(5);
         cardsPane.setAlignment(Pos.CENTER);
         setSize(cardsPane, 900, 100);
         cardsPane.relocate(0, 50);
         if(data[1].length()>0){
-            createCardsPane(cardsPane, data[1]);
+            createCardsPane(cardsPane, data[1], false);
         }
 
         dealerPane.getChildren().addAll(moneyPane, cardsPane, sumPane);
@@ -265,9 +274,22 @@ public class TablePane extends Pane{
         Pane playerPane = new Pane();
         setSize(playerPane, 150, 300);
 
+        HBox nextPane = new HBox();
+        setSize(nextPane, 150, 25);
+        nextPane.relocate(0, 0);
+        nextPane.setAlignment(Pos.CENTER);
+
+        if(data[2].equals("1")){
+            ImageView nextIcon = new ImageView(new Image("/blackjackclient/media/next.png"));
+            nextIcon.setFitHeight(25); 
+            nextIcon.setFitWidth(25);
+
+            nextPane.getChildren().add(nextIcon);
+        }        
+
         HBox betPane = new HBox(5);
         setSize(betPane, 150, 25);
-        betPane.relocate(0, 0);
+        betPane.relocate(0, 25);
         betPane.setAlignment(Pos.CENTER);
 
         ImageView tokenIcon = new ImageView(new Image("/blackjackclient/media/token.png"));
@@ -280,12 +302,12 @@ public class TablePane extends Pane{
 
         Label name = new Label("[" + Integer.toString(Integer.parseInt(data[0])+1) + "] " + data[1]);
         setSize(name, 150, 25);
-        name.relocate(0, 25);
+        name.relocate(0, 50);
         name.setAlignment(Pos.CENTER);
 
         HBox moneyPane = new HBox(5);
         setSize(moneyPane, 150, 25);
-        moneyPane.relocate(0, 50);
+        moneyPane.relocate(0, 75);
         moneyPane.setAlignment(Pos.CENTER);
 
         ImageView moneyIcon = new ImageView(new Image("/blackjackclient/media/money.png"));
@@ -297,17 +319,28 @@ public class TablePane extends Pane{
         moneyPane.getChildren().addAll(moneyIcon, money);
 
         HBox sumPane = new HBox(5);
-        setSize(sumPane, 150, 25);
-        sumPane.relocate(0, 75);
-        sumPane.setAlignment(Pos.CENTER);
+        if(!data[6].equals("0")){
+            setSize(sumPane, 150, 25);
+            sumPane.relocate(0, 100);
+            sumPane.setAlignment(Pos.CENTER);
 
-        ImageView sumIcon = new ImageView(new Image("/blackjackclient/media/sum.png"));
-        sumIcon.setFitHeight(25); 
-        sumIcon.setFitWidth(25);
+            ImageView sumIcon = new ImageView(new Image("/blackjackclient/media/sum.png"));
+            sumIcon.setFitHeight(25); 
+            sumIcon.setFitWidth(25);
 
-        Label sum = new Label(data[6]);
+            Label sum = new Label();
+            if(data[7].equals("21")){
+                sum.setText("BLACKJACK");
+            } else {
+                if(data[2].equals("2")){
+                    sum.setText(data[7]);
+                } else {
+                    sum.setText(data[6]);
+                }
+            }            
 
-        sumPane.getChildren().addAll(sumIcon, sum);
+            sumPane.getChildren().addAll(sumIcon, sum);
+        }
         
 
         VBox cardsPane = new VBox(5);
@@ -316,21 +349,21 @@ public class TablePane extends Pane{
         cardsPane.setMaxWidth(150);
         cardsPane.setAlignment(Pos.CENTER);
         if(data[5].length()>0){
-            createCardsPane(cardsPane, data[5]);
+            createCardsPane(cardsPane, data[5], true);
         }
         ScrollPane scrollCardsPane = new ScrollPane(cardsPane);
         scrollCardsPane.setHbarPolicy(ScrollBarPolicy.NEVER);
         scrollCardsPane.setVbarPolicy(ScrollBarPolicy.NEVER);
-        setSize(scrollCardsPane, 150, 200);
-        scrollCardsPane.relocate(0, 100);
+        setSize(scrollCardsPane, 150, 175);
+        scrollCardsPane.relocate(0, 125);
         
 
         if(myId.equals(data[0])){
             name.setStyle("-fx-background-color: gray;");
         }
-        playerPane.getChildren().addAll(betPane, name, moneyPane, sumPane, scrollCardsPane);
+        playerPane.getChildren().addAll(nextPane, betPane, name, moneyPane, sumPane, scrollCardsPane);
         
-        switch(data[2]){
+        /*switch(data[2]){
             case "0":
                 playerPane.setStyle("-fx-background-color: yellow;");
             break;
@@ -340,18 +373,24 @@ public class TablePane extends Pane{
             case "2":
                 playerPane.setStyle("-fx-background-color: green;");
             break;
-        }
-        
+        }*/       
         
         return playerPane;
     }
 
-    private void createCardsPane(Pane cardsPane, String cardsString){
+    private void createCardsPane(Pane cardsPane, String cardsString, boolean player){
         if(cardsString.length()>0){
             String[] cards = cardsString.split(" ");
-            for(int i=0; i<cards.length; i++){
-                cardsPane.getChildren().add(createCard(cards[i]));
+            if(player){
+                for(int i=cards.length-1; i>=0; i--){
+                    cardsPane.getChildren().add(createCard(cards[i]));
+                }
+            } else {
+                for(int i=0; i<cards.length; i++){
+                    cardsPane.getChildren().add(createCard(cards[i]));
+                }
             }
+            
         }
         
     }

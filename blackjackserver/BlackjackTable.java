@@ -55,7 +55,7 @@ public class BlackjackTable extends Thread{
                 player.addCard(deck.takeCard());
                 player.addCard(deck.takeCard());
                 player.setStatus(0);
-                player.setRealSum(getSum(player.getSum()));
+                player.setRealSum(getSumInInt(player.getSum()));
             }
             dealer.addCard(deck.takeCard());
             dealer.addCard(deck.takeCard());
@@ -65,7 +65,7 @@ public class BlackjackTable extends Thread{
                 player.setStatus(1);
                 sendStatusToAll(true);
                 String s = "";
-                while(!(s.equals("#stop")) && (getSum(player.getSum())<21)){
+                while(!(s.equals("#stop")) && (getSumInInt(player.getSum())<21)){
                     player.sendMSG(getStatus(true, "_turn_"));
                     s = player.getMSG();
                     if(s.equals("#card")){
@@ -76,23 +76,23 @@ public class BlackjackTable extends Thread{
                             sendToAll(s);
                         }
                     }*/
-                    player.setRealSum(getSum(player.getSum()));
+                    player.setRealSum(getSumInInt(player.getSum()));
                     sendStatusToAll(true);
 
                 }
                 
                 player.setStatus(2);
-                player.setRealSum(getSum(player.getSum()));
+                player.setRealSum(getSumInInt(player.getSum()));
                 sendStatusToAll(true);
             }
-            dealer.setRealSum(getSum(dealer.getSum()));
+            dealer.setRealSum(getSumInInt(dealer.getSum()));
             sendStatusToAll(false);
             System.out.println(checkAll());
             wait(2);
-            while(getSum(dealer.getSum())<17 && checkAll()<=0){
+            while(getSumInInt(dealer.getSum())<17 && checkAll()<=0){
                 System.out.println(checkAll());
                 dealer.addCard(deck.takeCard());
-                dealer.setRealSum(getSum(dealer.getSum()));
+                dealer.setRealSum(getSumInInt(dealer.getSum()));
                 sendStatusToAll(false);
                 wait(2);
             }
@@ -224,7 +224,8 @@ public class BlackjackTable extends Thread{
         }
     }
 
-    private int getSum(String s){
+    private int getSumInInt(String s){
+        //if(s.length() == 0) return 0;
         if(s.length() <= 2){
             return Integer.parseInt(s);
         } else {
