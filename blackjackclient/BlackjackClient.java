@@ -35,7 +35,7 @@ public class BlackjackClient extends Application{
     //private String myName;
     private String myId;
 
-    //private String lastState;
+    private String lastState;
 
     public static void main(String[] args){
         launch();
@@ -94,58 +94,66 @@ public class BlackjackClient extends Application{
 
     private void inbox(String msg){
         System.out.println(msg);
-        switch(msg.substring(0, 6)){
-            case "_id___":
-                myId = msg.substring(6);
-                sendMSG("");
-            break;
-            case "_strt_":
-                Platform.runLater(new Runnable(){
-                    @Override
-                    public void run() {
-                        createBlankTableScene();
-                    }
-                });
-                sendMSG("");
-                //lastState = msg;
-                
-            break;
-            case "_stat_":
-                Platform.runLater(new Runnable(){
-                    @Override
-                    public void run() {
-                        createTableScene(msg.substring(6), "", chatArray);
-                    }
-                });
-                sendMSG("");
-                //lastState = msg;
-            break;
-            case "_bet__":
-                Platform.runLater(new Runnable(){
-                    @Override
-                    public void run() {
-                        createTableScene(msg.substring(6), "bet", chatArray);
-                    }
-                });
-                //lastState = msg;
-            break;
-            case "_turn_":
-                Platform.runLater(new Runnable(){
-                    @Override
-                    public void run() {
-                        createTableScene(msg.substring(6), "turn", chatArray);
-                    }
-                });
-                //lastState = msg;
-            break;
-            /*case "_chat_": 
-                chatArray.add(msg.substring(6));
-                inbox(lastState);
-            break;*/
-            case "_bye__":
-
-            break;
+        if(msg.substring(0, 6).equals("_svms_")){
+            chatArray.add(msg.substring(6));
+            System.out.println(chatArray);
+            inbox(lastState);
+        } else {
+            switch(msg.substring(0, 6)){
+                case "_id___":
+                    myId = msg.substring(6);
+                    sendMSG("");
+                break;
+                case "_strt_":
+                    Platform.runLater(new Runnable(){
+                        @Override
+                        public void run() {
+                            createBlankTableScene();
+                        }
+                    });
+                    sendMSG("");
+                    //lastState = msg;
+                    
+                break;
+                case "_stat_":
+                    Platform.runLater(new Runnable(){
+                        @Override
+                        public void run() {
+                            createTableScene(msg.substring(6), "", chatArray);
+                        }
+                    });
+                    sendMSG("");
+                    //lastState = msg;
+                break;
+                case "_bet__":
+                    Platform.runLater(new Runnable(){
+                        @Override
+                        public void run() {
+                            createTableScene(msg.substring(6), "bet", chatArray);
+                        }
+                    });
+                    //lastState = msg;
+                break;
+                case "_turn_":
+                    Platform.runLater(new Runnable(){
+                        @Override
+                        public void run() {
+                            createTableScene(msg.substring(6), "turn", chatArray);
+                        }
+                    });
+                    //lastState = msg;
+                break;
+                /*case "_chat_": 
+                    chatArray.add(msg.substring(6));
+                    inbox(lastState);
+                break;*/
+                case "_bye__":
+    
+                break;
+            }
+            lastState = msg;
         }
+        
     }
 
     private void createBlankTableScene(){

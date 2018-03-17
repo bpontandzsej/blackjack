@@ -3,11 +3,13 @@ package blackjackclient;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.image.Image;
@@ -26,8 +28,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.lang.Object;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.GregorianCalendar;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 public class TablePane extends Pane{
     private Pane chatPane;
@@ -55,29 +62,32 @@ public class TablePane extends Pane{
         
         getChildren().add(createDealerPane(dealerAndPlayers[0]));
         getChildren().add(createPlayersPane(dealerAndPlayers[1]));
-        /*if(state.indexOf("x:x") == -1){
-            try{
-                Thread.sleep(1000);
-            } catch(Exception e){
-
-            }
-            
-        }*/
     }
 
     private Pane createChatPane(ArrayList<String> chatArray){
         chatPane = new Pane();
+        chatPane.setStyle("-fx-background-color: gray;");
         setSize(chatPane, 200, 300);
-        chatPane.setStyle("-fx-background-color: green;");
         chatPane.relocate(0, 0);
+
         
         String s = "";
         for(String line : chatArray){
             s += line + "\n";
         }
 
-        Text messages = new Text(s);
-        messages.relocate(0, 0);
+        Label messages = new Label(s);
+        messages.setWrapText(true);
+        messages.setMinWidth(200);
+        messages.setPrefWidth(200);
+        messages.setMaxWidth(200);
+
+        ScrollPane scrollMessages = new ScrollPane(messages);
+        scrollMessages.setHbarPolicy(ScrollBarPolicy.NEVER);
+        scrollMessages.setVbarPolicy(ScrollBarPolicy.NEVER);
+        scrollMessages.setVvalue(1.0);
+        setSize(scrollMessages, 200, 270);
+        scrollMessages.relocate(0, 0);
 
         chatInput = new TextField();
         setSize(chatInput, 150, 30);
@@ -87,8 +97,7 @@ public class TablePane extends Pane{
         setSize(sendChat, 50, 30);
         sendChat.relocate(150, 270);
 
-        chatPane.getChildren().addAll(messages, chatInput, sendChat);
-
+        chatPane.getChildren().addAll(scrollMessages, chatInput, sendChat);
 
         return chatPane;
     }
@@ -106,9 +115,7 @@ public class TablePane extends Pane{
         setSize(betPane, 200, 200);
         betPane.relocate(0, 300);
 
-        Slider betSlider = new Slider();
-        betSlider.setMin(0);
-        betSlider.setMax(maxBet);
+        Slider betSlider = new Slider(0, maxBet, 0);
         if(maxBet > 100){ 
             betSlider.setValue(100);
         } else {    
@@ -120,8 +127,6 @@ public class TablePane extends Pane{
         betSlider.setMinorTickCount(10);
         betSlider.setBlockIncrement(10);
 
-        
-
         setSize(betSlider, 200, 50);
         betSlider.relocate(0, 0);
 
@@ -130,9 +135,8 @@ public class TablePane extends Pane{
         betInput.relocate(0, 50);
 
         betSlider.valueProperty().addListener(new ChangeListener<Number>() {
-            public void changed(ObservableValue<? extends Number> ov,
-                Number old_val, Number new_val) {
-                   betInput.setText(Integer.toString(new_val.intValue())); 
+            public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
+                betInput.setText(Integer.toString(new_val.intValue())); 
             }
         });
 
@@ -141,6 +145,7 @@ public class TablePane extends Pane{
         sendBet = new Button("Send");
         setSize(sendBet, 200, 100);
         sendBet.relocate(0, 100);
+        format(sendBet, "green", "transparent", 0);
 
         betPane.getChildren().addAll(betSlider, betInput, sendBet);
 
@@ -165,18 +170,18 @@ public class TablePane extends Pane{
 
     private Pane createTurnPane(){
         Pane turnPane = new Pane();
-        
         setSize(turnPane, 200, 200);
-        turnPane.setStyle("-fx-background-color: brown;");
         turnPane.relocate(0, 300);
 
         cardBTN = new Button("Card");
         setSize(cardBTN, 200, 100);
         cardBTN.relocate(0, 0);
+        format(cardBTN, "green", "transparent", 0);
 
         stopBTN = new Button("Stop");
         setSize(stopBTN, 200, 100);
         stopBTN.relocate(0, 100);
+        format(stopBTN, "red", "transparent", 0);
 
         turnPane.getChildren().addAll(cardBTN, stopBTN);
 
@@ -194,8 +199,8 @@ public class TablePane extends Pane{
     private Pane createDealerPane(String dealerState){
         String[] data = dealerState.split(";");
         Pane dealerPane = new Pane();
+        dealerPane.setStyle("-fx-background-color: #0c4;");
         setSize(dealerPane, 900, 200);
-        dealerPane.setStyle("-fx-background-color: red;");
         dealerPane.relocate(200, 0);
 
         HBox moneyPane = new HBox(5);
@@ -226,13 +231,11 @@ public class TablePane extends Pane{
                 sum.setText("BLACKJACK");
             } else {
                 sum.setText(data[3]);
-                
             }
 
             sumPane.getChildren().addAll(sumIcon, sum);
         }
         
-
         HBox cardsPane = new HBox(5);
         cardsPane.setAlignment(Pos.CENTER);
         setSize(cardsPane, 900, 100);
@@ -246,23 +249,20 @@ public class TablePane extends Pane{
         return dealerPane;
     }
 
-    private Pane createPlayersPane(String playersState){
-        Pane playersPane = new Pane();
+    private HBox createPlayersPane(String playersState){
+        HBox playersPane = new HBox();
+        playersPane.setAlignment(Pos.CENTER);
         String[] players = playersState.split("#");
         int i;
         for(i=0; i<players.length; i++){
             Pane player = createPlayer(players[i]);
-            player.relocate((5-i)*150, 0);
             playersPane.getChildren().add(player);
         }
-        for(int j = i; j<6; j++){
-            Pane blankPane = new Pane();
-            setSize(blankPane, 150, 300);
-            blankPane.relocate((5-i)*150, 0);
-            playersPane.getChildren().add(blankPane);
-        }
-        
 
+        ObservableList<Node> workingCollection = FXCollections.observableArrayList(playersPane.getChildren());
+        Collections.reverse(workingCollection);
+        playersPane.getChildren().setAll(workingCollection);
+        
         setSize(playersPane, 900, 300);
         playersPane.relocate(200, 200);
 
@@ -272,6 +272,7 @@ public class TablePane extends Pane{
     private Pane createPlayer(String player){
         String[] data = player.split(";");
         Pane playerPane = new Pane();
+        format(playerPane, "transparent", "black", 5);
         setSize(playerPane, 150, 300);
 
         HBox nextPane = new HBox();
@@ -281,8 +282,8 @@ public class TablePane extends Pane{
 
         if(data[2].equals("1")){
             ImageView nextIcon = new ImageView(new Image("/blackjackclient/media/next.png"));
-            nextIcon.setFitHeight(25); 
-            nextIcon.setFitWidth(25);
+            nextIcon.setFitHeight(20); 
+            nextIcon.setFitWidth(20);
 
             nextPane.getChildren().add(nextIcon);
         }        
@@ -311,8 +312,8 @@ public class TablePane extends Pane{
         moneyPane.setAlignment(Pos.CENTER);
 
         ImageView moneyIcon = new ImageView(new Image("/blackjackclient/media/money.png"));
-        moneyIcon.setFitHeight(25); 
-        moneyIcon.setFitWidth(25);
+        moneyIcon.setFitHeight(20); 
+        moneyIcon.setFitWidth(20);
 
         Label money = new Label(data[3]);
 
@@ -325,8 +326,8 @@ public class TablePane extends Pane{
             sumPane.setAlignment(Pos.CENTER);
 
             ImageView sumIcon = new ImageView(new Image("/blackjackclient/media/sum.png"));
-            sumIcon.setFitHeight(25); 
-            sumIcon.setFitWidth(25);
+            sumIcon.setFitHeight(20); 
+            sumIcon.setFitWidth(20);
 
             Label sum = new Label();
             if(data[7].equals("21")){
@@ -337,12 +338,10 @@ public class TablePane extends Pane{
                 } else {
                     sum.setText(data[6]);
                 }
-            }            
-
+            }
             sumPane.getChildren().addAll(sumIcon, sum);
         }
         
-
         VBox cardsPane = new VBox(5);
         cardsPane.setMinWidth(150);
         cardsPane.setPrefWidth(150);
@@ -351,29 +350,19 @@ public class TablePane extends Pane{
         if(data[5].length()>0){
             createCardsPane(cardsPane, data[5], true);
         }
+
         ScrollPane scrollCardsPane = new ScrollPane(cardsPane);
+        scrollCardsPane.setStyle("-fx-background-color: transparent;");
         scrollCardsPane.setHbarPolicy(ScrollBarPolicy.NEVER);
         scrollCardsPane.setVbarPolicy(ScrollBarPolicy.NEVER);
         setSize(scrollCardsPane, 150, 175);
+        format(scrollCardsPane, "transparent", "transparent", 5);
         scrollCardsPane.relocate(0, 125);
         
-
         if(myId.equals(data[0])){
-            name.setStyle("-fx-background-color: gray;");
+            format(name, "silver", "black", 12);
         }
-        playerPane.getChildren().addAll(nextPane, betPane, name, moneyPane, sumPane, scrollCardsPane);
-        
-        /*switch(data[2]){
-            case "0":
-                playerPane.setStyle("-fx-background-color: yellow;");
-            break;
-            case "1":
-                playerPane.setStyle("-fx-background-color: pink;");
-            break;
-            case "2":
-                playerPane.setStyle("-fx-background-color: green;");
-            break;
-        }*/       
+        playerPane.getChildren().addAll(nextPane, betPane, name, moneyPane, sumPane, scrollCardsPane);    
         
         return playerPane;
     }
@@ -381,18 +370,15 @@ public class TablePane extends Pane{
     private void createCardsPane(Pane cardsPane, String cardsString, boolean player){
         if(cardsString.length()>0){
             String[] cards = cardsString.split(" ");
-            if(player){
-                for(int i=cards.length-1; i>=0; i--){
-                    cardsPane.getChildren().add(createCard(cards[i]));
-                }
-            } else {
-                for(int i=0; i<cards.length; i++){
-                    cardsPane.getChildren().add(createCard(cards[i]));
-                }
+            for(int i=0; i<cards.length; i++){
+                cardsPane.getChildren().add(createCard(cards[i]));
             }
-            
+            if(player){
+                ObservableList<Node> workingCollection = FXCollections.observableArrayList(cardsPane.getChildren());
+                Collections.reverse(workingCollection);
+                cardsPane.getChildren().setAll(workingCollection);
+            }
         }
-        
     }
 
     private void setSize(javafx.scene.layout.Region obj, int width, int height){
@@ -403,7 +389,7 @@ public class TablePane extends Pane{
 
     private BorderPane createCard(String cardString){
         BorderPane cardPane = new BorderPane();
-        cardPane.setStyle("-fx-background-color: orange;");
+        format(cardPane, "white", "black", 3);
         String[] card = cardString.split(":");
         setSize(cardPane, 50, 70);
         
@@ -461,9 +447,12 @@ public class TablePane extends Pane{
             cardPane.setMargin(tl, new Insets(5, 5, 5, 5));
             cardPane.setMargin(br, new Insets(5, 5, 5, 5));
         }
-        
-
         return cardPane;
+    }
+
+    private void format(javafx.scene.layout.Region obj, String bgcolor, String brcolor, int round){
+        obj.setStyle("-fx-background-color: " + bgcolor + "; -fx-background-radius: " + Integer.toString(round) + "; -fx-border-color: " + brcolor + "; -fx-border-radius: " + Integer.toString(round) + ";");
+
     }
 
     

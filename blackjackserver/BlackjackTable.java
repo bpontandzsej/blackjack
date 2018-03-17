@@ -38,14 +38,15 @@ public class BlackjackTable extends Thread{
     public void run(){
         System.out.println("elindult a szal");
         sendToAll("_strt_");
+        serverMSG("WELCOME!");
 
         fillMoney();
-
+        int roundCount = 0;
         while(checkEnd()) {
-
+            roundCount++;
+            serverMSG("Round " + Integer.toString(roundCount) + ": STARTED");
             newGame();
             sendStatusToAll(true);
-
             for(Player player : players){
                 player.sendMSG(getStatus(true, "_bet__"));
                 player.setBet(Integer.parseInt(player.getMSG()));
@@ -60,7 +61,6 @@ public class BlackjackTable extends Thread{
             dealer.addCard(deck.takeCard());
             dealer.addCard(deck.takeCard());
             sendStatusToAll(true);
-
             for(Player player : players){
                 player.setStatus(1);
                 sendStatusToAll(true);
@@ -78,7 +78,6 @@ public class BlackjackTable extends Thread{
                     }*/
                     player.setRealSum(getSumInInt(player.getSum()));
                     sendStatusToAll(true);
-
                 }
                 
                 player.setStatus(2);
@@ -97,6 +96,16 @@ public class BlackjackTable extends Thread{
                 wait(2);
             }
             System.out.println(checkAll());
+            if(checkAll()>0){
+                serverMSG("Round " + Integer.toString(roundCount) + ": the WINNER is the BANK");
+            } else {
+                if(checkAll()<0){
+                    serverMSG("Round " + Integer.toString(roundCount) + ": the WINNERs are the PLAYERS");
+                } else {
+                    serverMSG("Round " + Integer.toString(roundCount) + ": DRAW");
+                }
+            }
+            
             for(Player player : players){
                 if(player.getRealSum()>21){
                     player.setMoney(player.getMoney() - player.getBet());
@@ -124,6 +133,7 @@ public class BlackjackTable extends Thread{
                 if(player.getMoney()<=0){
                     player.sayBye();
                     players.remove(player);
+                    serverMSG(player.getName() + " left the game");
                 }
             }            
         }
@@ -217,6 +227,10 @@ public class BlackjackTable extends Thread{
         }
     }
 
+    private void serverMSG(String msg){
+        sendToAll("_svms_[SERVER] " + msg);
+    }
+
     private void sendToAll(String msg){
         for(Player player : players){
             player.sendMSG(msg);
@@ -225,7 +239,6 @@ public class BlackjackTable extends Thread{
     }
 
     private int getSumInInt(String s){
-        //if(s.length() == 0) return 0;
         if(s.length() <= 2){
             return Integer.parseInt(s);
         } else {
@@ -245,7 +258,6 @@ public class BlackjackTable extends Thread{
             }
             return max;
         }
-
     }
 
     private int checkAll(){
