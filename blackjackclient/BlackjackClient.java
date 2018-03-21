@@ -43,8 +43,6 @@ public class BlackjackClient extends Application{
 
     @Override
     public void start(Stage primarystage){
-        try{      
-            connectToServer();
             chatArray = new ArrayList<String>();
             stage = primarystage;
             stage.setTitle("Blackjack - Connect");
@@ -53,8 +51,17 @@ public class BlackjackClient extends Application{
             connectPane.getConnectButton().setOnAction(new EventHandler<ActionEvent>(){
                 @Override
                 public void handle(ActionEvent event) {
-                    connectPane.setWaitingText();
-                    sendMSG(connectPane.getNicknameInput());
+                    if(connectPane.getNicknameInput().length()>0){
+                        try{
+                            connectToServer();
+                            connectPane.setWaitingText();
+                            sendMSG(connectPane.getNicknameInput());
+                        } catch(UnknownHostException e){
+                            System.out.println("Nem letezo host");
+                        } catch(IOException e){
+                            System.out.println("Hiba tortent a socket letrehozasa soran");
+                        }  
+                    }
                     //myName = connectPane.getNicknameInput();
                     //myId = getMSG();
                 }
@@ -62,11 +69,6 @@ public class BlackjackClient extends Application{
             Scene scene = new Scene(connectPane, 500, 300);
             stage.setScene(scene);
             stage.show();
-        } catch(UnknownHostException e){
-            System.out.println("Nem letezo host");
-        } catch(IOException e){
-            System.out.println("Hiba tortent a socket letrehozasa soran");
-        }        
     }
 
     private void connectToServer() throws UnknownHostException, IOException{
@@ -93,10 +95,8 @@ public class BlackjackClient extends Application{
     }
 
     private void inbox(String msg){
-        System.out.println(msg);
         if(msg.substring(0, 6).equals("_svms_")){
             chatArray.add(msg.substring(6));
-            System.out.println(chatArray);
             inbox(lastState);
         } else {
             switch(msg.substring(0, 6)){
@@ -148,7 +148,7 @@ public class BlackjackClient extends Application{
                     inbox(lastState);
                 break;*/
                 case "_bye__":
-    
+                    
                 break;
             }
             lastState = msg;

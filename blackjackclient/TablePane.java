@@ -124,8 +124,6 @@ public class TablePane extends Pane{
         betSlider.setShowTickLabels(true);
         betSlider.setShowTickMarks(true);
         betSlider.setMajorTickUnit(100);
-        betSlider.setMinorTickCount(10);
-        betSlider.setBlockIncrement(10);
 
         setSize(betSlider, 200, 50);
         betSlider.relocate(0, 0);
@@ -272,7 +270,6 @@ public class TablePane extends Pane{
     private Pane createPlayer(String player){
         String[] data = player.split(";");
         Pane playerPane = new Pane();
-        format(playerPane, "transparent", "black", 5);
         setSize(playerPane, 150, 300);
 
         HBox nextPane = new HBox();
@@ -286,16 +283,21 @@ public class TablePane extends Pane{
             nextIcon.setFitWidth(20);
 
             nextPane.getChildren().add(nextIcon);
-        }        
+        }
+
+        Pane onlyPlayer = new Pane();
+        setSize(onlyPlayer, 150, 275);
+        onlyPlayer.relocate(0, 25);
+        format(onlyPlayer, "transparent", "black", 5);        
 
         HBox betPane = new HBox(5);
         setSize(betPane, 150, 25);
-        betPane.relocate(0, 25);
+        betPane.relocate(0, 0);
         betPane.setAlignment(Pos.CENTER);
 
         ImageView tokenIcon = new ImageView(new Image("/blackjackclient/media/token.png"));
-        tokenIcon.setFitHeight(25); 
-        tokenIcon.setFitWidth(25);
+        tokenIcon.setFitHeight(20); 
+        tokenIcon.setFitWidth(20);
 
         Label bet = new Label(data[4]);
 
@@ -303,12 +305,12 @@ public class TablePane extends Pane{
 
         Label name = new Label("[" + Integer.toString(Integer.parseInt(data[0])+1) + "] " + data[1]);
         setSize(name, 150, 25);
-        name.relocate(0, 50);
+        name.relocate(0, 25);
         name.setAlignment(Pos.CENTER);
 
         HBox moneyPane = new HBox(5);
         setSize(moneyPane, 150, 25);
-        moneyPane.relocate(0, 75);
+        moneyPane.relocate(0, 50);
         moneyPane.setAlignment(Pos.CENTER);
 
         ImageView moneyIcon = new ImageView(new Image("/blackjackclient/media/money.png"));
@@ -322,7 +324,7 @@ public class TablePane extends Pane{
         HBox sumPane = new HBox(5);
         if(!data[6].equals("0")){
             setSize(sumPane, 150, 25);
-            sumPane.relocate(0, 100);
+            sumPane.relocate(0, 75);
             sumPane.setAlignment(Pos.CENTER);
 
             ImageView sumIcon = new ImageView(new Image("/blackjackclient/media/sum.png"));
@@ -357,12 +359,13 @@ public class TablePane extends Pane{
         scrollCardsPane.setVbarPolicy(ScrollBarPolicy.NEVER);
         setSize(scrollCardsPane, 150, 175);
         format(scrollCardsPane, "transparent", "transparent", 5);
-        scrollCardsPane.relocate(0, 125);
+        scrollCardsPane.relocate(0, 100);
         
         if(myId.equals(data[0])){
             format(name, "silver", "black", 12);
         }
-        playerPane.getChildren().addAll(nextPane, betPane, name, moneyPane, sumPane, scrollCardsPane);    
+        onlyPlayer.getChildren().addAll(betPane, name, moneyPane, sumPane, scrollCardsPane);
+        playerPane.getChildren().addAll(nextPane, onlyPlayer);    
         
         return playerPane;
     }

@@ -3,6 +3,10 @@ package blackjackserver;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import blackjackserver.BlackjackTable;
 
 public class BlackjackServer {
@@ -17,6 +21,7 @@ public class BlackjackServer {
     private ArrayList<BlackjackTable> tables;
     //private int START_MONEY;
     private Properties tableProperties;
+    private ArrayList<Socket> socketQueue;
 
     /**
      * The constructor starts  a serverSocket and creates an arraylist for the tables.
@@ -55,7 +60,9 @@ public class BlackjackServer {
      * which extends a thread, then starts the thread
      */
     private void run(){
-        ArrayList<Socket> socketQueue = new ArrayList<Socket>();
+        socketQueue = new ArrayList<Socket>();
+        ScheduledExecutorService timer;
+        Runnable startAtTime;
         while(true){
             try{
                 socketQueue.add(serverSocket.accept());
@@ -63,13 +70,34 @@ public class BlackjackServer {
             } catch(IOException e){
                 System.out.println("Problema tortent egy socket fogadasa soran");
             }
+            
+            startAtTime = new Runnable(){
+                @Override
+                public void run() {
+                    startTable();
+                }
+            };
             if(PLAYERS_PER_TABLE == socketQueue.size()){
-                tables.add(new BlackjackTable(tableId, socketQueue, tableProperties));
-                tableId++;
-                tables.get(tables.size()-1).start();
-                socketQueue.clear();
-            }  
+                /*startAtTime = new Runnable(){
+                    @Override
+                    public void run() {
+                    }
+                };*/
+                startTable();
+            } /*else {
+                if(socketQueue.size() == 1){
+                    timer = Executors.newSingleThreadScheduledExecutor();
+                    timer.schedule(startAtTime, 10, TimeUnit.SECONDS);
+                }
+            }*/
         }
+    }
+
+    private void startTable(){
+        tables.add(new BlackjackTable(tableId, socketQueue, tableProperties));
+        tableId++;
+        tables.get(tables.size()-1).start();
+        socketQueue.clear();
     }
 
     /**

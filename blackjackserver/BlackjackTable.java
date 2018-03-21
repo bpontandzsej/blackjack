@@ -107,21 +107,26 @@ public class BlackjackTable extends Thread{
             }
             
             for(Player player : players){
-                if(player.getRealSum()>21){
-                    player.setMoney(player.getMoney() - player.getBet());
-                    dealer.setMoney(dealer.getMoney() + player.getBet());
+                if(player.getRealSum()==21 && player.getCards().size()==2){
+                    player.setMoney(player.getMoney() + (int)Math.round(player.getBet()*1.5));
+                    dealer.setMoney(dealer.getMoney() - (int)(player.getBet()*1.5));
                 } else {
-                    if(dealer.getRealSum()>21){
-                        player.setMoney(player.getMoney() + player.getBet());
-                        dealer.setMoney(dealer.getMoney() - player.getBet());
+                    if(player.getRealSum()>21){
+                        player.setMoney(player.getMoney() - player.getBet());
+                        dealer.setMoney(dealer.getMoney() + player.getBet());
                     } else {
-                        if(player.getRealSum()>dealer.getRealSum()){
+                        if(dealer.getRealSum()>21){
                             player.setMoney(player.getMoney() + player.getBet());
                             dealer.setMoney(dealer.getMoney() - player.getBet());
                         } else {
-                            if(player.getRealSum()<dealer.getRealSum()){
-                                player.setMoney(player.getMoney() - player.getBet());
-                                dealer.setMoney(dealer.getMoney() + player.getBet());
+                            if(player.getRealSum()>dealer.getRealSum()){
+                                player.setMoney(player.getMoney() + player.getBet());
+                                dealer.setMoney(dealer.getMoney() - player.getBet());
+                            } else {
+                                if(player.getRealSum()<dealer.getRealSum()){
+                                    player.setMoney(player.getMoney() - player.getBet());
+                                    dealer.setMoney(dealer.getMoney() + player.getBet());
+                                }
                             }
                         }
                     }
@@ -135,9 +140,8 @@ public class BlackjackTable extends Thread{
                     players.remove(player);
                     serverMSG(player.getName() + " left the game");
                 }
-            }            
+            }
         }
-
 
         for(Player player : players){
             player.sendMSG("#byebye");
@@ -263,14 +267,14 @@ public class BlackjackTable extends Thread{
     private int checkAll(){
         int sumAll = 0;
         for(Player player : players){
-            if(player.getRealSum()>21){
-                sumAll += player.getBet();
+            if(player.getRealSum()==21 && player.getCards().size()==2){
+                sumAll -= player.getBet()*1.5;
             } else {
-                if(dealer.getRealSum()>21){
-                    sumAll -= player.getBet();
+                if(player.getRealSum()>21){
+                    sumAll += player.getBet();
                 } else {
-                    if(player.getRealSum()==21 && player.getCards().size()==2){
-                        sumAll -= player.getBet()*1.5;
+                    if(dealer.getRealSum()>21){
+                        sumAll -= player.getBet();
                     } else {
                         if(player.getRealSum()>dealer.getRealSum()){
                             sumAll -= player.getBet();
@@ -282,7 +286,6 @@ public class BlackjackTable extends Thread{
                     }
                 }
             }
-
         }
         return sumAll;
     }
