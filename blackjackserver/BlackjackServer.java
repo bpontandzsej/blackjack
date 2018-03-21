@@ -3,9 +3,6 @@ package blackjackserver;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import blackjackserver.BlackjackTable;
 
@@ -61,8 +58,7 @@ public class BlackjackServer {
      */
     private void run(){
         socketQueue = new ArrayList<Socket>();
-        ScheduledExecutorService timer;
-        Runnable startAtTime;
+        Timer timer = new Timer();
         while(true){
             try{
                 socketQueue.add(serverSocket.accept());
@@ -71,25 +67,20 @@ public class BlackjackServer {
                 System.out.println("Problema tortent egy socket fogadasa soran");
             }
             
-            startAtTime = new Runnable(){
-                @Override
-                public void run() {
-                    startTable();
-                }
-            };
+            
             if(PLAYERS_PER_TABLE == socketQueue.size()){
-                /*startAtTime = new Runnable(){
-                    @Override
-                    public void run() {
-                    }
-                };*/
+                timer.cancel();
                 startTable();
-            } /*else {
+            } else {
                 if(socketQueue.size() == 1){
-                    timer = Executors.newSingleThreadScheduledExecutor();
-                    timer.schedule(startAtTime, 10, TimeUnit.SECONDS);
+                    timer.schedule(new TimerTask(){
+                        @Override
+                        public void run() {
+                            startTable();
+                        }
+                    }, 5000);
                 }
-            }*/
+            }
         }
     }
 
