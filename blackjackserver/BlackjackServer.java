@@ -14,11 +14,12 @@ public class BlackjackServer {
      */
     private int tableId;
     private ServerSocket serverSocket;
+    private ServerSocket chatServerSocket;
     private int PLAYERS_PER_TABLE;
     private ArrayList<BlackjackTable> tables;
     //private int START_MONEY;
     private Properties tableProperties;
-    private ArrayList<Socket> socketQueue;
+    private ArrayList<ArrayList<Socket>> socketQueue;
 
     /**
      * The constructor starts  a serverSocket and creates an arraylist for the tables.
@@ -28,7 +29,9 @@ public class BlackjackServer {
         tableId = 0;
         tableProperties = new Properties();
         try{
-            serverSocket = new ServerSocket(Integer.parseInt(serverProperties.getProperty("port")));
+            serverSocket = new ServerSocket(1234);
+            chatServerSocket = new ServerSocket(1235);
+            //Integer.parseInt(serverProperties.getProperty("port"))+1
             PLAYERS_PER_TABLE = Integer.parseInt(serverProperties.getProperty("maxplayer"));
             tableProperties.setProperty("startmoney", serverProperties.getProperty("startmoney"));
             //START_MONEY = Integer.parseInt(serverProperties.getProperty("startmoney"));
@@ -57,16 +60,18 @@ public class BlackjackServer {
      * which extends a thread, then starts the thread
      */
     private void run(){
-        socketQueue = new ArrayList<Socket>();
+        socketQueue = new ArrayList<ArrayList<Socket>>();
         Timer timer = new Timer();
         while(true){
             try{
-                socketQueue.add(serverSocket.accept());
+                ArrayList<Socket> temp = new ArrayList<Socket>();
+                temp.add(serverSocket.accept());
+                temp.add(chatServerSocket.accept());
+                socketQueue.add(temp);
                 System.out.println("socket csatlakozott");
             } catch(IOException e){
                 System.out.println("Problema tortent egy socket fogadasa soran");
-            }
-            
+            }            
             
             if(PLAYERS_PER_TABLE == socketQueue.size()){
                 timer.cancel();

@@ -14,11 +14,11 @@ public class BlackjackTable extends Thread{
     private final int startMoney;
     private Deck deck;
 
-    public BlackjackTable(int id, ArrayList<Socket> sockets, Properties serverProperties/*Properties tableProperties*/){
+    public BlackjackTable(int id, ArrayList<ArrayList<Socket>> sockets, Properties serverProperties/*Properties tableProperties*/){
         //this.id = id;
         players = new ArrayList<Player>();
         int playerId = 0;
-        for(Socket socket : sockets){
+        for(ArrayList<Socket> socket : sockets){
             try{
                 players.add(new Player(socket, playerId));
                 playerId++;
@@ -29,6 +29,18 @@ public class BlackjackTable extends Thread{
         for(Player player : players){
             player.sendMSG("_id___" + Integer.toString(player.getId()));
             player.getMSG();
+            Thread chatHandler = new Thread(){
+                @Override
+                public void run(){
+                    System.out.println(player.getName() + " chat stated");
+                    String msg = player.getChatMSG();
+                    while(msg!="bye"){
+                        sendChatToAll(msg);
+                        msg = player.getChatMSG();
+                    }
+                } 
+            };
+            chatHandler.start();
         }
         dealer = new Dealer();
         startMoney = Integer.parseInt(serverProperties.getProperty("startmoney"));
@@ -239,6 +251,12 @@ public class BlackjackTable extends Thread{
         for(Player player : players){
             player.sendMSG(msg);
             player.getMSG();
+        }
+    }
+
+    private void sendChatToAll(String msg){
+        for(Player player : players){
+            player.sendChatMSG(msg);
         }
     }
 

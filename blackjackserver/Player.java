@@ -7,11 +7,13 @@ import java.util.*;
 public class Player extends Person{
     private PrintWriter sender;
     private Scanner receiver;
+    private PrintWriter chatSender;
+    private Scanner chatReceiver;
     private int id;
     private int bet;
     private int status;
 
-    public Player(Socket socket, int id) throws IOException{
+    public Player(ArrayList<Socket> sockets, int id) throws IOException{
         /**
          * SET default VELUES
          */
@@ -22,13 +24,15 @@ public class Player extends Person{
         /**
          * SET the SENDER and de RECEIVER
          */
-        this.sender = new PrintWriter(socket.getOutputStream(), true);
-        this.receiver = new Scanner(socket.getInputStream());
+        this.sender = new PrintWriter(sockets.get(0).getOutputStream(), true);
+        this.receiver = new Scanner(sockets.get(0).getInputStream());
+        this.chatSender = new PrintWriter(sockets.get(1).getOutputStream(), true);
+        this.chatReceiver = new Scanner(sockets.get(1).getInputStream());
         /**
          * GET NAME from the CLIENT except of the DEALER
          */
         this.name = getMSG();
-        System.out.println(name);        
+        System.out.println("en csatlakoztam" + name);        
     }
 
 
@@ -42,6 +46,14 @@ public class Player extends Person{
 
     public void sendMSG(String msg){
         sender.println(msg);
+    }
+
+    public String getChatMSG(){
+        return chatReceiver.nextLine();
+    }
+
+    public void sendChatMSG(String msg){
+        chatSender.println(msg);
     }
 
     public int getId(){

@@ -45,6 +45,7 @@ public class TablePane extends Pane{
     private Button sendChat;
     private TextField chatInput;
     private String myId;
+    private Label messages;
 
     public TablePane(String state, String whichPane, ArrayList<String> chatArray, String myId){
         String[] dealerAndPlayers = state.split("@");
@@ -76,7 +77,7 @@ public class TablePane extends Pane{
             s += line + "\n";
         }
 
-        Label messages = new Label(s);
+        messages = new Label(s);
         messages.setWrapText(true);
         messages.setMinWidth(200);
         messages.setPrefWidth(200);
@@ -163,7 +164,17 @@ public class TablePane extends Pane{
     }
 
     public String getChatMessage(){
-        return chatInput.getText();
+        String s = chatInput.getText();
+        chatInput.setText("");
+        return s;
+    }
+
+    public void updateChat(ArrayList<String> chatArray){
+        String s = "";
+        for(String line : chatArray){
+            s += line + "\n";
+        }
+        messages.setText(s);
     }
 
     private Pane createTurnPane(){

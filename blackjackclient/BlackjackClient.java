@@ -24,6 +24,10 @@ public class BlackjackClient extends Application{
     private PrintWriter sender;
     private Scanner receiver;
 
+    private Socket chatClientSocket;
+    private PrintWriter chatSender;
+    private Scanner chatReceiver;
+
     private ConnectPane connectPane;
     private TablePane tablePane;
 
@@ -32,7 +36,7 @@ public class BlackjackClient extends Application{
 
     static ArrayList<String> chatArray;
 
-    //private String myName;
+    private String myName;
     private String myId;
 
     private String lastState;
@@ -56,13 +60,15 @@ public class BlackjackClient extends Application{
                             connectToServer();
                             connectPane.setWaitingText();
                             sendMSG(connectPane.getNicknameInput());
+                            /*getMSG();
+                            createChatThread();*/
                         } catch(UnknownHostException e){
                             System.out.println("Nem letezo host");
                         } catch(IOException e){
                             System.out.println("Hiba tortent a socket letrehozasa soran");
                         }  
                     }
-                    //myName = connectPane.getNicknameInput();
+                    myName = connectPane.getNicknameInput();
                     //myId = getMSG();
                 }
             });
@@ -71,10 +77,32 @@ public class BlackjackClient extends Application{
             stage.show();
     }
 
+    /*private void createChatThread(){
+        clientSocket = new Socket("localhost", 1234);
+        sender = new PrintWriter(clientSocket.getOutputStream(), true);
+        receiver = new Scanner(clientSocket.getInputStream());
+    }*/
+
     private void connectToServer() throws UnknownHostException, IOException{
         clientSocket = new Socket("localhost", 1234);
         sender = new PrintWriter(clientSocket.getOutputStream(), true);
         receiver = new Scanner(clientSocket.getInputStream());
+
+        chatClientSocket = new Socket("localhost", 1235);
+        chatSender = new PrintWriter(chatClientSocket.getOutputStream(), true);
+        chatReceiver = new Scanner(chatClientSocket.getInputStream());
+        Thread chatHandler = new Thread(){
+            @Override
+            public void run(){
+                String msg = getChatMSG();
+                while(msg != "bye"){
+                    inbox(msg);
+                    msg = getChatMSG();
+                }
+            }
+        };
+        chatHandler.start();
+
         running = true;
         Thread inputChecker = new Thread(){
             public void run(){
@@ -92,6 +120,14 @@ public class BlackjackClient extends Application{
 
     private String getMSG(){
         return receiver.nextLine();
+    }
+
+    private void sendChatMSG(String msg){
+        chatSender.println(msg);
+    }
+
+    private String getChatMSG(){
+        return chatReceiver.nextLine();
     }
 
     private void inbox(String msg){
@@ -143,15 +179,21 @@ public class BlackjackClient extends Application{
                     });
                     //lastState = msg;
                 break;
-                /*case "_chat_": 
+                case "_chat_": 
                     chatArray.add(msg.substring(6));
-                    inbox(lastState);
-                break;*/
+                    Platform.runLater(new Runnable(){
+                        @Override
+                        public void run() {
+                            tablePane.updateChat(chatArray);
+                        }
+                    });                    
+                    //inbox(lastState);
+                break;
                 case "_bye__":
                     
                 break;
             }
-            lastState = msg;
+            if(!msg.substring(0, 6).equals("_chat_")) lastState = msg;
         }
         
     }
@@ -195,13 +237,12 @@ public class BlackjackClient extends Application{
             break;
         }
 
-        /*tablePane.getSendChat().setOnAction(new EventHandler<ActionEvent>(){
+        tablePane.getSendChat().setOnAction(new EventHandler<ActionEvent>(){
             @Override
             public void handle(ActionEvent event) {
-                sendMSG("_chat_:" + myName + ": " + tablePane.getChatMessage());    
+                sendChatMSG("_chat_[" + myName + "] " + tablePane.getChatMessage());
             }
-        });*/
-
+        });
 
         Scene scene = new Scene(tablePane, 1100, 500);
         stage.setScene(scene);
