@@ -84,6 +84,7 @@ public class BlackjackClient extends Application{
     }*/
 
     private void connectToServer() throws UnknownHostException, IOException{
+        running = true;
         clientSocket = new Socket("localhost", 1234);
         sender = new PrintWriter(clientSocket.getOutputStream(), true);
         receiver = new Scanner(clientSocket.getInputStream());
@@ -95,7 +96,7 @@ public class BlackjackClient extends Application{
             @Override
             public void run(){
                 String msg = getChatMSG();
-                while(msg != "bye"){
+                while(running){
                     inbox(msg);
                     msg = getChatMSG();
                 }
@@ -103,7 +104,6 @@ public class BlackjackClient extends Application{
         };
         chatHandler.start();
 
-        running = true;
         Thread inputChecker = new Thread(){
             public void run(){
                 while(running){

@@ -46,6 +46,7 @@ public class TablePane extends Pane{
     private TextField chatInput;
     private String myId;
     private Label messages;
+    private ScrollPane scrollMessages;
 
     public TablePane(String state, String whichPane, ArrayList<String> chatArray, String myId){
         String[] dealerAndPlayers = state.split("@");
@@ -83,12 +84,13 @@ public class TablePane extends Pane{
         messages.setPrefWidth(200);
         messages.setMaxWidth(200);
 
-        ScrollPane scrollMessages = new ScrollPane(messages);
+        scrollMessages = new ScrollPane(messages);
         scrollMessages.setHbarPolicy(ScrollBarPolicy.NEVER);
         scrollMessages.setVbarPolicy(ScrollBarPolicy.NEVER);
-        scrollMessages.setVvalue(1.0);
+        
         setSize(scrollMessages, 200, 270);
         scrollMessages.relocate(0, 0);
+        scrollMessages.setVvalue(1.0);
 
         chatInput = new TextField();
         setSize(chatInput, 150, 30);
@@ -175,6 +177,7 @@ public class TablePane extends Pane{
             s += line + "\n";
         }
         messages.setText(s);
+        scrollMessages.setVvalue(1.0);
     }
 
     private Pane createTurnPane(){
