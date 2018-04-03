@@ -83,7 +83,7 @@ public class BlackjackServer {
                         public void run() {
                             startTable();
                         }
-                    }, 5000);
+                    }, 20000);
                 }
             }
         }
