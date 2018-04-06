@@ -78,6 +78,7 @@ public class BlackjackServer {
                 startTable();
             } else {
                 if(socketQueue.size() == 1){
+                    timer = new Timer();
                     timer.schedule(new TimerTask(){
                         @Override
                         public void run() {

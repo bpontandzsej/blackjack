@@ -52,29 +52,49 @@ public class BlackjackClient extends Application{
             stage.setTitle("Blackjack - Connect");
             stage.setResizable(false);
             connectPane = new ConnectPane();
-            connectPane.getConnectButton().setOnAction(new EventHandler<ActionEvent>(){
-                @Override
-                public void handle(ActionEvent event) {
-                    if(connectPane.getNicknameInput().length()>0){
-                        try{
-                            connectToServer();
-                            connectPane.setWaitingText();
-                            sendMSG(connectPane.getNicknameInput());
-                            /*getMSG();
-                            createChatThread();*/
-                        } catch(UnknownHostException e){
-                            System.out.println("Nem letezo host");
-                        } catch(IOException e){
-                            System.out.println("Hiba tortent a socket letrehozasa soran");
-                        }  
-                    }
-                    myName = connectPane.getNicknameInput();
-                    //myId = getMSG();
-                }
-            });
             Scene scene = new Scene(connectPane, 500, 300);
             stage.setScene(scene);
             stage.show();
+            try{
+                connectToServer();
+                sendMSG("");
+                String names = getMSG();
+                connectPane.getConnectButton().setOnAction(new EventHandler<ActionEvent>(){
+                    @Override
+                    public void handle(ActionEvent event) {
+                        if(connectPane.getNicknameInput().length()>0){
+                            
+                            if(names.indexOf("#" + connectPane.getNicknameInput() + "#") == -1){
+                                sendMSG(connectPane.getNicknameInput());
+                                connectPane.setWaitingText();
+                                Thread inputChecker = new Thread(){
+                                    public void run(){
+                                        while(running){
+                                            inbox(getMSG());
+                                        }
+                                    }
+                                };
+                                inputChecker.start();
+                            }
+
+                            
+                            /*getMSG();
+                            createChatThread();*/
+                            
+                            
+                        }
+                        myName = connectPane.getNicknameInput();
+                        
+                        //myId = getMSG();
+                    }
+                });
+            } catch(UnknownHostException e){
+                System.out.println("Nem letezo host");
+            } catch(IOException e){
+                System.out.println("Hiba tortent a socket letrehozasa soran");
+            }
+            
+            
     }
 
     /*private void createChatThread(){
@@ -103,15 +123,6 @@ public class BlackjackClient extends Application{
             }
         };
         chatHandler.start();
-
-        Thread inputChecker = new Thread(){
-            public void run(){
-                while(running){
-                    inbox(getMSG());
-                }
-            }
-        };
-        inputChecker.start();
     }
 
     private void sendMSG(String msg){

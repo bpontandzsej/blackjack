@@ -13,7 +13,7 @@ public class Player extends Person{
     private int bet;
     private int status;
 
-    public Player(ArrayList<Socket> sockets, int id) throws IOException{
+    public Player(ArrayList<Socket> sockets, int id, ArrayList<String> names) throws IOException{
         /**
          * SET default VELUES
          */
@@ -31,8 +31,19 @@ public class Player extends Person{
         /**
          * GET NAME from the CLIENT except of the DEALER
          */
+        getMSG();
+        sendMSG(namesToString(names));
         this.name = getMSG();
+        
         System.out.println("en csatlakoztam" + name);        
+    }
+
+    private String namesToString(ArrayList<String> names){
+        String s = "#";
+        for(String name : names){
+            s += name + "#";
+        }
+        return s;
     }
 
 
@@ -40,7 +51,7 @@ public class Player extends Person{
         return this.name;
     }
 
-    public String getMSG(){
+    public String getMSG() throws NoSuchElementException{
         return receiver.nextLine();
     }
 

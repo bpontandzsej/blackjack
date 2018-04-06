@@ -13,20 +13,24 @@ public class BlackjackTable extends Thread{
     private Dealer dealer;
     private final int startMoney;
     private Deck deck;
+    private ArrayList<String> names;
 
     public BlackjackTable(int id, ArrayList<ArrayList<Socket>> sockets, Properties serverProperties/*Properties tableProperties*/){
         //this.id = id;
         players = new ArrayList<Player>();
+        names = new ArrayList<String>(); 
         int playerId = 0;
         for(ArrayList<Socket> socket : sockets){
             try{
-                players.add(new Player(socket, playerId));
+                players.add(new Player(socket, playerId, names));
+                names.add(players.get(players.size()-1).getName());
                 playerId++;
             } catch(IOException e){
                 System.out.print("Nem sikerult a kommunikacio megteremtese a klienssel");
             }
         }
         for(Player player : players){
+            
             player.sendMSG("_id___" + Integer.toString(player.getId()));
             player.getMSG();
             Thread chatHandler = new Thread(){
