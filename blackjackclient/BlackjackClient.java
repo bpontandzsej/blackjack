@@ -1,10 +1,13 @@
 package blackjackclient;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.Scanner;
 
 import blackjackclient.ConnectPane;
@@ -47,69 +50,80 @@ public class BlackjackClient extends Application{
 
     @Override
     public void start(Stage primarystage){
-            chatArray = new ArrayList<String>();
-            stage = primarystage;
-            stage.setTitle("Blackjack - Connect");
-            stage.setResizable(false);
-            connectPane = new ConnectPane();
-            Scene scene = new Scene(connectPane, 500, 300);
-            stage.setScene(scene);
-            stage.show();
-            try{
-                connectToServer();
-                sendMSG("");
-                String names = getMSG();
-                connectPane.getConnectButton().setOnAction(new EventHandler<ActionEvent>(){
-                    @Override
-                    public void handle(ActionEvent event) {
-                        if(connectPane.getNicknameInput().length()>0){
-                            
-                            if(names.indexOf("#" + connectPane.getNicknameInput() + "#") == -1){
-                                sendMSG(connectPane.getNicknameInput());
-                                connectPane.setWaitingText();
-                                Thread inputChecker = new Thread(){
-                                    public void run(){
-                                        while(running){
-                                            inbox(getMSG());
-                                        }
-                                    }
-                                };
-                                inputChecker.start();
-                            }
-
-                            
-                            /*getMSG();
-                            createChatThread();*/
-                            
-                            
-                        }
-                        myName = connectPane.getNicknameInput();
+        Properties clientProperties = getProperties();
+        chatArray = new ArrayList<String>();
+        stage = primarystage;
+        stage.setTitle("Blackjack - Connect");
+        stage.setResizable(false);
+        connectPane = new ConnectPane();
+        Scene scene = new Scene(connectPane, 500, 300);
+        stage.setScene(scene);
+        stage.show();
+        try{
+            connectToServer(clientProperties);
+            sendMSG("");
+            String names = getMSG();
+            connectPane.getConnectButton().setOnAction(new EventHandler<ActionEvent>(){
+                @Override
+                public void handle(ActionEvent event) {
+                    if(connectPane.getNicknameInput().length()>0){
                         
-                        //myId = getMSG();
+                        if(names.indexOf("#" + connectPane.getNicknameInput() + "#") == -1){
+                            sendMSG(connectPane.getNicknameInput());
+                            connectPane.setWaitingText();
+                            Thread inputChecker = new Thread(){
+                                public void run(){
+                                    while(running){
+                                        inbox(getMSG());
+                                    }
+                                }
+                            };
+                            inputChecker.start();
+                        }
+
+                        
+                        /*getMSG();
+                        createChatThread();*/
+                        
+                        
                     }
-                });
-            } catch(UnknownHostException e){
-                System.out.println("Nem letezo host");
-            } catch(IOException e){
-                System.out.println("Hiba tortent a socket letrehozasa soran");
-            }
-            
-            
+                    myName = connectPane.getNicknameInput();
+                    
+                    //myId = getMSG();
+                }
+            });
+        } catch(UnknownHostException e){
+            System.out.println("Nem letezo host");
+        } catch(IOException e){
+            System.out.println("Hiba tortent a socket letrehozasa soran");
+        } catch(Exception e){
+
+        } 
     }
 
-    /*private void createChatThread(){
-        clientSocket = new Socket("localhost", 1234);
-        sender = new PrintWriter(clientSocket.getOutputStream(), true);
-        receiver = new Scanner(clientSocket.getInputStream());
-    }*/
+    static Properties getProperties(){
+        final String propertiesFileName = "blackjackclient/default.properties";
 
-    private void connectToServer() throws UnknownHostException, IOException{
+        Properties properties = new Properties();
+        InputStream inputForConfig = null;
+        try {
+            inputForConfig = new FileInputStream(propertiesFileName);
+            properties.load(inputForConfig);
+            inputForConfig.close();
+        } catch (IOException e) {
+
+        } 
+        return properties;
+    }
+
+    private void connectToServer(Properties clientProperties) throws UnknownHostException, IOException, Exception{
         running = true;
-        clientSocket = new Socket("localhost", 1234);
+        clientSocket = new Socket(clientProperties.getProperty("host"), Integer.parseInt(clientProperties.getProperty("port")));
+
         sender = new PrintWriter(clientSocket.getOutputStream(), true);
         receiver = new Scanner(clientSocket.getInputStream());
 
-        chatClientSocket = new Socket("localhost", 1235);
+        chatClientSocket = new Socket(clientProperties.getProperty("host"), Integer.parseInt(clientProperties.getProperty("chatport")));
         chatSender = new PrintWriter(chatClientSocket.getOutputStream(), true);
         chatReceiver = new Scanner(chatClientSocket.getInputStream());
         Thread chatHandler = new Thread(){
@@ -142,6 +156,7 @@ public class BlackjackClient extends Application{
     }
 
     private void inbox(String msg){
+        System.out.println(msg);
         if(msg.substring(0, 6).equals("_svms_")){
             chatArray.add(msg.substring(6));
             inbox(lastState);

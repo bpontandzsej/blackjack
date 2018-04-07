@@ -19,11 +19,14 @@ feltett tétet, viszont ha a játékos nyer, visszakapja a tétet, valamint az o
 számú további zsetont ad a játékosnak. Egyenlőség esetén a játékos visszakapja a tétet. A játék
 akkor ér véget amikor a osztó vagy az összes játékos zsetonjai elfogynak.
 
+szerver:
+fix host és port +
+ha lecsatlakozik valaki, visszacsatlakozási próba -
 
-fix host és port
-egyedi nickname
+kliens:
+fix host és port +
+egyedi nickname +
 popup a kör végéről, kattintásig/vagy időzítve
-ha lecsatlakozik valaki, visszacsatlakozási próba
 következő játékos tétnél
 lapok más elrendezése
 esélyszámolás

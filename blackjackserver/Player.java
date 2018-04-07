@@ -13,7 +13,7 @@ public class Player extends Person{
     private int bet;
     private int status;
 
-    public Player(ArrayList<Socket> sockets, int id, ArrayList<String> names) throws IOException{
+    public Player(ArrayList<Socket> sockets, int id, ArrayList<String> names) throws Exception{
         /**
          * SET default VELUES
          */
@@ -31,10 +31,10 @@ public class Player extends Person{
         /**
          * GET NAME from the CLIENT except of the DEALER
          */
+
         getMSG();
         sendMSG(namesToString(names));
-        this.name = getMSG();
-        
+        this.name = getMSG();        
         System.out.println("en csatlakoztam" + name);        
     }
 
@@ -51,15 +51,15 @@ public class Player extends Person{
         return this.name;
     }
 
-    public String getMSG() throws NoSuchElementException{
+    public String getMSG() throws Exception{
         return receiver.nextLine();
     }
 
-    public void sendMSG(String msg){
+    public void sendMSG(String msg) throws Exception{
         sender.println(msg);
     }
 
-    public String getChatMSG(){
+    public String getChatMSG() throws Exception{
         return chatReceiver.nextLine();
     }
 
@@ -87,7 +87,7 @@ public class Player extends Person{
         return this.status;
     }
 
-    public void sayBye(){
+    public void sayBye() throws Exception{
         sendMSG("_bye__");
     }
 }

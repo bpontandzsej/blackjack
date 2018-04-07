@@ -3,6 +3,8 @@ package blackjackserver;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+
 import blackjackserver.Player;
 import blackjackserver.Dealer;
 import blackjackserver.Deck;
@@ -14,6 +16,7 @@ public class BlackjackTable extends Thread{
     private final int startMoney;
     private Deck deck;
     private ArrayList<String> names;
+    private ArrayList<Player> needToDelete;
 
     public BlackjackTable(int id, ArrayList<ArrayList<Socket>> sockets, Properties serverProperties/*Properties tableProperties*/){
         //this.id = id;
@@ -27,25 +30,45 @@ public class BlackjackTable extends Thread{
                 playerId++;
             } catch(IOException e){
                 System.out.print("Nem sikerult a kommunikacio megteremtese a klienssel");
+            } catch(Exception e){
+
             }
         }
+        needToDelete = new ArrayList<Player>();
         for(Player player : players){
-            
-            player.sendMSG("_id___" + Integer.toString(player.getId()));
-            player.getMSG();
+            try{
+                player.sendMSG("_id___" + Integer.toString(player.getId()));
+                player.getMSG();
+            } catch(Exception e){
+                System.out.println("asd3");
+                needToDelete.add(player);
+            }
             Thread chatHandler = new Thread(){
                 @Override
                 public void run(){
-                    System.out.println(player.getName() + " chat stated");
-                    String msg = player.getChatMSG();
-                    while(msg!="bye"){
-                        sendChatToAll(msg);
+                    System.out.println(player.getName() + " chat started");
+                    String msg = "";
+                    try{
                         msg = player.getChatMSG();
+                        while(msg!="bye"){
+                            
+                                System.out.println("elotte");
+                                sendChatToAll(msg);
+                                System.out.println("kozbe");
+                                msg = player.getChatMSG();
+                                System.out.println("utana");
+                            
+                        }
+                    } catch(Exception e){
+                        System.out.println("asd5");
+                        //players.remove(player);
                     }
                 } 
             };
             chatHandler.start();
         }
+        players.removeAll(needToDelete);
+
         dealer = new Dealer();
         startMoney = Integer.parseInt(serverProperties.getProperty("startmoney"));
         System.out.println("letrejott a szal");
@@ -63,11 +86,19 @@ public class BlackjackTable extends Thread{
             serverMSG("Round " + Integer.toString(roundCount) + ": STARTED");
             newGame();
             sendStatusToAll(true);
+            
+            needToDelete = new ArrayList<Player>();
             for(Player player : players){
-                player.sendMSG(getStatus(true, "_bet__"));
-                player.setBet(Integer.parseInt(player.getMSG()));
-                sendStatusToAll(true);
+                try{
+                    player.sendMSG(getStatus(true, "_bet__"));
+                    player.setBet(Integer.parseInt(player.getMSG()));
+                    sendStatusToAll(true);
+                } catch(Exception e){
+                    System.out.println("asd6");
+                    needToDelete.add(player);
+                }
             }
+            players.removeAll(needToDelete);
             for(Player player : players){
                 player.addCard(deck.takeCard());
                 player.addCard(deck.takeCard());
@@ -77,29 +108,38 @@ public class BlackjackTable extends Thread{
             dealer.addCard(deck.takeCard());
             dealer.addCard(deck.takeCard());
             sendStatusToAll(true);
+            needToDelete = new ArrayList<Player>();
             for(Player player : players){
                 player.setStatus(1);
                 sendStatusToAll(true);
                 String s = "";
-                while(!(s.equals("#stop")) && (getSumInInt(player.getSum())<21)){
-                    player.sendMSG(getStatus(true, "_turn_"));
-                    s = player.getMSG();
-                    if(s.equals("#card")){
-                        player.addCard(deck.takeCard());
-                    } /*else {
+                try{
+                    while(!(s.equals("#stop")) && (getSumInInt(player.getSum())<21)){
+                        
+                            player.sendMSG(getStatus(true, "_turn_"));
+                            s = player.getMSG();
+                            if(s.equals("#card")){
+                                player.addCard(deck.takeCard());
+                            } /*else {
 
-                        if(s.substring(0, 6).equals("_chat_")){
-                            sendToAll(s);
-                        }
-                    }*/
+                                if(s.substring(0, 6).equals("_chat_")){
+                                    sendToAll(s);
+                                }
+                            }*/
+                            player.setRealSum(getSumInInt(player.getSum()));
+                            sendStatusToAll(true);
+                        
+                    }
+                    player.setStatus(2);
                     player.setRealSum(getSumInInt(player.getSum()));
-                    sendStatusToAll(true);
+                } catch(Exception e){
+                    System.out.println("asd7");
+                    player.setStatus(2);
+                    needToDelete.add(player);
                 }
-                
-                player.setStatus(2);
-                player.setRealSum(getSumInInt(player.getSum()));
                 sendStatusToAll(true);
             }
+            players.removeAll(needToDelete);
             dealer.setRealSum(getSumInInt(dealer.getSum()));
             sendStatusToAll(false);
             System.out.println(checkAll());
@@ -152,7 +192,11 @@ public class BlackjackTable extends Thread{
             wait(2);
             for(Player player : new ArrayList<Player>(players)){
                 if(player.getMoney()<=0){
-                    player.sayBye();
+                    try{
+                        player.sayBye();
+                    } catch(Exception e){
+
+                    }
                     players.remove(player);
                     serverMSG(player.getName() + " left the game");
                 }
@@ -160,7 +204,12 @@ public class BlackjackTable extends Thread{
         }
 
         for(Player player : players){
-            player.sendMSG("#byebye");
+            try{
+                player.sendMSG("#byebye");
+            } catch(Exception e){
+                System.out.println("asd8");
+                players.remove(player);
+            }
         }
         System.out.println("lelepett mindenki");
     }
@@ -241,10 +290,17 @@ public class BlackjackTable extends Thread{
     }*/
 
     private void sendStatusToAll(boolean hideSecond){
+        //needToDelete = new ArrayList<Player>();
         for(Player player : players){
-            player.sendMSG(getStatus(hideSecond, "_stat_"));
-            player.getMSG();
+            try{
+                player.sendMSG(getStatus(hideSecond, "_stat_"));
+                player.getMSG();
+            } catch(Exception e){
+                System.out.println("asd9");
+                //needToDelete.add(player);
+            }
         }
+        //players.removeAll(needToDelete);
     }
 
     private void serverMSG(String msg){
@@ -252,15 +308,27 @@ public class BlackjackTable extends Thread{
     }
 
     private void sendToAll(String msg){
+        needToDelete = new ArrayList<Player>();
         for(Player player : players){
-            player.sendMSG(msg);
-            player.getMSG();
+            try{
+                player.sendMSG(msg);
+                player.getMSG();
+            } catch(Exception e){
+                System.out.println("asd12");
+                needToDelete.add(player);
+            }
         }
+        players.removeAll(needToDelete);
     }
 
     private void sendChatToAll(String msg){
         for(Player player : players){
-            player.sendChatMSG(msg);
+            try{
+                player.sendChatMSG(msg);
+            } catch(Exception e){
+                System.out.println("asd11");
+                players.remove(player);
+            }
         }
     }
 

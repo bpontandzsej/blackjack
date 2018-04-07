@@ -29,8 +29,8 @@ public class BlackjackServer {
         tableId = 0;
         tableProperties = new Properties();
         try{
-            serverSocket = new ServerSocket(1234);
-            chatServerSocket = new ServerSocket(1235);
+            serverSocket = new ServerSocket(Integer.parseInt(serverProperties.getProperty("port")));
+            chatServerSocket = new ServerSocket(Integer.parseInt(serverProperties.getProperty("chatport")));
             //Integer.parseInt(serverProperties.getProperty("port"))+1
             PLAYERS_PER_TABLE = Integer.parseInt(serverProperties.getProperty("maxplayer"));
             tableProperties.setProperty("startmoney", serverProperties.getProperty("startmoney"));
