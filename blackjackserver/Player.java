@@ -90,4 +90,9 @@ public class Player extends Person{
     public void sayBye() throws Exception{
         sendMSG("_bye__");
     }
+
+    public void flush(){
+        sender.flush();
+        chatSender.flush();
+    }
 }

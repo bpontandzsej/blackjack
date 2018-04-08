@@ -22,6 +22,7 @@ akkor ér véget amikor a osztó vagy az összes játékos zsetonjai elfogynak.
 szerver:
 fix host és port +
 ha lecsatlakozik valaki, visszacsatlakozási próba -
+ha lecsatlakozik, kuka +
 
 kliens:
 fix host és port +
@@ -30,3 +31,29 @@ popup a kör végéről, kattintásig/vagy időzítve
 következő játékos tétnél
 lapok más elrendezése
 esélyszámolás
+
+
+
+
+DOKU:
+Külső borító
+Belső borító 
+Téma bejelentő
+Tartalomjegyzek (és esetleg ábrajegyzék) 
+Bevezetés
+-Motiváció
+-Dolgozat eredményei
+-Dolgozat szerkezete
+Felhasználói doksi
+-installációs előfeltételek
+-installáció
+-használat
+-jellegzetes hibák, azok kezelése (ha előfordulhat) 
+Fejlesztői doksi
+-tervezés
+--a módszer mögötti elmélet
+--felületi terv, adatbazisterv, komponensdiagram, attól függ mit/milyen részletes munkát csináltál
+-implementáció
+--a csinált osztályok leírása, a metódusoké, mi mit csinál, hogy működik, stb.
+-tesztelési terv és eredmények
+Irodalomjegyzék

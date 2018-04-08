@@ -42,6 +42,7 @@ public class BlackjackTable extends Thread{
             } catch(Exception e){
                 System.out.println("asd3");
                 needToDelete.add(player);
+                player.flush();
             }
             Thread chatHandler = new Thread(){
                 @Override
@@ -60,8 +61,8 @@ public class BlackjackTable extends Thread{
                             
                         }
                     } catch(Exception e){
-                        System.out.println("asd5");
-                        //players.remove(player);
+                        System.out.println("chat off");
+                        player.flush();
                     }
                 } 
             };
@@ -92,11 +93,12 @@ public class BlackjackTable extends Thread{
                 try{
                     player.sendMSG(getStatus(true, "_bet__"));
                     player.setBet(Integer.parseInt(player.getMSG()));
-                    sendStatusToAll(true);
                 } catch(Exception e){
-                    System.out.println("asd6");
+                    System.out.println("bet off");
                     needToDelete.add(player);
+                    player.flush();
                 }
+                sendStatusToAll(true);
             }
             players.removeAll(needToDelete);
             for(Player player : players){
@@ -115,28 +117,22 @@ public class BlackjackTable extends Thread{
                 String s = "";
                 try{
                     while(!(s.equals("#stop")) && (getSumInInt(player.getSum())<21)){
-                        
-                            player.sendMSG(getStatus(true, "_turn_"));
-                            s = player.getMSG();
-                            if(s.equals("#card")){
-                                player.addCard(deck.takeCard());
-                            } /*else {
-
-                                if(s.substring(0, 6).equals("_chat_")){
-                                    sendToAll(s);
-                                }
-                            }*/
-                            player.setRealSum(getSumInInt(player.getSum()));
-                            sendStatusToAll(true);
+                        player.sendMSG(getStatus(true, "_turn_"));
+                        s = player.getMSG();
+                        if(s.equals("#card")){
+                            player.addCard(deck.takeCard());
+                        }
+                        player.setRealSum(getSumInInt(player.getSum()));
+                        sendStatusToAll(true);
                         
                     }
-                    player.setStatus(2);
                     player.setRealSum(getSumInInt(player.getSum()));
                 } catch(Exception e){
-                    System.out.println("asd7");
-                    player.setStatus(2);
+                    System.out.println("asd7");                    
                     needToDelete.add(player);
+                    player.flush();
                 }
+                player.setStatus(2);
                 sendStatusToAll(true);
             }
             players.removeAll(needToDelete);
@@ -194,8 +190,8 @@ public class BlackjackTable extends Thread{
                 if(player.getMoney()<=0){
                     try{
                         player.sayBye();
-                    } catch(Exception e){
-
+                    } catch(Exception e){ 
+                        player.flush();
                     }
                     players.remove(player);
                     serverMSG(player.getName() + " left the game");
@@ -209,6 +205,7 @@ public class BlackjackTable extends Thread{
             } catch(Exception e){
                 System.out.println("asd8");
                 players.remove(player);
+                player.flush();
             }
         }
         System.out.println("lelepett mindenki");
@@ -296,7 +293,7 @@ public class BlackjackTable extends Thread{
                 player.sendMSG(getStatus(hideSecond, "_stat_"));
                 player.getMSG();
             } catch(Exception e){
-                System.out.println("asd9");
+                System.out.println("status off");
                 //needToDelete.add(player);
             }
         }
@@ -316,6 +313,7 @@ public class BlackjackTable extends Thread{
             } catch(Exception e){
                 System.out.println("asd12");
                 needToDelete.add(player);
+                player.flush();
             }
         }
         players.removeAll(needToDelete);
@@ -328,6 +326,7 @@ public class BlackjackTable extends Thread{
             } catch(Exception e){
                 System.out.println("asd11");
                 players.remove(player);
+                player.flush();
             }
         }
     }
