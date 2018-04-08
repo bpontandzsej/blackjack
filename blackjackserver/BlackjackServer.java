@@ -51,7 +51,7 @@ public class BlackjackServer {
     public static void main(String[] args){
         Properties serverProperties = getProperties(args);
         BlackjackServer blackjackServer = new BlackjackServer(serverProperties);
-        blackjackServer.run();
+        blackjackServer.run(serverProperties);
     }
 
     /**
@@ -59,7 +59,7 @@ public class BlackjackServer {
      * When the count of sockets is enough the method adds a table to tables
      * which extends a thread, then starts the thread
      */
-    private void run(){
+    private void run(Properties serverProperties){
         socketQueue = new ArrayList<ArrayList<Socket>>();
         Timer timer = new Timer();
         while(true){
@@ -84,7 +84,7 @@ public class BlackjackServer {
                         public void run() {
                             startTable();
                         }
-                    }, 20000);
+                    }, Integer.parseInt(serverProperties.getProperty("chatport"))*1000);
                 }
             }
         }

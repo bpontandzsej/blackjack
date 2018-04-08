@@ -91,6 +91,17 @@ public class Player extends Person{
         sendMSG("_bye__");
     }
 
+    public void close(){
+        try{
+            sender.close();
+            receiver.close();
+            chatSender.close();
+            chatReceiver.close();
+        } catch(Exception e){
+            
+        }
+    }
+
     public void flush(){
         sender.flush();
         chatSender.flush();
