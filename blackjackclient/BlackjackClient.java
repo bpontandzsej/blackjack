@@ -225,7 +225,6 @@ public class BlackjackClient extends Application{
                         }
                     });
                     sendMSG("");
-                    
                 break;
             }
             if(!msg.substring(0, 6).equals("_chat_")) lastState = msg;

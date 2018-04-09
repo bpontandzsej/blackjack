@@ -449,7 +449,7 @@ public class TablePane extends Pane{
     
             ImageView c = new ImageView(color);
             c.setFitHeight(25); 
-            c.setFitWidth(25); 
+            c.setFitWidth(25);
             
             cardPane.setTop(tl);
             cardPane.setCenter(c);
@@ -466,7 +466,6 @@ public class TablePane extends Pane{
 
     private void format(javafx.scene.layout.Region obj, String bgcolor, String brcolor, int round){
         obj.setStyle("-fx-background-color: " + bgcolor + "; -fx-background-radius: " + Integer.toString(round) + "; -fx-border-color: " + brcolor + "; -fx-border-radius: " + Integer.toString(round) + ";");
-
     }
 
     
