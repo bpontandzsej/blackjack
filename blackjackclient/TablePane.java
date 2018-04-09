@@ -358,11 +358,11 @@ public class TablePane extends Pane{
             sumPane.getChildren().addAll(sumIcon, sum);
         }
         
-        VBox cardsPane = new VBox(5);
+        Pane cardsPane = new Pane();
         cardsPane.setMinWidth(150);
         cardsPane.setPrefWidth(150);
         cardsPane.setMaxWidth(150);
-        cardsPane.setAlignment(Pos.CENTER);
+        //cardsPane.setAlignment(Pos.CENTER);
         if(data[5].length()>0){
             createCardsPane(cardsPane, data[5], true);
         }
@@ -388,13 +388,15 @@ public class TablePane extends Pane{
         if(cardsString.length()>0){
             String[] cards = cardsString.split(" ");
             for(int i=0; i<cards.length; i++){
-                cardsPane.getChildren().add(createCard(cards[i]));
+                BorderPane card = createCard(cards[i]);
+                card.relocate(50, i*30);
+                cardsPane.getChildren().add(card);
             }
-            if(player){
+            /*if(player){
                 ObservableList<Node> workingCollection = FXCollections.observableArrayList(cardsPane.getChildren());
                 Collections.reverse(workingCollection);
                 cardsPane.getChildren().setAll(workingCollection);
-            }
+            }*/
         }
     }
 
