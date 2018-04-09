@@ -101,6 +101,8 @@ public class BlackjackTable extends Thread{
             needToDelete = new ArrayList<Player>();
             for(Player player : players){
                 try{
+                    player.setStatus(1);
+                    sendStatusToAll(true);
                     player.sendMSG(getStatus(true, "_bet__"));
                     player.setBet(Integer.parseInt(player.getMSG()));
                 } catch(Exception e){
@@ -109,6 +111,7 @@ public class BlackjackTable extends Thread{
                     player.flush();
                     player.close();
                 }
+                player.setStatus(2);
                 sendStatusToAll(true);
             }
             players.removeAll(needToDelete);
@@ -288,30 +291,19 @@ public class BlackjackTable extends Thread{
         return status.substring(0, status.length()-1);
     }
 
-    /*private String mergeInteger(String a, int b){
-        return a + "-" + Integer.toString(b) + ";";
-    }*/
-
     private String str(int s){
         return Integer.toString(s);
     }
 
-    /*private String mergeString(String a, String b){
-        return a + "-" + b + ";";
-    }*/
-
     private void sendStatusToAll(boolean hideSecond){
-        //needToDelete = new ArrayList<Player>();
         for(Player player : players){
             try{
                 player.sendMSG(getStatus(hideSecond, "_stat_"));
                 player.getMSG();
             } catch(Exception e){
                 System.out.println("status off");
-                //needToDelete.add(player);
             }
         }
-        //players.removeAll(needToDelete);
     }
 
     private void serverMSG(String msg){
