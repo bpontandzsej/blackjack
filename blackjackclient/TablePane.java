@@ -392,11 +392,6 @@ public class TablePane extends Pane{
                 card.relocate(50, i*30);
                 cardsPane.getChildren().add(card);
             }
-            /*if(player){
-                ObservableList<Node> workingCollection = FXCollections.observableArrayList(cardsPane.getChildren());
-                Collections.reverse(workingCollection);
-                cardsPane.getChildren().setAll(workingCollection);
-            }*/
         }
     }
 

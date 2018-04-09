@@ -205,7 +205,6 @@ public class BlackjackClient extends Application{
                                     if(connectPane.getNicknameInput().length()>0){
                                         if(names.indexOf("#" + connectPane.getNicknameInput() + "#") == -1){
                                             sendMSG(connectPane.getNicknameInput());
-                                            connectPane.setWaitingText();
                                         }
                                     }
                                     myName = connectPane.getNicknameInput();

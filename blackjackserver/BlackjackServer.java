@@ -17,7 +17,6 @@ public class BlackjackServer {
     private ServerSocket chatServerSocket;
     private int PLAYERS_PER_TABLE;
     private ArrayList<BlackjackTable> tables;
-    //private int START_MONEY;
     private Properties tableProperties;
     private ArrayList<ArrayList<Socket>> socketQueue;
 
@@ -31,10 +30,8 @@ public class BlackjackServer {
         try{
             serverSocket = new ServerSocket(Integer.parseInt(serverProperties.getProperty("port")));
             chatServerSocket = new ServerSocket(Integer.parseInt(serverProperties.getProperty("chatport")));
-            //Integer.parseInt(serverProperties.getProperty("port"))+1
             PLAYERS_PER_TABLE = Integer.parseInt(serverProperties.getProperty("maxplayer"));
             tableProperties.setProperty("startmoney", serverProperties.getProperty("startmoney"));
-            //START_MONEY = Integer.parseInt(serverProperties.getProperty("startmoney"));
             tables = new ArrayList<BlackjackTable>();
         } catch(IOException e){
             System.out.println("Nem sikerult letrehozni a szervert");

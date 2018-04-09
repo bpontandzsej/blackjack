@@ -17,7 +17,7 @@ public class ConnectPane extends GridPane{
         setVgap(10);
         if(names == ""){
             Label namesLabel = new Label("Varakozas a tobbi jatekosra...");
-            add(namesLabel, 1, 0);
+            add(namesLabel, 1, 1);
         } else {
             String[] nameArray = names.split("#");
             Label namesLabel = new Label("Csatlakozott:\n");
@@ -26,19 +26,16 @@ public class ConnectPane extends GridPane{
                     namesLabel.setText(namesLabel.getText() + nameArray[i] + "\n");
                 }
             }
-            add(namesLabel, 1, 0);
+            add(namesLabel, 1, 2);
             if(input){
                 Label nickname = new Label("Nickname: ");
-                add(nickname, 0, 1);
+                add(nickname, 0, 0);
 
                 nicknameInput = new TextField();
-                add(nicknameInput, 1, 1);
+                add(nicknameInput, 1, 0);
 
                 connectButton = new Button("Connect");
-                add(connectButton, 2, 1);
-
-                connectingText = new Text();
-                add(connectingText, 1, 2, 2, 1);
+                add(connectButton, 2, 0);
             }
         }
                 
