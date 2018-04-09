@@ -35,11 +35,11 @@ public class Player extends Person{
         getMSG();
         sendMSG(namesToString(names));
         this.name = getMSG();        
-        System.out.println("en csatlakoztam" + name);        
+        System.out.println("en csatlakoztam " + name);        
     }
 
     private String namesToString(ArrayList<String> names){
-        String s = "#";
+        String s = "_gtnm_#";
         for(String name : names){
             s += name + "#";
         }

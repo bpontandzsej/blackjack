@@ -55,43 +55,22 @@ public class BlackjackClient extends Application{
         stage = primarystage;
         stage.setTitle("Blackjack - Connect");
         stage.setResizable(false);
-        connectPane = new ConnectPane();
+        connectPane = new ConnectPane(false, "");
         Scene scene = new Scene(connectPane, 500, 300);
         stage.setScene(scene);
         stage.show();
         try{
             connectToServer(clientProperties);
             sendMSG("");
-            String names = getMSG();
-            connectPane.getConnectButton().setOnAction(new EventHandler<ActionEvent>(){
-                @Override
-                public void handle(ActionEvent event) {
-                    if(connectPane.getNicknameInput().length()>0){
-                        
-                        if(names.indexOf("#" + connectPane.getNicknameInput() + "#") == -1){
-                            sendMSG(connectPane.getNicknameInput());
-                            connectPane.setWaitingText();
-                            Thread inputChecker = new Thread(){
-                                public void run(){
-                                    while(running){
-                                        inbox(getMSG());
-                                    }
-                                }
-                            };
-                            inputChecker.start();
-                        }
-
-                        
-                        /*getMSG();
-                        createChatThread();*/
-                        
-                        
+            Thread inputChecker = new Thread(){
+                public void run(){
+                    while(running){
+                        inbox(getMSG());
                     }
-                    myName = connectPane.getNicknameInput();
-                    
-                    //myId = getMSG();
                 }
-            });
+            };
+            inputChecker.start();
+            
         } catch(UnknownHostException e){
             System.out.println("Nem letezo host");
         } catch(IOException e){
@@ -174,8 +153,6 @@ public class BlackjackClient extends Application{
                         }
                     });
                     sendMSG("");
-                    //lastState = msg;
-                    
                 break;
                 case "_stat_":
                     Platform.runLater(new Runnable(){
@@ -185,7 +162,6 @@ public class BlackjackClient extends Application{
                         }
                     });
                     sendMSG("");
-                    //lastState = msg;
                 break;
                 case "_bet__":
                     Platform.runLater(new Runnable(){
@@ -194,7 +170,6 @@ public class BlackjackClient extends Application{
                             createTableScene(msg.substring(6), "bet", chatArray);
                         }
                     });
-                    //lastState = msg;
                 break;
                 case "_turn_":
                     Platform.runLater(new Runnable(){
@@ -203,7 +178,6 @@ public class BlackjackClient extends Application{
                             createTableScene(msg.substring(6), "turn", chatArray);
                         }
                     });
-                    //lastState = msg;
                 break;
                 case "_chat_": 
                     chatArray.add(msg.substring(6));
@@ -212,10 +186,46 @@ public class BlackjackClient extends Application{
                         public void run() {
                             tablePane.updateChat(chatArray);
                         }
-                    });                    
-                    //inbox(lastState);
+                    });
                 break;
                 case "_bye__":
+                    
+                break;
+                case "_gtnm_":
+                    Platform.runLater(new Runnable(){
+                        @Override
+                        public void run() {
+                            String names = msg.substring(6);
+                            ConnectPane connectPane = new ConnectPane(true, names);
+                            Scene scene = new Scene(connectPane, 500, 300);
+                            stage.setScene(scene);
+                            connectPane.getConnectButton().setOnAction(new EventHandler<ActionEvent>(){
+                                @Override
+                                public void handle(ActionEvent event) {
+                                    if(connectPane.getNicknameInput().length()>0){
+                                        if(names.indexOf("#" + connectPane.getNicknameInput() + "#") == -1){
+                                            sendMSG(connectPane.getNicknameInput());
+                                            connectPane.setWaitingText();
+                                        }
+                                    }
+                                    myName = connectPane.getNicknameInput();
+                                }
+                            });
+                        }
+                    });
+                    
+                break;
+                case "_nms__":
+                    Platform.runLater(new Runnable(){
+                        @Override
+                        public void run() {
+                            String names = msg.substring(6);
+                            ConnectPane connectPane = new ConnectPane(false, names);
+                            Scene scene = new Scene(connectPane, 500, 300);
+                            stage.setScene(scene);
+                        }
+                    });
+                    sendMSG("");
                     
                 break;
             }

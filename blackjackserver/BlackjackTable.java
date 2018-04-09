@@ -27,6 +27,7 @@ public class BlackjackTable extends Thread{
             try{
                 players.add(new Player(socket, playerId, names));
                 names.add(players.get(players.size()-1).getName());
+                sendToAll(namesToString(names));
                 playerId++;
             } catch(IOException e){
                 System.out.print("Nem sikerult a kommunikacio megteremtese a klienssel");
@@ -74,6 +75,14 @@ public class BlackjackTable extends Thread{
         dealer = new Dealer();
         startMoney = Integer.parseInt(serverProperties.getProperty("startmoney"));
         System.out.println("letrejott a szal");
+    }
+
+    private String namesToString(ArrayList<String> names){
+        String s = "_nms__#";
+        for(String name : names){
+            s += name + "#";
+        }
+        return s;
     }
 
     public void run(){
