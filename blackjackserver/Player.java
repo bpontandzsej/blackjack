@@ -14,6 +14,7 @@ public class Player extends Person{
     private int status;
 
     public Player(ArrayList<Socket> sockets, int id, ArrayList<String> names) throws Exception{
+        super();
         /**
          * SET default VELUES
          */

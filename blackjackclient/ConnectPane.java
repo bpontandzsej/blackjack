@@ -32,6 +32,11 @@ public class ConnectPane extends GridPane{
                 add(nickname, 0, 0);
 
                 nicknameInput = new TextField();
+                nicknameInput.textProperty().addListener((observable, oldValue, newValue) -> {
+                    if (!newValue.matches("\\sa-zA-Z0-9.,-_!*")) {
+                        nicknameInput.setText(newValue.replaceAll("[^\\sa-zA-Z0-9.,-_!]", ""));
+                    }
+                });
                 add(nicknameInput, 1, 0);
 
                 connectButton = new Button("Connect");

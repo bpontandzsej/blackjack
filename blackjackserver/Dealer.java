@@ -2,6 +2,7 @@ package blackjackserver;
 
 public class Dealer extends Person{
     public Dealer(){
+        super();
         /**
          * SET default VELUES
          */

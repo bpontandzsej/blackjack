@@ -2,7 +2,7 @@ package blackjackserver;
 
 import java.util.*;
 
-public class Person{
+public abstract  class Person{
     protected String name;
     private int money;
     protected ArrayList<Card> cards;
