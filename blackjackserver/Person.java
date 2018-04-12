@@ -62,6 +62,8 @@ public abstract  class Person{
         }
         Collections.sort(sums);
         Collections.reverse(sums);
+        Set<Integer> sumSet = new HashSet<Integer>(sums);
+        sums = new ArrayList<Integer>(sumSet);
         String s = "";
         for(Integer sum : sums){
             if(sum<=21){

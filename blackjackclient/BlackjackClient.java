@@ -137,8 +137,8 @@ public class BlackjackClient extends Application{
     private void inbox(String msg){
         System.out.println(msg);
         if(msg.substring(0, 6).equals("_svms_")){
-            chatArray.add(msg.substring(6));
-            inbox(lastState);
+            //chatArray.add(msg.substring(6));
+            //inbox(lastState);
         } else {
             switch(msg.substring(0, 6)){
                 case "_id___":
@@ -149,9 +149,9 @@ public class BlackjackClient extends Application{
                     Platform.runLater(new Runnable(){
                         @Override
                         public void run() {
-                            //createBlankTableScene();
                             tablePane = new TablePane(myId);
                             initButtons();
+                            tablePane.updateChatPane(chatArray);
                             Scene scene = new Scene(tablePane, 1100, 500);
                             stage.setScene(scene);
                         }
@@ -163,8 +163,6 @@ public class BlackjackClient extends Application{
                         @Override
                         public void run() {
                             updateDealerAndPlayers(msg.substring(6));
-                            //createTableScene(msg.substring(6), "", chatArray);
-                            
                         }
                     });
                     sendMSG("");
@@ -173,7 +171,6 @@ public class BlackjackClient extends Application{
                     Platform.runLater(new Runnable(){
                         @Override
                         public void run() {
-                            //createTableScene(msg.substring(6), "bet", chatArray);
                             tablePane.updateActionPane("_bet__", msg.substring(6));
                             updateDealerAndPlayers(msg.substring(6));
                             initBetButtons();
@@ -184,7 +181,6 @@ public class BlackjackClient extends Application{
                     Platform.runLater(new Runnable(){
                         @Override
                         public void run() {
-                            //createTableScene(msg.substring(6), "turn", chatArray);
                             tablePane.updateActionPane("_turn_", msg.substring(6));
                             updateDealerAndPlayers(msg.substring(6));
                         }
@@ -249,12 +245,6 @@ public class BlackjackClient extends Application{
         tablePane.updatePlayerPane(dealerAndPlayers[1]);
     }
 
-    /*private void createTableScene(){
-        tablePane = new TablePane(myId);
-        Scene scene = new Scene(tablePane, 1100, 500);
-        stage.setScene(scene);
-    }*/
-
     private void initButtons(){
         tablePane.getCardButton().setOnAction(new EventHandler<ActionEvent>(){
             @Override
@@ -273,7 +263,10 @@ public class BlackjackClient extends Application{
         tablePane.getSendChat().setOnAction(new EventHandler<ActionEvent>(){
             @Override
             public void handle(ActionEvent event) {
-                sendChatMSG("_chat_[" + myName + "] " + tablePane.getChatMessage());
+                String s = tablePane.getChatMessage();
+                if(s.length()>0){
+                    sendChatMSG("_chat_[" + myName + "] " + s);
+                }
             }
         });
     }
@@ -292,22 +285,4 @@ public class BlackjackClient extends Application{
             }
         });
     }
-
-    /*private void createTableScene(String state, String whichPane, ArrayList<String> chatArray){
-        
-        switch(whichPane){
-            case "bet":
-                
-            break;
-
-            case "turn":
-                
-            break;
-        }
-
-        
-
-        Scene scene = new Scene(tablePane, 1100, 500);
-        stage.setScene(scene);
-    }*/
 }
