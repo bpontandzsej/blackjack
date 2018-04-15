@@ -60,8 +60,7 @@ public abstract  class Person{
                 sums.addAll(copy);
             }
         }
-        Collections.sort(sums);
-        Collections.reverse(sums);
+        Collections.sort(sums, Collections.reverseOrder());
         Set<Integer> sumSet = new HashSet<Integer>(sums);
         sums = new ArrayList<Integer>(sumSet);
         String s = "";

@@ -46,12 +46,15 @@ public class TablePane extends Pane{
     private Pane turnPaneChild;
     private TextField betInput;
     private Button sendBet;
+    private Button skipBet;
     private Button cardBTN;
     private Button stopBTN;
     private Button sendChat;
     private TextField chatInput;
     private String myId;
     private Label messages;
+    private Label odds;
+    private Pane remaining;
     private ScrollPane scrollMessages;
 
     public TablePane(String myId){
@@ -65,17 +68,19 @@ public class TablePane extends Pane{
 
     private Pane createChatPane(){
         chatPane = new Pane();
-        chatPane.setStyle("-fx-background-color: gray;");
+        format(chatPane, "#ddd", "transparent", 0, 0);
         setSize(chatPane, 200, 300);
         chatPane.relocate(0, 0);
 
         messages = new Label();
         messages.setWrapText(true);
+        messages.setTextFill(Color.BLACK);
         messages.setMinWidth(200);
         messages.setPrefWidth(200);
         messages.setMaxWidth(200);
 
         scrollMessages = new ScrollPane(messages);
+        scrollMessages.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
         scrollMessages.setHbarPolicy(ScrollBarPolicy.NEVER);
         scrollMessages.setVbarPolicy(ScrollBarPolicy.NEVER);
         
@@ -84,10 +89,16 @@ public class TablePane extends Pane{
         scrollMessages.setVvalue(1.0);
 
         chatInput = new TextField();
+        format(chatInput, "transparent", "black", 1, 5);
         setSize(chatInput, 150, 30);
         chatInput.relocate(0, 270);
 
-        sendChat = new Button("Send");
+        ImageView sendIcon = new ImageView(new Image("/blackjackclient/media/message.png"));
+        sendIcon.setFitHeight(25); 
+        sendIcon.setFitWidth(25);
+
+        sendChat = new Button();
+        sendChat.setGraphic(sendIcon);
         setSize(sendChat, 50, 30);
         sendChat.relocate(150, 270);
 
@@ -98,6 +109,7 @@ public class TablePane extends Pane{
 
     private Pane createActionPane(){
         actionPane = new Pane();
+        format(actionPane, "#aca", "transparent", 0, 0);
         setSize(actionPane, 200, 200);
         actionPane.relocate(0, 300);
         return actionPane;
@@ -176,11 +188,13 @@ public class TablePane extends Pane{
         betSlider.setShowTickMarks(true);
         betSlider.setMajorTickUnit(100);
 
-        setSize(betSlider, 200, 50);
-        betSlider.relocate(0, 0);
+        setSize(betSlider, 180, 50);
+        betSlider.relocate(10, 0);
 
         betInput = new TextField();
-        setSize(betInput, 200, 50);
+        format(betInput, "transparent", "transparent", 0, 0);
+        betInput.setAlignment(Pos.CENTER);
+        setSize(betInput, 200, 30);
         betInput.relocate(0, 50);
 
         betSlider.valueProperty().addListener(new ChangeListener<Number>() {
@@ -211,12 +225,25 @@ public class TablePane extends Pane{
             }
         });
 
-        sendBet = new Button("Send");
-        setSize(sendBet, 200, 100);
-        sendBet.relocate(0, 100);
-        format(sendBet, "green", "transparent", 0);
+        ImageView betIcon = new ImageView(new Image("/blackjackclient/media/bet.png"));
+        betIcon.setFitHeight(25); 
+        betIcon.setFitWidth(25);
 
-        betPaneChild.getChildren().addAll(betSlider, betInput, sendBet);
+        sendBet = new Button("Bet", betIcon);
+        setSize(sendBet, 200, 50);
+        sendBet.relocate(0, 100);
+        format(sendBet, "#7c7", "black", 1, 5);
+
+        ImageView skipIcon = new ImageView(new Image("/blackjackclient/media/stop.png"));
+        skipIcon.setFitHeight(25); 
+        skipIcon.setFitWidth(25);
+
+        skipBet = new Button("Skip", skipIcon);
+        setSize(skipBet, 200, 50);
+        skipBet.relocate(0, 150);
+        format(skipBet, "#c77", "black", 1, 5);
+
+        betPaneChild.getChildren().addAll(betSlider, betInput, sendBet, skipBet);
 
         return betPaneChild;
     }
@@ -228,25 +255,56 @@ public class TablePane extends Pane{
     public Button getBetButton(){
         return sendBet;
     }
+    
+    public Button getSkipBetButton(){
+        return skipBet;
+    }
 
     private Pane createTurnPane(){
         turnPaneChild = new Pane();
         setSize(turnPaneChild, 200, 200);
         turnPaneChild.relocate(0, 0);
 
-        cardBTN = new Button("Card");
-        setSize(cardBTN, 200, 100);
-        cardBTN.relocate(0, 0);
-        format(cardBTN, "green", "transparent", 0);
+        ImageView cardIcon = new ImageView(new Image("/blackjackclient/media/card.png"));
+        cardIcon.setFitHeight(25); 
+        cardIcon.setFitWidth(25);
 
-        stopBTN = new Button("Stop");
-        setSize(stopBTN, 200, 100);
-        stopBTN.relocate(0, 100);
-        format(stopBTN, "red", "transparent", 0);
+        cardBTN = new Button("Hit", cardIcon);
+        setSize(cardBTN, 200, 95);
+        cardBTN.relocate(0, 10);
+        format(cardBTN, "#7c7", "black", 1, 5);
 
-        turnPaneChild.getChildren().addAll(cardBTN, stopBTN);
+       /* odds = new Label("asd");
+        odds.setAlignment(Pos.CENTER);
+        setSize(odds, 200, 40);
+        odds.relocate(0, 80);
+        format(odds, "transparent", "transparent", 0, 0);*/
+
+        remaining = new Pane();
+        format(remaining, "#48f", "transparent", 0, 5);
+        setSize(remaining, 200, 10);
+        remaining.relocate(0, 0);
+
+        ImageView stopIcon = new ImageView(new Image("/blackjackclient/media/stop.png"));
+        stopIcon.setFitHeight(25); 
+        stopIcon.setFitWidth(25);
+
+        stopBTN = new Button("Stand", stopIcon);
+        setSize(stopBTN, 200, 95);
+        stopBTN.relocate(0, 105);
+        format(stopBTN, "#c77", "black", 1, 5);
+
+        turnPaneChild.getChildren().addAll(cardBTN, remaining, stopBTN);
 
         return turnPaneChild;
+    }
+
+    public void setRemaining(int l){
+        setSize(remaining, l*2, 10);
+    }
+
+    public Label getOddsLabel(){
+        return odds;
     }
 
     public Button getCardButton(){
@@ -257,13 +315,10 @@ public class TablePane extends Pane{
         return stopBTN;
     }
 
-
-
     public void updateDealerPane(String dealerState){
         dealerPane.getChildren().clear();
         String[] data = dealerState.split(";");
         Pane dealerPaneChild = new Pane();
-        dealerPaneChild.setStyle("-fx-background-color: #0c4;");
         setSize(dealerPaneChild, 900, 200);
         dealerPaneChild.relocate(0, 0);
 
@@ -339,8 +394,12 @@ public class TablePane extends Pane{
         obj.setMaxSize(width, height);
     }
 
-    private void format(javafx.scene.layout.Region obj, String bgcolor, String brcolor, int round){
-        obj.setStyle("-fx-background-color: " + bgcolor + "; -fx-background-radius: " + Integer.toString(round) + "; -fx-border-color: " + brcolor + "; -fx-border-radius: " + Integer.toString(round) + ";");
+    private void format(javafx.scene.layout.Region obj, String bgcolor, String brcolor, int brwidth, int round){
+        obj.setStyle("-fx-background-color: " + bgcolor + "; -fx-background-radius: " + Integer.toString(round) + "; -fx-border-width: " + Integer.toString(brwidth) + "; -fx-border-color: " + brcolor + "; -fx-border-radius: " + Integer.toString(round) + ";");
+    }
+
+    private void doTransparent(javafx.scene.layout.Region obj){
+        obj.setStyle("-fx-background-color: transparent; -fx-border-width: 0;");
     }
 
     private Pane createPlayer(String player){
@@ -357,14 +416,17 @@ public class TablePane extends Pane{
             ImageView nextIcon = new ImageView(new Image("/blackjackclient/media/next.png"));
             nextIcon.setFitHeight(20); 
             nextIcon.setFitWidth(20);
-
             nextPane.getChildren().add(nextIcon);
         }
 
         Pane onlyPlayer = new Pane();
         setSize(onlyPlayer, 150, 275);
         onlyPlayer.relocate(0, 25);
-        format(onlyPlayer, "transparent", "black", 5);        
+        if(myId.equals(data[0])){
+            format(onlyPlayer, "#7c7", "black", 1, 5);
+        } else {
+            format(onlyPlayer, "#c77", "black", 1, 5);
+        }         
 
         HBox betPane = new HBox(5);
         setSize(betPane, 150, 25);
@@ -379,10 +441,11 @@ public class TablePane extends Pane{
 
         betPane.getChildren().addAll(tokenIcon, bet);
 
-        Label name = new Label("[" + Integer.toString(Integer.parseInt(data[0])+1) + "] " + data[1]);
+        Label name = new Label(data[1]);
         setSize(name, 150, 25);
         name.relocate(0, 25);
         name.setAlignment(Pos.CENTER);
+        format(name, "#6a6", "black", 1, 0);
 
         HBox moneyPane = new HBox(5);
         setSize(moneyPane, 150, 25);
@@ -421,6 +484,7 @@ public class TablePane extends Pane{
         }
         
         Pane cardsPane = new Pane();
+        format(cardsPane, "transparent", "transparent", 0, 0);
         cardsPane.setMinWidth(150);
         cardsPane.setPrefWidth(150);
         cardsPane.setMaxWidth(150);
@@ -429,16 +493,16 @@ public class TablePane extends Pane{
         }
 
         ScrollPane scrollCardsPane = new ScrollPane(cardsPane);
-        scrollCardsPane.setStyle("-fx-background-color: transparent;");
+        scrollCardsPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
         scrollCardsPane.setHbarPolicy(ScrollBarPolicy.NEVER);
         scrollCardsPane.setVbarPolicy(ScrollBarPolicy.NEVER);
         setSize(scrollCardsPane, 150, 175);
-        format(scrollCardsPane, "transparent", "transparent", 5);
+        //format(scrollCardsPane, "transparent", "transparent", 0, 5);
         scrollCardsPane.relocate(0, 100);
         
-        if(myId.equals(data[0])){
-            format(name, "silver", "black", 12);
-        }
+        /*if(myId.equals(data[0])){
+            format(name, "silver", "black", 2, 12);
+        }*/
         onlyPlayer.getChildren().addAll(betPane, name, moneyPane, sumPane, scrollCardsPane);
         playerPane.getChildren().addAll(nextPane, onlyPlayer);    
         
@@ -458,7 +522,7 @@ public class TablePane extends Pane{
 
     private BorderPane createCard(String cardString){
         BorderPane cardPane = new BorderPane();
-        format(cardPane, "white", "black", 3);
+        format(cardPane, "white", "black", 1, 3);
         String[] card = cardString.split(":");
         setSize(cardPane, 50, 70);
         
@@ -484,6 +548,8 @@ public class TablePane extends Pane{
             }
             Label tl = new Label(number);
             Label br = new Label(number);
+            tl.setTextFill(Color.BLACK);
+            br.setTextFill(Color.BLACK);
     
             Image color = null;
     

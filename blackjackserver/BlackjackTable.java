@@ -52,7 +52,7 @@ public class BlackjackTable extends Thread{
             
             needToDelete = new ArrayList<Player>();
             for(Player player : players){
-                if(player.getStatus()<3){
+                if(player.getStatus()<4){
                     try{
                         player.setStatus(1);
                         sendStatusToAll(true);
@@ -62,111 +62,110 @@ public class BlackjackTable extends Thread{
                             player.setStatus(3);
                         } else {
                             player.setBet(Integer.parseInt(msg));
+                            player.setStatus(2);
                         }                        
                     } catch(Exception e){
                         System.out.println("bet off");
                         needToDelete.add(player);
                         player.flush();
                         player.close();
-                    }
-                    player.setStatus(2);
+                    }                    
                     sendStatusToAll(true);
                 }
             }
             players.removeAll(needToDelete);
-            for(Player player : players){
-                if(player.getStatus()<3){
-                    player.addCard(deck.takeCard());
-                    player.addCard(deck.takeCard());
-                    player.setStatus(0);
-                    player.setRealSum(getSumInInt(player.getSum()));
+            if(notSkippers()>0){
+                for(Player player : players){
+                    if(player.getStatus()<3){
+                        player.addCard(deck.takeCard());
+                        player.addCard(deck.takeCard());
+                        player.setStatus(0);
+                        player.setRealSum(getSumInInt(player.getSum()));
+                    }
                 }
-            }
-            dealer.addCard(deck.takeCard());
-            dealer.addCard(deck.takeCard());
-            sendStatusToAll(true);
-            needToDelete = new ArrayList<Player>();
-            for(Player player : players){
-                if(player.getStatus()<3){
-                    player.setStatus(1);
-                    sendStatusToAll(true);
-                    String s = "";
-                    try{
-                        while(!(s.equals("#stop")) && (getSumInInt(player.getSum())<21) && !(s.equals("#skip"))){
-                            player.sendMSG(getStatus(true, "_turn_"));
-                            s = player.getMSG();
-                            if(s.equals("#skip")){
-                                player.setStatus(3);
-                            } else {
+                dealer.addCard(deck.takeCard());
+                dealer.addCard(deck.takeCard());
+                sendStatusToAll(true);
+                needToDelete = new ArrayList<Player>();
+                for(Player player : players){
+                    if(player.getStatus()<3){
+                        player.setStatus(1);
+                        sendStatusToAll(true);
+                        String s = "";
+                        try{
+                            while(!(s.equals("#stop")) && (getSumInInt(player.getSum())<21) && !(s.equals("#skip"))){
+                                player.sendMSG(getStatus(true, "_turn_"));
+                                s = player.getMSG();
                                 if(s.equals("#card")){
                                     player.addCard(deck.takeCard());
                                 }
                                 player.setRealSum(getSumInInt(player.getSum()));
-                                sendStatusToAll(true);
-                            }                            
+                                sendStatusToAll(true);                    
+                            }
+                            player.setRealSum(getSumInInt(player.getSum()));
+                        } catch(Exception e){
+                            System.out.println("asd7");                    
+                            needToDelete.add(player);
+                            player.flush();
+                            player.close();
                         }
-                        player.setRealSum(getSumInInt(player.getSum()));
-                    } catch(Exception e){
-                        System.out.println("asd7");                    
-                        needToDelete.add(player);
-                        player.flush();
-                        player.close();
-                    }
-                    player.setStatus(2);
-                    sendStatusToAll(true);
-                }                
-            }
-            players.removeAll(needToDelete);
-            dealer.setRealSum(getSumInInt(dealer.getSum()));
-            sendStatusToAll(false);
-            System.out.println(checkAll());
-            wait(2);
-            while(getSumInInt(dealer.getSum())<17 && checkAll()<=0){
-                System.out.println(checkAll());
-                dealer.addCard(deck.takeCard());
+                        player.setStatus(2);
+                        sendStatusToAll(true);
+                    }                
+                }
+                players.removeAll(needToDelete);
                 dealer.setRealSum(getSumInInt(dealer.getSum()));
                 sendStatusToAll(false);
+                System.out.println(checkAll());
                 wait(2);
-            }
-            System.out.println(checkAll());
-            if(checkAll()>0){
-                //serverMSG("Round " + Integer.toString(roundCount) + ": the WINNER is the BANK");
-            } else {
-                if(checkAll()<0){
-                    //serverMSG("Round " + Integer.toString(roundCount) + ": the WINNERs are the PLAYERS");
-                } else {
-                    //serverMSG("Round " + Integer.toString(roundCount) + ": DRAW");
+                while(getSumInInt(dealer.getSum())<17 && checkAll()<=0){
+                    System.out.println(checkAll());
+                    dealer.addCard(deck.takeCard());
+                    dealer.setRealSum(getSumInInt(dealer.getSum()));
+                    sendStatusToAll(false);
+                    wait(2);
                 }
-            }
-            
-            for(Player player : players){
-                if(player.getStatus()<3){
-                    if(player.getRealSum()==21 && player.getCards().size()==2){
-                        player.setMoney(player.getMoney() + (int)Math.round(player.getBet()*1.5));
-                        dealer.setMoney(dealer.getMoney() - (int)(player.getBet()*1.5));
+                System.out.println(checkAll());
+                if(checkAll()>0){
+                    //serverMSG("Round " + Integer.toString(roundCount) + ": the WINNER is the BANK");
+                } else {
+                    if(checkAll()<0){
+                        //serverMSG("Round " + Integer.toString(roundCount) + ": the WINNERs are the PLAYERS");
                     } else {
-                        if(player.getRealSum()>21){
-                            player.setMoney(player.getMoney() - player.getBet());
-                            dealer.setMoney(dealer.getMoney() + player.getBet());
+                        //serverMSG("Round " + Integer.toString(roundCount) + ": DRAW");
+                    }
+                }
+                
+                for(Player player : players){
+                    if(player.getStatus()<3){
+                        if(player.getRealSum()==21 && player.getCards().size()==2){
+                            player.setMoney(player.getMoney() + (int)Math.round(player.getBet()*1.5));
+                            dealer.setMoney(dealer.getMoney() - (int)(player.getBet()*1.5));
                         } else {
-                            if(dealer.getRealSum()>21){
-                                player.setMoney(player.getMoney() + player.getBet());
-                                dealer.setMoney(dealer.getMoney() - player.getBet());
+                            if(player.getRealSum()>21){
+                                player.setMoney(player.getMoney() - player.getBet());
+                                dealer.setMoney(dealer.getMoney() + player.getBet());
                             } else {
-                                if(player.getRealSum()>dealer.getRealSum()){
+                                if(dealer.getRealSum()>21){
                                     player.setMoney(player.getMoney() + player.getBet());
                                     dealer.setMoney(dealer.getMoney() - player.getBet());
                                 } else {
-                                    if(player.getRealSum()<dealer.getRealSum()){
-                                        player.setMoney(player.getMoney() - player.getBet());
-                                        dealer.setMoney(dealer.getMoney() + player.getBet());
+                                    if(player.getRealSum()>dealer.getRealSum()){
+                                        player.setMoney(player.getMoney() + player.getBet());
+                                        dealer.setMoney(dealer.getMoney() - player.getBet());
+                                    } else {
+                                        if(player.getRealSum()<dealer.getRealSum()){
+                                            player.setMoney(player.getMoney() - player.getBet());
+                                            dealer.setMoney(dealer.getMoney() + player.getBet());
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                }                
+                    }                
+                }
             }
+            
             sendStatusToAll(false);
             wait(2);
             for(Player player : new ArrayList<Player>(players)){
@@ -182,6 +181,7 @@ public class BlackjackTable extends Thread{
                     player.setStatus(4);
                 }
             }
+            sendStatusToAll(false);
         }
 
         for(Player player : players){
@@ -230,13 +230,8 @@ public class BlackjackTable extends Thread{
                     try{
                         msg = player.getChatMSG();
                         while(msg!="bye"){
-                            
-                                System.out.println("elotte");
                                 sendChatToAll(msg);
-                                System.out.println("kozbe");
                                 msg = player.getChatMSG();
-                                System.out.println("utana");
-                            
                         }
                     } catch(Exception e){
                         System.out.println("chat off");
@@ -255,6 +250,16 @@ public class BlackjackTable extends Thread{
         int n = 0;
         for(Player player : players){
             if(player.getStatus()<4){
+                n++;
+            }
+        }
+        return n;
+    }
+
+    private int notSkippers(){
+        int n = 0;
+        for(Player player : players){
+            if(player.getStatus()<3){
                 n++;
             }
         }

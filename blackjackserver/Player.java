@@ -30,7 +30,6 @@ public class Player extends Person{
         /**
          * SET the SENDER and de RECEIVER
          */
-        sockets.get(0).setSoTimeout(10000);
         this.sender = new PrintWriter(sockets.get(0).getOutputStream(), true);
         this.receiver = new Scanner(sockets.get(0).getInputStream());
         this.chatSender = new PrintWriter(sockets.get(1).getOutputStream(), true);

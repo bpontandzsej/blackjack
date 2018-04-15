@@ -9,6 +9,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import blackjackclient.ConnectPane;
 import blackjackclient.TablePane;
@@ -43,6 +45,9 @@ public class BlackjackClient extends Application{
     private String myId;
 
     private String lastState;
+    private int loop;
+
+    private Timer timer = new Timer();
 
     public static void main(String[] args){
         launch();
@@ -146,13 +151,14 @@ public class BlackjackClient extends Application{
                 sendMSG("");
             break;
             case "_svms_":
-            
+
             break;
             case "_strt_":
                 Platform.runLater(new Runnable(){
                     @Override
                     public void run() {
                         tablePane = new TablePane(myId);
+                        tablePane.setStyle("-fx-background-color: #383;");
                         initButtons();
                         tablePane.updateChatPane(chatArray);
                         Scene scene = new Scene(tablePane, 1100, 500);
@@ -185,7 +191,33 @@ public class BlackjackClient extends Application{
                     @Override
                     public void run() {
                         tablePane.updateActionPane("_turn_", msg.substring(6));
+                        tablePane.getCardButton().setText("Hit (" + Integer.toString(getOdds(msg.substring(6))) + "%)");
                         updateDealerAndPlayers(msg.substring(6));
+                        
+                        timer = new Timer();
+                        loop = 120;
+                        timer.schedule(new TimerTask(){
+                            @Override
+                            public void run() {
+                                loop--;
+                                Platform.runLater(new Runnable(){
+                                    @Override
+                                    public void run() {
+                                        tablePane.setRemaining((loop*100/120));
+                                    }
+                                });
+                                if(loop==0){
+                                    sendMSG("#stop");
+                                    Platform.runLater(new Runnable(){
+                                        @Override
+                                        public void run() {
+                                            tablePane.updateActionPane("", "");
+                                        }
+                                    });                                    
+                                    timer.cancel();                                    
+                                }
+                            }
+                        }, 250, 250);
                     }
                 });
             break;
@@ -237,9 +269,7 @@ public class BlackjackClient extends Application{
                 sendMSG("");
             break;
         }
-        if(!msg.substring(0, 6).equals("_chat_")) lastState = msg;
-        //}
-        
+        if(!msg.substring(0, 6).equals("_chat_")) lastState = msg;        
     }
 
     private void updateDealerAndPlayers(String state){
@@ -254,6 +284,7 @@ public class BlackjackClient extends Application{
             public void handle(ActionEvent event) {
                 sendMSG("#card");
                 tablePane.updateActionPane("", "");
+                timer.cancel();
             }
         });
         tablePane.getStopButton().setOnAction(new EventHandler<ActionEvent>(){
@@ -261,6 +292,7 @@ public class BlackjackClient extends Application{
             public void handle(ActionEvent event) {
                 sendMSG("#stop");
                 tablePane.updateActionPane("", "");
+                timer.cancel();
             }
         });
         tablePane.getSendChat().setOnAction(new EventHandler<ActionEvent>(){
@@ -287,5 +319,51 @@ public class BlackjackClient extends Application{
                 }
             }
         });
+        tablePane.getSkipBetButton().setOnAction(new EventHandler<ActionEvent>(){
+            @Override
+            public void handle(ActionEvent event) {
+                sendMSG("#skip");
+                tablePane.updateActionPane("", "");
+            }
+        });
+    }
+
+    private int getOdds(String state){
+        String[] dealerAndPlayers = state.split("@");
+        String[] players = dealerAndPlayers[1].split("#");
+        int[] deck = new int[10];
+        for(int i=0; i<9; i++){
+            deck[i] = 4;
+        }
+        deck[9] = 16;
+        int mySum = 0;
+        for(int i=0; i<players.length; i++){
+            String[] data = players[i].split(";");
+            if(myId.equals(data[0])){
+                String[] sumString = data[6].split("/");
+                mySum = Integer.parseInt(sumString[sumString.length-1]);
+            }
+            String[] cards = data[5].split(" ");
+            for(int j = 0; j<cards.length; j++){
+                String[] card = cards[j].split(":");
+                int k = Integer.parseInt(card[1]);
+                if(k>=10){
+                    deck[9]--;
+                } else {
+                    deck[k-1]--;
+                }
+            }
+        }
+        int cardsCount = 0;
+        int goodCard = 0;
+        for(int i=0; i<deck.length; i++){
+            cardsCount += deck[i];
+            if(i+1<=21-mySum){
+                goodCard += deck[i];
+            }
+        }
+        
+
+        return Math.round(goodCard*100/cardsCount);
     }
 }
