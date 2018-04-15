@@ -54,7 +54,8 @@ public class TablePane extends Pane{
     private String myId;
     private Label messages;
     private Label odds;
-    private Pane remaining;
+    private Pane remainingCard;
+    private Pane remainingBet;
     private ScrollPane scrollMessages;
 
     public TablePane(String myId){
@@ -178,6 +179,11 @@ public class TablePane extends Pane{
         setSize(betPaneChild, 200, 200);
         betPaneChild.relocate(0, 0);
 
+        remainingBet = new Pane();
+        format(remainingBet, "#48f", "transparent", 0, 5);
+        setSize(remainingBet, 200, 10);
+        remainingBet.relocate(0, 0);
+
         Slider betSlider = new Slider(0, maxBet, 0);
         if(maxBet > 100){ 
             betSlider.setValue(100);
@@ -189,13 +195,13 @@ public class TablePane extends Pane{
         betSlider.setMajorTickUnit(100);
 
         setSize(betSlider, 180, 50);
-        betSlider.relocate(10, 0);
+        betSlider.relocate(10, 10);
 
         betInput = new TextField();
         format(betInput, "transparent", "transparent", 0, 0);
         betInput.setAlignment(Pos.CENTER);
         setSize(betInput, 200, 30);
-        betInput.relocate(0, 50);
+        betInput.relocate(0, 60);
 
         betSlider.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
@@ -243,7 +249,7 @@ public class TablePane extends Pane{
         skipBet.relocate(0, 150);
         format(skipBet, "#c77", "black", 1, 5);
 
-        betPaneChild.getChildren().addAll(betSlider, betInput, sendBet, skipBet);
+        betPaneChild.getChildren().addAll(remainingBet, betSlider, betInput, sendBet, skipBet);
 
         return betPaneChild;
     }
@@ -280,10 +286,10 @@ public class TablePane extends Pane{
         odds.relocate(0, 80);
         format(odds, "transparent", "transparent", 0, 0);*/
 
-        remaining = new Pane();
-        format(remaining, "#48f", "transparent", 0, 5);
-        setSize(remaining, 200, 10);
-        remaining.relocate(0, 0);
+        remainingCard = new Pane();
+        format(remainingCard, "#48f", "transparent", 0, 5);
+        setSize(remainingCard, 200, 10);
+        remainingCard.relocate(0, 0);
 
         ImageView stopIcon = new ImageView(new Image("/blackjackclient/media/stop.png"));
         stopIcon.setFitHeight(25); 
@@ -294,13 +300,17 @@ public class TablePane extends Pane{
         stopBTN.relocate(0, 105);
         format(stopBTN, "#c77", "black", 1, 5);
 
-        turnPaneChild.getChildren().addAll(cardBTN, remaining, stopBTN);
+        turnPaneChild.getChildren().addAll(cardBTN, remainingCard, stopBTN);
 
         return turnPaneChild;
     }
 
-    public void setRemaining(int l){
-        setSize(remaining, l*2, 10);
+    public void setCardRemaining(int l){
+        setSize(remainingCard, l*2, 10);
+    }
+
+    public void setBetRemaining(int l){
+        setSize(remainingBet, l*2, 10);
     }
 
     public Label getOddsLabel(){

@@ -183,6 +183,30 @@ public class BlackjackClient extends Application{
                         tablePane.updateActionPane("_bet__", msg.substring(6));
                         updateDealerAndPlayers(msg.substring(6));
                         initBetButtons();
+                        timer = new Timer();
+                        loop = 120;
+                        timer.schedule(new TimerTask(){
+                            @Override
+                            public void run() {
+                                loop--;
+                                Platform.runLater(new Runnable(){
+                                    @Override
+                                    public void run() {
+                                        tablePane.setBetRemaining((loop*100/120));
+                                    }
+                                });
+                                if(loop==0){
+                                    sendMSG("#skip");
+                                    Platform.runLater(new Runnable(){
+                                        @Override
+                                        public void run() {
+                                            tablePane.updateActionPane("", "");
+                                        }
+                                    });                                    
+                                    timer.cancel();                                    
+                                }
+                            }
+                        }, 250, 250);
                     }
                 });
             break;
@@ -203,7 +227,7 @@ public class BlackjackClient extends Application{
                                 Platform.runLater(new Runnable(){
                                     @Override
                                     public void run() {
-                                        tablePane.setRemaining((loop*100/120));
+                                        tablePane.setCardRemaining((loop*100/120));
                                     }
                                 });
                                 if(loop==0){
@@ -221,7 +245,7 @@ public class BlackjackClient extends Application{
                     }
                 });
             break;
-            case "_chat_": 
+            case "_chat_":
                 chatArray.add(msg.substring(6));
                 Platform.runLater(new Runnable(){
                     @Override
@@ -314,6 +338,7 @@ public class BlackjackClient extends Application{
                 if(s.matches("[0-9]+")){
                     if(Integer.parseInt(s)>0){
                         sendMSG(s);
+                        timer.cancel();
                         tablePane.updateActionPane("", "");
                     }
                 }
