@@ -136,106 +136,109 @@ public class BlackjackClient extends Application{
 
     private void inbox(String msg){
         System.out.println(msg);
-        if(msg.substring(0, 6).equals("_svms_")){
-            //chatArray.add(msg.substring(6));
-            //inbox(lastState);
-        } else {
-            switch(msg.substring(0, 6)){
-                case "_id___":
-                    myId = msg.substring(6);
-                    sendMSG("");
-                break;
-                case "_strt_":
-                    Platform.runLater(new Runnable(){
-                        @Override
-                        public void run() {
-                            tablePane = new TablePane(myId);
-                            initButtons();
-                            tablePane.updateChatPane(chatArray);
-                            Scene scene = new Scene(tablePane, 1100, 500);
-                            stage.setScene(scene);
-                        }
-                    });
-                    sendMSG("");
-                break;
-                case "_stat_":
-                    Platform.runLater(new Runnable(){
-                        @Override
-                        public void run() {
-                            updateDealerAndPlayers(msg.substring(6));
-                        }
-                    });
-                    sendMSG("");
-                break;
-                case "_bet__":
-                    Platform.runLater(new Runnable(){
-                        @Override
-                        public void run() {
-                            tablePane.updateActionPane("_bet__", msg.substring(6));
-                            updateDealerAndPlayers(msg.substring(6));
-                            initBetButtons();
-                        }
-                    });
-                break;
-                case "_turn_":
-                    Platform.runLater(new Runnable(){
-                        @Override
-                        public void run() {
-                            tablePane.updateActionPane("_turn_", msg.substring(6));
-                            updateDealerAndPlayers(msg.substring(6));
-                        }
-                    });
-                break;
-                case "_chat_": 
-                    chatArray.add(msg.substring(6));
-                    Platform.runLater(new Runnable(){
-                        @Override
-                        public void run() {
-                            tablePane.updateChatPane(chatArray);
-                        }
-                    });
-                break;
-                case "_bye__":
-                    
-                break;
-                case "_gtnm_":
-                    Platform.runLater(new Runnable(){
-                        @Override
-                        public void run() {
-                            String names = msg.substring(6);
-                            ConnectPane connectPane = new ConnectPane(true, names);
-                            Scene scene = new Scene(connectPane, 500, 300);
-                            stage.setScene(scene);
-                            connectPane.getConnectButton().setOnAction(new EventHandler<ActionEvent>(){
-                                @Override
-                                public void handle(ActionEvent event) {
-                                    if(connectPane.getNicknameInput().length()>0){
-                                        if(names.indexOf("#" + connectPane.getNicknameInput() + "#") == -1){
-                                            sendMSG(connectPane.getNicknameInput());
-                                        }
+        /*if(msg.substring(0, 6).equals("_svms_")){
+            /*chatArray.add(msg.substring(6));
+            inbox(lastState);*/
+        /*} else {*/
+        switch(msg.substring(0, 6)){
+            case "_id___":
+                myId = msg.substring(6);
+                sendMSG("");
+            break;
+            case "_svms_":
+            
+            break;
+            case "_strt_":
+                Platform.runLater(new Runnable(){
+                    @Override
+                    public void run() {
+                        tablePane = new TablePane(myId);
+                        initButtons();
+                        tablePane.updateChatPane(chatArray);
+                        Scene scene = new Scene(tablePane, 1100, 500);
+                        stage.setScene(scene);
+                    }
+                });
+                sendMSG("");
+            break;
+            case "_stat_":
+                Platform.runLater(new Runnable(){
+                    @Override
+                    public void run() {
+                        updateDealerAndPlayers(msg.substring(6));
+                    }
+                });
+                sendMSG("");
+            break;
+            case "_bet__":
+                Platform.runLater(new Runnable(){
+                    @Override
+                    public void run() {
+                        tablePane.updateActionPane("_bet__", msg.substring(6));
+                        updateDealerAndPlayers(msg.substring(6));
+                        initBetButtons();
+                    }
+                });
+            break;
+            case "_turn_":
+                Platform.runLater(new Runnable(){
+                    @Override
+                    public void run() {
+                        tablePane.updateActionPane("_turn_", msg.substring(6));
+                        updateDealerAndPlayers(msg.substring(6));
+                    }
+                });
+            break;
+            case "_chat_": 
+                chatArray.add(msg.substring(6));
+                Platform.runLater(new Runnable(){
+                    @Override
+                    public void run() {
+                        tablePane.updateChatPane(chatArray);
+                    }
+                });
+            break;
+            case "_bye__":
+                
+            break;
+            case "_gtnm_":
+                Platform.runLater(new Runnable(){
+                    @Override
+                    public void run() {
+                        String names = msg.substring(6);
+                        ConnectPane connectPane = new ConnectPane(true, names);
+                        Scene scene = new Scene(connectPane, 500, 300);
+                        stage.setScene(scene);
+                        connectPane.getConnectButton().setOnAction(new EventHandler<ActionEvent>(){
+                            @Override
+                            public void handle(ActionEvent event) {
+                                if(connectPane.getNicknameInput().length()>0){
+                                    if(names.indexOf("#" + connectPane.getNicknameInput() + "#") == -1){
+                                        sendMSG(connectPane.getNicknameInput());
                                     }
-                                    myName = connectPane.getNicknameInput();
                                 }
-                            });
-                        }
-                    });
-                    
-                break;
-                case "_nms__":
-                    Platform.runLater(new Runnable(){
-                        @Override
-                        public void run() {
-                            String names = msg.substring(6);
-                            ConnectPane connectPane = new ConnectPane(false, names);
-                            Scene scene = new Scene(connectPane, 500, 300);
-                            stage.setScene(scene);
-                        }
-                    });
-                    sendMSG("");
-                break;
-            }
-            if(!msg.substring(0, 6).equals("_chat_")) lastState = msg;
+                                myName = connectPane.getNicknameInput();
+                            }
+                        });
+                    }
+                });
+                
+            break;
+            case "_nms__":
+                Platform.runLater(new Runnable(){
+                    @Override
+                    public void run() {
+                        String names = msg.substring(6);
+                        ConnectPane connectPane = new ConnectPane(false, names);
+                        Scene scene = new Scene(connectPane, 500, 300);
+                        stage.setScene(scene);
+                    }
+                });
+                sendMSG("");
+            break;
         }
+        if(!msg.substring(0, 6).equals("_chat_")) lastState = msg;
+        //}
         
     }
 

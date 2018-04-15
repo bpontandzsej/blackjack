@@ -3,6 +3,11 @@ package blackjackserver;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class Player extends Person{
     private PrintWriter sender;
@@ -25,18 +30,19 @@ public class Player extends Person{
         /**
          * SET the SENDER and de RECEIVER
          */
+        sockets.get(0).setSoTimeout(10000);
         this.sender = new PrintWriter(sockets.get(0).getOutputStream(), true);
         this.receiver = new Scanner(sockets.get(0).getInputStream());
         this.chatSender = new PrintWriter(sockets.get(1).getOutputStream(), true);
         this.chatReceiver = new Scanner(sockets.get(1).getInputStream());
+        
         /**
          * GET NAME from the CLIENT except of the DEALER
          */
-
         getMSG();
         sendMSG(namesToString(names));
-        this.name = getMSG();        
-        System.out.println("en csatlakoztam " + name);        
+        this.name = getMSG();
+        System.out.println("en csatlakoztam " + name);
     }
 
     private String namesToString(ArrayList<String> names){
@@ -53,7 +59,7 @@ public class Player extends Person{
     }
 
     public String getMSG() throws Exception{
-        return receiver.nextLine();
+        return receiver.nextLine();        
     }
 
     public void sendMSG(String msg) throws Exception{
