@@ -57,6 +57,15 @@ public class Player extends Person{
         sender.println(msg);
     }
 
+    public void sendServerMSG(String msg){
+        try{
+            sendMSG("_svms_" + msg);
+            getMSG();
+        } catch(Exception e){
+            
+        }
+    }
+
     public String getChatMSG() throws Exception{
         return chatReceiver.nextLine();
     }

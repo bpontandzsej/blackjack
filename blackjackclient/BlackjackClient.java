@@ -7,8 +7,10 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -19,8 +21,12 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 
 public class BlackjackClient extends Application{
@@ -58,6 +64,12 @@ public class BlackjackClient extends Application{
         Properties clientProperties = getProperties();
         chatArray = new ArrayList<String>();
         stage = primarystage;
+        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                closeAll();
+            }
+        });
         stage.setTitle("Blackjack - Connect");
         stage.setResizable(false);
         connectPane = new ConnectPane(false, "");
@@ -70,8 +82,14 @@ public class BlackjackClient extends Application{
             Thread inputChecker = new Thread(){
                 public void run(){
                     while(running){
-                        inbox(getMSG());
+                        try{
+                            inbox(getMSG());
+                        } catch(Exception e){
+                            System.out.println("kommunikacios hiba");
+                            closeAll();
+                        }
                     }
+                    return;
                 }
             };
             inputChecker.start();
@@ -113,11 +131,16 @@ public class BlackjackClient extends Application{
         Thread chatHandler = new Thread(){
             @Override
             public void run(){
-                String msg = getChatMSG();
-                while(running){
-                    inbox(msg);
-                    msg = getChatMSG();
+                try{
+                    String msg = getChatMSG();
+                    while(running){
+                        inbox(msg);
+                        msg = getChatMSG();
+                    }
+                } catch(Exception e){
+
                 }
+                return;
             }
         };
         chatHandler.start();
@@ -135,164 +158,216 @@ public class BlackjackClient extends Application{
         chatSender.println(msg);
     }
 
-    private String getChatMSG(){
+    private String getChatMSG()/* throws Exception*/{
         return chatReceiver.nextLine();
     }
 
     private void inbox(String msg){
         System.out.println(msg);
-        /*if(msg.substring(0, 6).equals("_svms_")){
+        //if(msg.substring(0, 6).equals("_svms_")){
             /*chatArray.add(msg.substring(6));
             inbox(lastState);*/
-        /*} else {*/
-        switch(msg.substring(0, 6)){
-            case "_id___":
-                myId = msg.substring(6);
-                sendMSG("");
-            break;
-            case "_svms_":
+            /*Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle("Information Dialog");
+            alert.setHeaderText("Look, an Information Dialog");
+            alert.setContentText("I have a great message for you!");
 
-            break;
-            case "_strt_":
-                Platform.runLater(new Runnable(){
-                    @Override
-                    public void run() {
-                        tablePane = new TablePane(myId);
-                        tablePane.setStyle("-fx-background-color: #383;");
-                        initButtons();
-                        tablePane.updateChatPane(chatArray);
-                        Scene scene = new Scene(tablePane, 1100, 500);
-                        stage.setScene(scene);
-                    }
-                });
-                sendMSG("");
-            break;
-            case "_stat_":
-                Platform.runLater(new Runnable(){
-                    @Override
-                    public void run() {
-                        updateDealerAndPlayers(msg.substring(6));
-                    }
-                });
-                sendMSG("");
-            break;
-            case "_bet__":
-                Platform.runLater(new Runnable(){
-                    @Override
-                    public void run() {
-                        tablePane.updateActionPane("_bet__", msg.substring(6));
-                        updateDealerAndPlayers(msg.substring(6));
-                        initBetButtons();
-                        timer = new Timer();
-                        loop = 120;
-                        timer.schedule(new TimerTask(){
-                            @Override
-                            public void run() {
-                                loop--;
-                                Platform.runLater(new Runnable(){
-                                    @Override
-                                    public void run() {
-                                        tablePane.setBetRemaining((loop*100/120));
-                                    }
-                                });
-                                if(loop==0){
-                                    sendMSG("#skip");
+            alert.showAndWait();*/
+
+        //} else {
+            switch(msg.substring(0, 6)){
+                case "_id___":
+                    myId = msg.substring(6);
+                    sendMSG("");
+                break;
+                case "_svms_":
+                    Platform.runLater(new Runnable(){
+                        @Override
+                        public void run() {
+                            Alert alert = new Alert(AlertType.INFORMATION);
+                            alert.setHeaderText("Server information");
+                            alert.setContentText(msg.substring(6));
+                            Timer timer = new Timer();
+                            timer.schedule(new TimerTask(){
+                                @Override
+                                public void run() {
                                     Platform.runLater(new Runnable(){
                                         @Override
                                         public void run() {
-                                            tablePane.updateActionPane("", "");
+                                            alert.close();
+                                            return;
                                         }
                                     });                                    
-                                    timer.cancel();                                    
                                 }
+                            }, 10*1000);
+                            Optional<ButtonType> result = alert.showAndWait();
+                            if(result.isPresent()){
+                                timer.cancel();
                             }
-                        }, 250, 250);
-                    }
-                });
-            break;
-            case "_turn_":
-                Platform.runLater(new Runnable(){
-                    @Override
-                    public void run() {
-                        tablePane.updateActionPane("_turn_", msg.substring(6));
-                        tablePane.getCardButton().setText("Hit (" + Integer.toString(getOdds(msg.substring(6))) + "%)");
-                        updateDealerAndPlayers(msg.substring(6));
-                        
-                        timer = new Timer();
-                        loop = 120;
-                        timer.schedule(new TimerTask(){
-                            @Override
-                            public void run() {
-                                loop--;
-                                Platform.runLater(new Runnable(){
-                                    @Override
-                                    public void run() {
-                                        tablePane.setCardRemaining((loop*100/120));
-                                    }
-                                });
-                                if(loop==0){
-                                    sendMSG("#stop");
+                        }
+                    });
+
+                    /*Alert alert = new Alert(AlertType.INFORMATION);
+                    alert.setTitle("Information Dialog");
+                    alert.setHeaderText("Look, an Information Dialog");
+                    alert.setContentText("I have a great message for you!");
+        
+                    alert.show();*/
+                    sendMSG("");
+                break;
+                case "_strt_":
+                    Platform.runLater(new Runnable(){
+                        @Override
+                        public void run() {
+                            tablePane = new TablePane(myId);
+                            tablePane.setStyle("-fx-background-color: #383;");
+                            initButtons();
+                            tablePane.updateChatPane(chatArray);
+                            Scene scene = new Scene(tablePane, 1100, 500);
+                            stage.setScene(scene);
+                            return;
+                        }
+                    });
+                    sendMSG("");
+                break;
+                case "_stat_":
+                    Platform.runLater(new Runnable(){
+                        @Override
+                        public void run() {
+                            updateDealerAndPlayers(msg.substring(6));
+                            return;
+                        }
+                    });
+                    sendMSG("");
+                break;
+                case "_bet__":
+                    Platform.runLater(new Runnable(){
+                        @Override
+                        public void run() {
+                            tablePane.updateActionPane("_bet__", msg.substring(6));
+                            updateDealerAndPlayers(msg.substring(6));
+                            initBetButtons();
+                            timer = new Timer();
+                            loop = 120;
+                            timer.schedule(new TimerTask(){
+                                @Override
+                                public void run() {
+                                    loop--;
                                     Platform.runLater(new Runnable(){
                                         @Override
                                         public void run() {
-                                            tablePane.updateActionPane("", "");
+                                            tablePane.setBetRemaining((loop*100/120));
+                                            return;
                                         }
-                                    });                                    
-                                    timer.cancel();                                    
-                                }
-                            }
-                        }, 250, 250);
-                    }
-                });
-            break;
-            case "_chat_":
-                chatArray.add(msg.substring(6));
-                Platform.runLater(new Runnable(){
-                    @Override
-                    public void run() {
-                        tablePane.updateChatPane(chatArray);
-                    }
-                });
-            break;
-            case "_bye__":
-                System.out.println("game is over");
-            break;
-            case "_gtnm_":
-                Platform.runLater(new Runnable(){
-                    @Override
-                    public void run() {
-                        String names = msg.substring(6);
-                        ConnectPane connectPane = new ConnectPane(true, names);
-                        Scene scene = new Scene(connectPane, 500, 300);
-                        stage.setScene(scene);
-                        connectPane.getConnectButton().setOnAction(new EventHandler<ActionEvent>(){
-                            @Override
-                            public void handle(ActionEvent event) {
-                                if(connectPane.getNicknameInput().length()>0){
-                                    if(names.indexOf("#" + connectPane.getNicknameInput() + "#") == -1){
-                                        sendMSG(connectPane.getNicknameInput());
+                                    });
+                                    if(loop==0){
+                                        sendMSG("#skip");
+                                        Platform.runLater(new Runnable(){
+                                            @Override
+                                            public void run() {
+                                                tablePane.updateActionPane("", "");
+                                                return;
+                                            }
+                                        });                                    
+                                        timer.cancel();                                    
                                     }
                                 }
-                                myName = connectPane.getNicknameInput();
-                            }
-                        });
-                    }
-                });
-                
-            break;
-            case "_nms__":
-                Platform.runLater(new Runnable(){
-                    @Override
-                    public void run() {
-                        String names = msg.substring(6);
-                        ConnectPane connectPane = new ConnectPane(false, names);
-                        Scene scene = new Scene(connectPane, 500, 300);
-                        stage.setScene(scene);
-                    }
-                });
-                sendMSG("");
-            break;
-        }
+                            }, 250, 250);
+                            return;
+                        }
+                    });
+                break;
+                case "_turn_":
+                    Platform.runLater(new Runnable(){
+                        @Override
+                        public void run() {
+                            tablePane.updateActionPane("_turn_", msg.substring(6));
+                            tablePane.getCardButton().setText("Hit (" + Integer.toString(getOdds(msg.substring(6))) + "%)");
+                            updateDealerAndPlayers(msg.substring(6));
+                            
+                            timer = new Timer();
+                            loop = 120;
+                            timer.schedule(new TimerTask(){
+                                @Override
+                                public void run() {
+                                    loop--;
+                                    Platform.runLater(new Runnable(){
+                                        @Override
+                                        public void run() {
+                                            tablePane.setCardRemaining((loop*100/120));
+                                            return;
+                                        }
+                                    });
+                                    if(loop==0){
+                                        sendMSG("#stop");
+                                        Platform.runLater(new Runnable(){
+                                            @Override
+                                            public void run() {
+                                                tablePane.updateActionPane("", "");
+                                                return;
+                                            }
+                                        });                                    
+                                        timer.cancel();                                    
+                                    }
+                                }
+                            }, 250, 250);
+                            return;
+                        }
+                    });
+                break;
+                case "_chat_":
+                    chatArray.add(msg.substring(6));
+                    Platform.runLater(new Runnable(){
+                        @Override
+                        public void run() {
+                            tablePane.updateChatPane(chatArray);
+                            return;
+                        }
+                    });
+                break;
+                case "_bye__":
+                    System.out.println("game is over");
+                    closeAll();
+                break;
+                case "_gtnm_":
+                    Platform.runLater(new Runnable(){
+                        @Override
+                        public void run() {
+                            String names = msg.substring(6);
+                            ConnectPane connectPane = new ConnectPane(true, names);
+                            Scene scene = new Scene(connectPane, 500, 300);
+                            stage.setScene(scene);
+                            connectPane.getConnectButton().setOnAction(new EventHandler<ActionEvent>(){
+                                @Override
+                                public void handle(ActionEvent event) {
+                                    if(connectPane.getNicknameInput().length()>0){
+                                        if(names.indexOf("#" + connectPane.getNicknameInput() + "#") == -1){
+                                            sendMSG(connectPane.getNicknameInput());
+                                        }
+                                    }
+                                    myName = connectPane.getNicknameInput();
+                                }
+                            });
+                            return;
+                        }
+                    });
+                    
+                break;
+                case "_nms__":
+                    Platform.runLater(new Runnable(){
+                        @Override
+                        public void run() {
+                            String names = msg.substring(6);
+                            ConnectPane connectPane = new ConnectPane(false, names);
+                            Scene scene = new Scene(connectPane, 500, 300);
+                            stage.setScene(scene);
+                            return;
+                        }
+                    });
+                    sendMSG("");
+                break;
+            }
+        //}
         if(!msg.substring(0, 6).equals("_chat_")) lastState = msg;        
     }
 
@@ -368,16 +443,19 @@ public class BlackjackClient extends Application{
                 String[] sumString = data[6].split("/");
                 mySum = Integer.parseInt(sumString[sumString.length-1]);
             }
-            String[] cards = data[5].split(" ");
-            for(int j = 0; j<cards.length; j++){
-                String[] card = cards[j].split(":");
-                int k = Integer.parseInt(card[1]);
-                if(k>=10){
-                    deck[9]--;
-                } else {
-                    deck[k-1]--;
+            if(data[5].length()>0){
+                String[] cards = data[5].split(" ");
+                for(int j = 0; j<cards.length; j++){
+                    String[] card = cards[j].split(":");
+                    int k = Integer.parseInt(card[1]);
+                    if(k>=10){
+                        deck[9]--;
+                    } else {
+                        deck[k-1]--;
+                    }
                 }
             }
+            
         }
         int cardsCount = 0;
         int goodCard = 0;
@@ -390,5 +468,18 @@ public class BlackjackClient extends Application{
         
 
         return Math.round(goodCard*100/cardsCount);
+    }
+
+    private void closeAll(){
+        running = false;
+        Platform.runLater(new Runnable(){
+            @Override
+            public void run() {
+                stage.close();
+                Platform.exit();
+                System.exit(0);
+                return;
+            }
+        });
     }
 }

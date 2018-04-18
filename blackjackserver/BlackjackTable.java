@@ -46,7 +46,6 @@ public class BlackjackTable extends Thread{
         int roundCount = 0;
         while(checkEnd()) {
             roundCount++;
-            //serverMSG("Round " + Integer.toString(roundCount) + ": STARTED");
             newGame();
             sendStatusToAll(true);
             
@@ -137,34 +136,47 @@ public class BlackjackTable extends Thread{
                 }
                 
                 for(Player player : players){
-                    if(player.getStatus()<3){
-                        if(player.getRealSum()==21 && player.getCards().size()==2){
-                            player.setMoney(player.getMoney() + (int)Math.round(player.getBet()*1.5));
-                            dealer.setMoney(dealer.getMoney() - (int)(player.getBet()*1.5));
-                        } else {
-                            if(player.getRealSum()>21){
-                                player.setMoney(player.getMoney() - player.getBet());
-                                dealer.setMoney(dealer.getMoney() + player.getBet());
+                    if(player.getRealSum() != dealer.getRealSum()){
+                        if(player.getStatus()<3){
+                            if(player.getRealSum()==21 && player.getCards().size()==2){
+                                player.setMoney(player.getMoney() + (int)Math.round(player.getBet()*1.5));
+                                dealer.setMoney(dealer.getMoney() - (int)(player.getBet()*1.5));
+                                player.sendServerMSG("YOU WON THE ROUND: BLACKJACK!");
                             } else {
-                                if(dealer.getRealSum()>21){
-                                    player.setMoney(player.getMoney() + player.getBet());
-                                    dealer.setMoney(dealer.getMoney() - player.getBet());
+                                if(player.getRealSum()>21){
+                                    player.setMoney(player.getMoney() - player.getBet());
+                                    dealer.setMoney(dealer.getMoney() + player.getBet());
+                                    player.sendServerMSG("YOU LOST THE ROUND: YOU HAVE: " + Integer.toString(player.getRealSum()));
                                 } else {
-                                    if(player.getRealSum()>dealer.getRealSum()){
+                                    if(dealer.getRealSum()>21){
                                         player.setMoney(player.getMoney() + player.getBet());
                                         dealer.setMoney(dealer.getMoney() - player.getBet());
+                                        player.sendServerMSG("YOU WON THE ROUND: DEALER HAS: " + Integer.toString(dealer.getRealSum()));
                                     } else {
-                                        if(player.getRealSum()<dealer.getRealSum()){
-                                            player.setMoney(player.getMoney() - player.getBet());
-                                            dealer.setMoney(dealer.getMoney() + player.getBet());
+                                        if(player.getRealSum()>dealer.getRealSum()){
+                                            player.setMoney(player.getMoney() + player.getBet());
+                                            dealer.setMoney(dealer.getMoney() - player.getBet());
+                                            player.sendServerMSG("YOU WON THE ROUND: YOU HAVE: " + Integer.toString(player.getRealSum()) + ", DEALER HAS: " + Integer.toString(dealer.getRealSum()));
+                                        } else {
+                                            if(player.getRealSum()<dealer.getRealSum()){
+                                                player.setMoney(player.getMoney() - player.getBet());
+                                                dealer.setMoney(dealer.getMoney() + player.getBet());
+                                                player.sendServerMSG("YOU LOST THE ROUND: YOU HAVE: " + Integer.toString(player.getRealSum()) + ", DEALER HAS: " + Integer.toString(dealer.getRealSum()));
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                    }                
+                    } else {
+                        player.sendServerMSG("DRAW: YOU HAVE: " + Integer.toString(player.getRealSum()) + ", DEALER HAS: " + Integer.toString(dealer.getRealSum()));
+                    }                                    
                 }
             }
+            
+                
+            
+
             
             sendStatusToAll(false);
             wait(2);
@@ -195,6 +207,7 @@ public class BlackjackTable extends Thread{
             } 
         }
         System.out.println("lelepett mindenki");
+        return;
     }
 
     private void init(){
@@ -236,7 +249,9 @@ public class BlackjackTable extends Thread{
                     } catch(Exception e){
                         System.out.println("chat off");
                         player.flush();
+                        return;
                     }
+                    return;
                 } 
             };
             chatHandler.start();
@@ -347,7 +362,7 @@ public class BlackjackTable extends Thread{
     }
 
     private void serverMSG(String msg){
-        sendToAll("_svms_[SERVER] " + msg);
+        sendToAll("_svms_ " + msg);
     }
 
     private void sendToAll(String msg){
