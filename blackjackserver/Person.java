@@ -60,9 +60,9 @@ public abstract  class Person{
                 sums.addAll(copy);
             }
         }
-        Collections.sort(sums, Collections.reverseOrder());
         Set<Integer> sumSet = new HashSet<Integer>(sums);
         sums = new ArrayList<Integer>(sumSet);
+        Collections.sort(sums, Collections.reverseOrder());
         String s = "";
         for(Integer sum : sums){
             if(sum<=21){

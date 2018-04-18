@@ -255,7 +255,7 @@ public class BlackjackClient extends Application{
                 });
             break;
             case "_bye__":
-                
+                System.out.println("game is over");
             break;
             case "_gtnm_":
                 Platform.runLater(new Runnable(){

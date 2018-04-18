@@ -20,24 +20,16 @@ public class Player extends Person{
 
     public Player(ArrayList<Socket> sockets, int id, ArrayList<String> names) throws Exception{
         super();
-        /**
-         * SET default VELUES
-         */
+        
         this.id = id;
         this.status = 0;
         this.bet = 0;
 
-        /**
-         * SET the SENDER and de RECEIVER
-         */
         this.sender = new PrintWriter(sockets.get(0).getOutputStream(), true);
         this.receiver = new Scanner(sockets.get(0).getInputStream());
         this.chatSender = new PrintWriter(sockets.get(1).getOutputStream(), true);
         this.chatReceiver = new Scanner(sockets.get(1).getInputStream());
-        
-        /**
-         * GET NAME from the CLIENT except of the DEALER
-         */
+
         getMSG();
         sendMSG(namesToString(names));
         this.name = getMSG();
