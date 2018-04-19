@@ -170,18 +170,16 @@ public class BlackjackTable extends Thread{
                     }                                    
                 }
             }
-            
-                
-            
-
-            
             sendStatusToAll(false);
             wait(2);
             for(Player player : new ArrayList<Player>(players)){
-                if(player.getMoney()<=0){
-                    player.sendServerMSG("You are out of money! You lost the game");
-                    player.setStatus(4);
+                if(player.getStatus()<4){
+                    if(player.getMoney()<=0){
+                        player.sendServerMSG("You are out of money! You lost the game");
+                        player.setStatus(4);
+                    }
                 }
+                
             }
             sendStatusToAll(false);
         }

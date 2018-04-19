@@ -16,11 +16,11 @@ public class ConnectPane extends GridPane{
         setAlignment(Pos.CENTER);
         setVgap(10);
         if(names == ""){
-            Label namesLabel = new Label("Varakozas a tobbi jatekosra...");
+            Label namesLabel = new Label("Waiting for the server...");
             add(namesLabel, 1, 1);
         } else {
             String[] nameArray = names.split("#");
-            Label namesLabel = new Label("Csatlakozott:\n");
+            Label namesLabel = new Label("Connected:\n");
             for(int i = 0; i<nameArray.length; i++){
                 if(nameArray[i].length()!=0){
                     namesLabel.setText(namesLabel.getText() + nameArray[i] + "\n");
@@ -42,8 +42,7 @@ public class ConnectPane extends GridPane{
                 connectButton = new Button("Connect");
                 add(connectButton, 2, 0);
             }
-        }
-                
+        }                
     }
 
     public Button getConnectButton(){
