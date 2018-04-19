@@ -60,6 +60,8 @@ public class BlackjackClient extends Application{
     private String lastState;
     private int loop;
 
+    private Alert confirm;
+
     private Timer timer = new Timer();
 
     public static void main(String[] args){
@@ -78,7 +80,7 @@ public class BlackjackClient extends Application{
                 closeAll();
             }
         });
-        stage.setTitle("Blackjack - Connect");
+        stage.setTitle("Blackjack");
         stage.setResizable(false);
         connectPane = new ConnectPane(false, "");
         Scene scene = new Scene(connectPane, 500, 300);
@@ -166,23 +168,13 @@ public class BlackjackClient extends Application{
         chatSender.println(msg);
     }
 
-    private String getChatMSG()/* throws Exception*/{
+    private String getChatMSG(){
         return chatReceiver.nextLine();
     }
 
     private void inbox(String msg){
         System.out.println(msg);
-        //if(msg.substring(0, 6).equals("_svms_")){
-            /*chatArray.add(msg.substring(6));
-            inbox(lastState);*/
-            /*Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("Information Dialog");
-            alert.setHeaderText("Look, an Information Dialog");
-            alert.setContentText("I have a great message for you!");
-
-            alert.showAndWait();*/
-
-        //} else {
+       
             switch(msg.substring(0, 6)){
                 case "_id___":
                     myId = msg.substring(6);
@@ -193,6 +185,7 @@ public class BlackjackClient extends Application{
                         @Override
                         public void run() {
                             Alert alert = new Alert(AlertType.INFORMATION);
+                            alert.setTitle("Blackjack");
                             alert.setHeaderText("Server information");
                             alert.setContentText(msg.substring(6));
                             Timer timer = new Timer();
@@ -214,13 +207,6 @@ public class BlackjackClient extends Application{
                             }
                         }
                     });
-
-                    /*Alert alert = new Alert(AlertType.INFORMATION);
-                    alert.setTitle("Information Dialog");
-                    alert.setHeaderText("Look, an Information Dialog");
-                    alert.setContentText("I have a great message for you!");
-        
-                    alert.show();*/
                     sendMSG("");
                 break;
                 case "_strt_":
@@ -229,6 +215,15 @@ public class BlackjackClient extends Application{
                         public void run() {
                             tablePane = new TablePane(myId);
                             tablePane.setStyle("-fx-background-image: url('/blackjackclient/media/greentable.png'); -fx-font: 16px sans-serif;");
+                            tablePane.getSendChat().setOnAction(new EventHandler<ActionEvent>(){
+                                @Override
+                                public void handle(ActionEvent event) {
+                                    String s = tablePane.getChatMessage();
+                                    if(s.length()>0){
+                                        sendChatMSG("_chat_[" + myName + "] " + s);
+                                    }
+                                }
+                            });
                             tablePane.updateChatPane(chatArray);
                             Scene scene = new Scene(tablePane, 1100, 500);
                             stage.setScene(scene);
@@ -314,6 +309,7 @@ public class BlackjackClient extends Application{
                                             @Override
                                             public void run() {
                                                 tablePane.updateActionPane("", "");
+                                                confirm.close();
                                                 return;
                                             }
                                         });                                    
@@ -337,7 +333,6 @@ public class BlackjackClient extends Application{
                 break;
                 case "_bye__":
                     System.out.println("game is over");
-                    //closeAll();
                 break;
                 case "_gtnm_":
                     Platform.runLater(new Runnable(){
@@ -377,7 +372,6 @@ public class BlackjackClient extends Application{
                     sendMSG("");
                 break;
             }
-        //}
         if(!msg.substring(0, 6).equals("_chat_")) lastState = msg;        
     }
 
@@ -393,31 +387,36 @@ public class BlackjackClient extends Application{
             @Override
             public void handle(ActionEvent event) {
                 if(odds < 30){
-                    Alert confirm = new Alert(AlertType.CONFIRMATION);
-                    confirm.setTitle("Confirmation Dialog");
-                    confirm.setHeaderText("You have " + Integer.toString(odds) + "% chance for success");
-                    confirm.setContentText("Do you want to Hit anyway?");
-                    Timer confirmTimer = new Timer();
-                    confirmTimer.schedule(new TimerTask(){
+                    Platform.runLater(new Runnable(){
                         @Override
                         public void run() {
-                            Platform.runLater(new Runnable(){
+                            confirm = new Alert(AlertType.CONFIRMATION);
+                            confirm.setTitle("Blackjack");
+                            confirm.setHeaderText("You have " + Integer.toString(odds) + "% chance for success");
+                            confirm.setContentText("Do you want to Hit anyway?");
+                            Timer confirmTimer = new Timer();
+                            confirmTimer.schedule(new TimerTask(){
                                 @Override
                                 public void run() {
-                                    confirm.close();
-                                    return;
+                                    Platform.runLater(new Runnable(){
+                                        @Override
+                                        public void run() {
+                                            confirm.close();
+                                            return;
+                                        }
+                                    });                                    
                                 }
-                            });                                    
+                            }, 10*1000);
+                            Optional<ButtonType> result = confirm.showAndWait();
+                            if (result.get() == ButtonType.OK){
+                                sendMSG("#card");
+                                tablePane.updateActionPane("", "");
+                                confirmTimer.cancel();
+                            } else {
+                                confirmTimer.cancel();
+                            }
                         }
-                    }, 10*1000);
-                    Optional<ButtonType> result = confirm.showAndWait();
-                    if (result.get() == ButtonType.OK){
-                        sendMSG("#card");
-                        tablePane.updateActionPane("", "");
-                        confirmTimer.cancel();
-                    } else {
-                        confirmTimer.cancel();
-                    }
+                    });
                 } else {
                     sendMSG("#card");
                     tablePane.updateActionPane("", "");
@@ -431,15 +430,6 @@ public class BlackjackClient extends Application{
                 sendMSG("#stop");
                 tablePane.updateActionPane("", "");
                 timer.cancel();
-            }
-        });
-        tablePane.getSendChat().setOnAction(new EventHandler<ActionEvent>(){
-            @Override
-            public void handle(ActionEvent event) {
-                String s = tablePane.getChatMessage();
-                if(s.length()>0){
-                    sendChatMSG("_chat_[" + myName + "] " + s);
-                }
             }
         });
     }

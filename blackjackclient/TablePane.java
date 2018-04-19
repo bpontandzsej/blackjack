@@ -82,13 +82,13 @@ public class TablePane extends Pane{
 
     private Pane createChatPane(){
         chatPane = new Pane();
-        format(chatPane, "#ccc", "transparent", 0, 0);
+        format(chatPane, "#333", "transparent", 0, 0);
         setSize(chatPane, 200, 300);
         chatPane.relocate(0, 0);
 
         messages = new Label();
+        messages.setStyle("-fx-font-size: 14px; -fx-font-color: white;");
         messages.setWrapText(true);
-        messages.setTextFill(Color.BLACK);
         messages.setMinWidth(200);
         messages.setPrefWidth(200);
         messages.setMaxWidth(200);
@@ -100,10 +100,9 @@ public class TablePane extends Pane{
         
         setSize(scrollMessages, 200, 270);
         scrollMessages.relocate(0, 0);
-        scrollMessages.setVvalue(1.0);
 
         chatInput = new TextField();
-        format(chatInput, "transparent", "black", 1, 5);
+        format(chatInput, "#ccc", "black", 1, 5);
         setSize(chatInput, 150, 30);
         chatInput.relocate(0, 270);
 
@@ -132,7 +131,6 @@ public class TablePane extends Pane{
 
     private Pane createDealerPane(){
         dealerPane = new Pane();
-        //dealerPane.setStyle("-fx-background-image: url('/blackjackclient/media/table.png');");
         setSize(dealerPane, 900, 200);     
         dealerPane.relocate(200, 0);
                         
@@ -141,7 +139,6 @@ public class TablePane extends Pane{
 
     private Pane createPlayerPane(){
         playersPane = new Pane();
-        //playersPane.setStyle("-fx-background-image: url('/blackjackclient/media/table.png');");
         setSize(playersPane, 900, 300);
         playersPane.relocate(200, 200);
 
@@ -151,9 +148,9 @@ public class TablePane extends Pane{
     public void updateChatPane(ArrayList<String> chatArray){
         String s = "";
         for(String line : chatArray){
-            s += line + "\n";
+            s += line + System.lineSeparator();
         }
-        messages.setText(s+"\n");
+        messages.setText(s + System.lineSeparator());
         scrollMessages.setVvalue(1.0);
     }
 
@@ -341,7 +338,6 @@ public class TablePane extends Pane{
         String[] data = dealerState.split(";");
         Pane dealerPaneChild = new Pane();
         setSize(dealerPaneChild, 900, 200);
-        //dealerPaneChild.setStyle("-fx-background-image: url('/blackjackclient/media/table.png');");
         dealerPaneChild.relocate(0, 0);
 
 
@@ -519,12 +515,10 @@ public class TablePane extends Pane{
         scrollCardsPane.setHbarPolicy(ScrollBarPolicy.NEVER);
         scrollCardsPane.setVbarPolicy(ScrollBarPolicy.NEVER);
         setSize(scrollCardsPane, 150, 175);
-        //format(scrollCardsPane, "transparent", "transparent", 0, 5);
-        scrollCardsPane.relocate(0, 100);
         
-        /*if(myId.equals(data[0])){
-            format(name, "silver", "black", 2, 12);
-        }*/
+        scrollCardsPane.relocate(0, 100);
+        scrollCardsPane.setVvalue(1.0);
+        
         onlyPlayer.getChildren().addAll(betPane, name, moneyPane, sumPane, scrollCardsPane);
         playerPane.getChildren().addAll(nextPane, onlyPlayer);    
         
@@ -547,12 +541,12 @@ public class TablePane extends Pane{
         
         String[] card = cardString.split(":");
         setSize(cardPane, 50, 70);
-        format(cardPane, "white", "black", 1, 3);
-        if(cardString.equals("x:x")){
-            //cardPane.setStyle("-fx-background-radius: 3px; -fx-background-image: url('/blackjackclient/media/cardback.png'); -fx-border-radius: 3px; -fx-border-color: black; -fx-border-width: 1px;");
         
+        if(cardString.equals("x:x")){
+            format(cardPane, "#666", "black", 3, 3);
         } else {
             String number = "";
+            format(cardPane, "white", "black", 1, 3);
             if(Integer.parseInt(card[1])>1 && Integer.parseInt(card[1])<11){
                 number = card[1];
             } else {

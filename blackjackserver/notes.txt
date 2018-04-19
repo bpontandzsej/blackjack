@@ -27,7 +27,7 @@ ha lecsatlakozik, kuka +
 kliens:
 fix host és port +
 egyedi nickname +
-popup a kör végéről, kattintásig/vagy időzítve
+popup a kör végéről, kattintásig/vagy időzítve +
 következő játékos tétnél +
 lapok más elrendezése +
 esélyszámolás +

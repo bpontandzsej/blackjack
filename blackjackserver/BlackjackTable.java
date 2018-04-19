@@ -10,7 +10,6 @@ import blackjackserver.Dealer;
 import blackjackserver.Deck;
 
 public class BlackjackTable extends Thread{
-    //private final int id;
     private ArrayList<Player> players;
     private Dealer dealer;
     private final int startMoney;
@@ -19,8 +18,7 @@ public class BlackjackTable extends Thread{
     private ArrayList<Player> needToDelete;
     private ArrayList<ArrayList<Socket>> sockets;
 
-    public BlackjackTable(int id, ArrayList<ArrayList<Socket>> sockets, Properties serverProperties/*Properties tableProperties*/){
-        //this.id = id;
+    public BlackjackTable(int id, ArrayList<ArrayList<Socket>> sockets, Properties serverProperties){
         this.sockets = new ArrayList<ArrayList<Socket>>(sockets);
         players = new ArrayList<Player>();
         names = new ArrayList<String>(); 
@@ -40,7 +38,6 @@ public class BlackjackTable extends Thread{
         init();
         System.out.println("elindult a szal");
         sendToAll("_strt_");
-        //serverMSG("WELCOME!");
 
         fillMoney();
         int roundCount = 0;
@@ -125,7 +122,7 @@ public class BlackjackTable extends Thread{
                     wait(2);
                 }
                 System.out.println(checkAll());
-                if(checkAll()>0){
+                /*if(checkAll()>0){
                     //serverMSG("Round " + Integer.toString(roundCount) + ": the WINNER is the BANK");
                 } else {
                     if(checkAll()<0){
@@ -133,7 +130,7 @@ public class BlackjackTable extends Thread{
                     } else {
                         //serverMSG("Round " + Integer.toString(roundCount) + ": DRAW");
                     }
-                }
+                }*/
                 
                 for(Player player : players){
                     if(player.getRealSum() != dealer.getRealSum()){
@@ -183,14 +180,6 @@ public class BlackjackTable extends Thread{
             for(Player player : new ArrayList<Player>(players)){
                 if(player.getMoney()<=0){
                     player.sendServerMSG("You are out of money! You lost the game");
-                    /*try{
-                        player.sayBye();
-                        player.close();
-                    } catch(Exception e){ 
-                        player.flush();
-                    }
-                    players.remove(player);*/
-                    //serverMSG(player.getName() + " left the game");
                     player.setStatus(4);
                 }
             }
