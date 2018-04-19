@@ -146,22 +146,22 @@ public class BlackjackTable extends Thread{
                                 if(player.getRealSum()>21){
                                     player.setMoney(player.getMoney() - player.getBet());
                                     dealer.setMoney(dealer.getMoney() + player.getBet());
-                                    player.sendServerMSG("YOU LOST THE ROUND: YOU HAVE: " + Integer.toString(player.getRealSum()));
+                                    player.sendServerMSG("YOU LOST THE ROUND: You have: " + Integer.toString(player.getRealSum()));
                                 } else {
                                     if(dealer.getRealSum()>21){
                                         player.setMoney(player.getMoney() + player.getBet());
                                         dealer.setMoney(dealer.getMoney() - player.getBet());
-                                        player.sendServerMSG("YOU WON THE ROUND: DEALER HAS: " + Integer.toString(dealer.getRealSum()));
+                                        player.sendServerMSG("YOU WON THE ROUND: Dealer has: " + Integer.toString(dealer.getRealSum()));
                                     } else {
                                         if(player.getRealSum()>dealer.getRealSum()){
                                             player.setMoney(player.getMoney() + player.getBet());
                                             dealer.setMoney(dealer.getMoney() - player.getBet());
-                                            player.sendServerMSG("YOU WON THE ROUND: YOU HAVE: " + Integer.toString(player.getRealSum()) + ", DEALER HAS: " + Integer.toString(dealer.getRealSum()));
+                                            player.sendServerMSG("YOU WON THE ROUND: You have: " + Integer.toString(player.getRealSum()) + ", Dealer has: " + Integer.toString(dealer.getRealSum()));
                                         } else {
                                             if(player.getRealSum()<dealer.getRealSum()){
                                                 player.setMoney(player.getMoney() - player.getBet());
                                                 dealer.setMoney(dealer.getMoney() + player.getBet());
-                                                player.sendServerMSG("YOU LOST THE ROUND: YOU HAVE: " + Integer.toString(player.getRealSum()) + ", DEALER HAS: " + Integer.toString(dealer.getRealSum()));
+                                                player.sendServerMSG("YOU LOST THE ROUND: You have: " + Integer.toString(player.getRealSum()) + ", Dealer has: " + Integer.toString(dealer.getRealSum()));
                                             }
                                         }
                                     }
@@ -169,7 +169,7 @@ public class BlackjackTable extends Thread{
                             }
                         }
                     } else {
-                        player.sendServerMSG("DRAW: YOU HAVE: " + Integer.toString(player.getRealSum()) + ", DEALER HAS: " + Integer.toString(dealer.getRealSum()));
+                        player.sendServerMSG("DRAW: You have: " + Integer.toString(player.getRealSum()) + ", Dealer has: " + Integer.toString(dealer.getRealSum()));
                     }                                    
                 }
             }
@@ -182,6 +182,7 @@ public class BlackjackTable extends Thread{
             wait(2);
             for(Player player : new ArrayList<Player>(players)){
                 if(player.getMoney()<=0){
+                    player.sendServerMSG("You are out of money! You lost the game");
                     /*try{
                         player.sayBye();
                         player.close();
@@ -198,6 +199,15 @@ public class BlackjackTable extends Thread{
 
         for(Player player : players){
             try{
+                if(player.getMoney()>0){
+                    player.sendServerMSG("Congratulations! You WON the game!");
+                } else {
+                    if(dealer.getMoney()>0){
+                        player.sendServerMSG("The Dealer WON the game!");
+                    } else {
+                        player.sendServerMSG("The playersWON the game!");
+                    }
+                }
                 player.sayBye();            
             } catch(Exception e){
                 System.out.println("asd8");

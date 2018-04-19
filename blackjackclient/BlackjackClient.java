@@ -20,11 +20,18 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.effect.Blend;
+import javafx.scene.effect.BlendMode;
+import javafx.scene.effect.ColorInput;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -64,6 +71,7 @@ public class BlackjackClient extends Application{
         Properties clientProperties = getProperties();
         chatArray = new ArrayList<String>();
         stage = primarystage;
+        stage.getIcons().add(new Image("/blackjackclient/media/sum.png"));
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
@@ -220,11 +228,13 @@ public class BlackjackClient extends Application{
                         @Override
                         public void run() {
                             tablePane = new TablePane(myId);
-                            tablePane.setStyle("-fx-background-color: #383;");
-                            initButtons();
+                            tablePane.setStyle("-fx-background-image: url('/blackjackclient/media/greentable.png'); -fx-font: 16px sans-serif;");
                             tablePane.updateChatPane(chatArray);
                             Scene scene = new Scene(tablePane, 1100, 500);
                             stage.setScene(scene);
+                            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                            stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2); 
+                            stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
                             return;
                         }
                     });
@@ -284,7 +294,7 @@ public class BlackjackClient extends Application{
                             tablePane.updateActionPane("_turn_", msg.substring(6));
                             tablePane.getCardButton().setText("Hit (" + Integer.toString(getOdds(msg.substring(6))) + "%)");
                             updateDealerAndPlayers(msg.substring(6));
-                            
+                            initButtons(msg.substring(6));
                             timer = new Timer();
                             loop = 120;
                             timer.schedule(new TimerTask(){
@@ -327,7 +337,7 @@ public class BlackjackClient extends Application{
                 break;
                 case "_bye__":
                     System.out.println("game is over");
-                    closeAll();
+                    //closeAll();
                 break;
                 case "_gtnm_":
                     Platform.runLater(new Runnable(){
@@ -377,13 +387,42 @@ public class BlackjackClient extends Application{
         tablePane.updatePlayerPane(dealerAndPlayers[1]);
     }
 
-    private void initButtons(){
+    private void initButtons(String state){
         tablePane.getCardButton().setOnAction(new EventHandler<ActionEvent>(){
+            int odds = getOdds(state);
             @Override
             public void handle(ActionEvent event) {
-                sendMSG("#card");
-                tablePane.updateActionPane("", "");
-                timer.cancel();
+                if(odds < 30){
+                    Alert confirm = new Alert(AlertType.CONFIRMATION);
+                    confirm.setTitle("Confirmation Dialog");
+                    confirm.setHeaderText("You have " + Integer.toString(odds) + "% chance for success");
+                    confirm.setContentText("Do you want to Hit anyway?");
+                    Timer confirmTimer = new Timer();
+                    confirmTimer.schedule(new TimerTask(){
+                        @Override
+                        public void run() {
+                            Platform.runLater(new Runnable(){
+                                @Override
+                                public void run() {
+                                    confirm.close();
+                                    return;
+                                }
+                            });                                    
+                        }
+                    }, 10*1000);
+                    Optional<ButtonType> result = confirm.showAndWait();
+                    if (result.get() == ButtonType.OK){
+                        sendMSG("#card");
+                        tablePane.updateActionPane("", "");
+                        confirmTimer.cancel();
+                    } else {
+                        confirmTimer.cancel();
+                    }
+                } else {
+                    sendMSG("#card");
+                    tablePane.updateActionPane("", "");
+                    timer.cancel();
+                }                
             }
         });
         tablePane.getStopButton().setOnAction(new EventHandler<ActionEvent>(){

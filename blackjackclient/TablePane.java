@@ -3,6 +3,7 @@ package blackjackclient;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.CacheHint;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -12,15 +13,24 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
+import javafx.scene.effect.Blend;
+import javafx.scene.effect.BlendMode;
+import javafx.scene.effect.ColorAdjust;
+import javafx.scene.effect.ColorInput;
+import javafx.scene.effect.Effect;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.text.Text;
 import sun.security.ssl.SSLContextImpl.TLS10Context;
 
@@ -29,7 +39,10 @@ import java.io.FileNotFoundException;
 import java.lang.Object;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.GregorianCalendar;
+
+import com.sun.javafx.geom.BaseBounds;
+import com.sun.javafx.geom.transform.BaseTransform;
+import com.sun.javafx.scene.BoundsAccessor;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -69,7 +82,7 @@ public class TablePane extends Pane{
 
     private Pane createChatPane(){
         chatPane = new Pane();
-        format(chatPane, "#ddd", "transparent", 0, 0);
+        format(chatPane, "#ccc", "transparent", 0, 0);
         setSize(chatPane, 200, 300);
         chatPane.relocate(0, 0);
 
@@ -113,18 +126,22 @@ public class TablePane extends Pane{
         format(actionPane, "#aca", "transparent", 0, 0);
         setSize(actionPane, 200, 200);
         actionPane.relocate(0, 300);
+
         return actionPane;
     }
 
     private Pane createDealerPane(){
         dealerPane = new Pane();
-        setSize(dealerPane, 900, 200);
+        //dealerPane.setStyle("-fx-background-image: url('/blackjackclient/media/table.png');");
+        setSize(dealerPane, 900, 200);     
         dealerPane.relocate(200, 0);
+                        
         return dealerPane;
     }
 
     private Pane createPlayerPane(){
         playersPane = new Pane();
+        //playersPane.setStyle("-fx-background-image: url('/blackjackclient/media/table.png');");
         setSize(playersPane, 900, 300);
         playersPane.relocate(200, 200);
 
@@ -280,12 +297,6 @@ public class TablePane extends Pane{
         cardBTN.relocate(0, 10);
         format(cardBTN, "#7c7", "black", 1, 5);
 
-       /* odds = new Label("asd");
-        odds.setAlignment(Pos.CENTER);
-        setSize(odds, 200, 40);
-        odds.relocate(0, 80);
-        format(odds, "transparent", "transparent", 0, 0);*/
-
         remainingCard = new Pane();
         format(remainingCard, "#48f", "transparent", 0, 5);
         setSize(remainingCard, 200, 10);
@@ -330,9 +341,12 @@ public class TablePane extends Pane{
         String[] data = dealerState.split(";");
         Pane dealerPaneChild = new Pane();
         setSize(dealerPaneChild, 900, 200);
+        //dealerPaneChild.setStyle("-fx-background-image: url('/blackjackclient/media/table.png');");
         dealerPaneChild.relocate(0, 0);
 
+
         HBox moneyPane = new HBox(5);
+        moneyPane.setStyle("-fx-background-image: url('/blackjackclient/media/currenttable.png'); -fx-border-color: black;");
         setSize(moneyPane, 900, 25);
         moneyPane.relocate(0, 25);
         moneyPane.setAlignment(Pos.CENTER);
@@ -346,9 +360,11 @@ public class TablePane extends Pane{
         moneyPane.getChildren().addAll(moneyIcon, money);
 
         HBox sumPane = new HBox(5);
+        sumPane.setStyle("-fx-background-image: url('/blackjackclient/media/currenttable.png'); -fx-border-color: black;");
+        setSize(sumPane, 900, 25);
+        sumPane.relocate(0, 150);
         if(!data[3].equals("0")){
-            setSize(sumPane, 900, 25);
-            sumPane.relocate(0, 150);
+            
             sumPane.setAlignment(Pos.CENTER);
 
             ImageView sumIcon = new ImageView(new Image("/blackjackclient/media/sum.png"));
@@ -371,7 +387,7 @@ public class TablePane extends Pane{
         cardsPane.relocate(0, 50);
         if(data[1].length()>0){
             createCardsPane(cardsPane, data[1], false);
-        }
+        }        
         
         dealerPaneChild.getChildren().addAll(moneyPane, cardsPane, sumPane);
         dealerPane.getChildren().add(dealerPaneChild);
@@ -408,10 +424,6 @@ public class TablePane extends Pane{
         obj.setStyle("-fx-background-color: " + bgcolor + "; -fx-background-radius: " + Integer.toString(round) + "; -fx-border-width: " + Integer.toString(brwidth) + "; -fx-border-color: " + brcolor + "; -fx-border-radius: " + Integer.toString(round) + ";");
     }
 
-    private void doTransparent(javafx.scene.layout.Region obj){
-        obj.setStyle("-fx-background-color: transparent; -fx-border-width: 0;");
-    }
-
     private Pane createPlayer(String player){
         String[] data = player.split(";");
         Pane playerPane = new Pane();
@@ -433,9 +445,9 @@ public class TablePane extends Pane{
         setSize(onlyPlayer, 150, 275);
         onlyPlayer.relocate(0, 25);
         if(myId.equals(data[0])){
-            format(onlyPlayer, "#7c7", "black", 1, 5);
+            onlyPlayer.setStyle("-fx-background-image: url('/blackjackclient/media/currenttable.png'); -fx-border-color: black;");
         } else {
-            format(onlyPlayer, "#c77", "black", 1, 5);
+            onlyPlayer.setStyle("-fx-background-image: url('/blackjackclient/media/othertable.png'); -fx-border-color: black;");
         }         
 
         HBox betPane = new HBox(5);
@@ -532,11 +544,14 @@ public class TablePane extends Pane{
 
     private BorderPane createCard(String cardString){
         BorderPane cardPane = new BorderPane();
-        format(cardPane, "white", "black", 1, 3);
+        
         String[] card = cardString.split(":");
         setSize(cardPane, 50, 70);
+        format(cardPane, "white", "black", 1, 3);
+        if(cardString.equals("x:x")){
+            //cardPane.setStyle("-fx-background-radius: 3px; -fx-background-image: url('/blackjackclient/media/cardback.png'); -fx-border-radius: 3px; -fx-border-color: black; -fx-border-width: 1px;");
         
-        if(!cardString.equals("x:x")){
+        } else {
             String number = "";
             if(Integer.parseInt(card[1])>1 && Integer.parseInt(card[1])<11){
                 number = card[1];
