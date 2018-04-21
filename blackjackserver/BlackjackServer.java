@@ -106,10 +106,10 @@ public class BlackjackServer {
         String propertiesFileName = null;
         try {
             propertiesFileName = args[0];
-        } catch(Exception e){
-            System.out.println("Hianyzo parameter.");
+        } catch(ArrayIndexOutOfBoundsException e){
+            System.out.println("Nem talalhato parameter");
             propertiesFileName = defaultPropertiesFileName;
-        }        
+        }       
 
         Properties properties = new Properties();
         InputStream inputForConfig = null;
@@ -118,13 +118,13 @@ public class BlackjackServer {
             properties.load(inputForConfig);
             System.out.println("Settings:" + properties.getProperty("name"));
         } catch (IOException e) {
-
+            System.out.println("Nem letezik a " + propertiesFileName + " vagy nem olvashato");
         } 
         if (inputForConfig != null) {
             try {
                 inputForConfig.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("Nem sikerult a " + propertiesFileName + " lezarasa soran");
             }
         } else {
             try {

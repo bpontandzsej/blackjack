@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Scanner;
@@ -94,8 +95,8 @@ public class BlackjackClient extends Application{
                     while(running){
                         try{
                             inbox(getMSG());
-                        } catch(Exception e){
-                            System.out.println("kommunikacios hiba");
+                        } catch(NoSuchElementException e){
+                            System.out.println("Megszakadt a kapcsolat a szerverrel");
                             closeAll();
                         }
                     }
@@ -109,7 +110,7 @@ public class BlackjackClient extends Application{
         } catch(IOException e){
             System.out.println("Hiba tortent a socket letrehozasa soran");
         } catch(Exception e){
-
+            System.out.println("Varatlan hiba");
         } 
     }
 
@@ -123,7 +124,8 @@ public class BlackjackClient extends Application{
             properties.load(inputForConfig);
             inputForConfig.close();
         } catch (IOException e) {
-
+            System.out.println("Nem talalhato default.properties fajl vagy nem nyithato meg");
+            System.exit(0);
         } 
         return properties;
     }
@@ -147,8 +149,8 @@ public class BlackjackClient extends Application{
                         inbox(msg);
                         msg = getChatMSG();
                     }
-                } catch(Exception e){
-
+                } catch(NoSuchElementException e){
+                    System.out.println("Megszakadt a kapcsolat a szerverrel");
                 }
                 return;
             }
@@ -160,7 +162,7 @@ public class BlackjackClient extends Application{
         sender.println(msg);
     }
 
-    private String getMSG(){
+    private String getMSG() throws NoSuchElementException{
         return receiver.nextLine();
     }
 
@@ -168,7 +170,7 @@ public class BlackjackClient extends Application{
         chatSender.println(msg);
     }
 
-    private String getChatMSG(){
+    private String getChatMSG() throws NoSuchElementException{
         return chatReceiver.nextLine();
     }
 

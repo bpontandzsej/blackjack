@@ -32,9 +32,10 @@ következő játékos tétnél +
 lapok más elrendezése +
 esélyszámolás +
 
-panel háttér #aca
-oké gomb #7c7
-nem oké gomb #c77
+
+JAR:
+jar cfe Blackjack.jar blackjackclient.BlackjackClient blackjackclient/*.class blackjackclient/media/*
+jar cfe output.jar MainClass files
 
 
 

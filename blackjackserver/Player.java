@@ -49,11 +49,11 @@ public class Player extends Person{
         return this.name;
     }
 
-    public String getMSG() throws Exception{
+    public String getMSG() throws NoSuchElementException{
         return receiver.nextLine();        
     }
 
-    public void sendMSG(String msg) throws Exception{
+    public void sendMSG(String msg) throws IOException{
         sender.println(msg);
     }
 
@@ -61,12 +61,14 @@ public class Player extends Person{
         try{
             sendMSG("_svms_" + msg);
             getMSG();
-        } catch(Exception e){
-            
-        }
+        } catch(IOException e){
+            System.out.println("Megszakadt a kapcsolat a klienssel");            
+        } catch(NoSuchElementException e){
+            System.out.println("Megszakadt a kapcsolat a klienssel");            
+        } 
     }
 
-    public String getChatMSG() throws Exception{
+    public String getChatMSG() throws NoSuchElementException{
         return chatReceiver.nextLine();
     }
 
@@ -94,7 +96,7 @@ public class Player extends Person{
         return this.status;
     }
 
-    public void sayBye() throws Exception{
+    public void sayBye() throws IOException{
         sendMSG("_bye__");
     }
 
@@ -105,7 +107,7 @@ public class Player extends Person{
             chatSender.close();
             chatReceiver.close();
         } catch(Exception e){
-            
+            System.out.println("Megszakadt a kapcsolat a klienssel");
         }
     }
 
