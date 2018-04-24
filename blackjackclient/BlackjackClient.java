@@ -97,7 +97,18 @@ public class BlackjackClient extends Application{
                             inbox(getMSG());
                         } catch(NoSuchElementException e){
                             System.out.println("Megszakadt a kapcsolat a szerverrel");
-                            closeAll();
+                            Platform.runLater(new Runnable(){
+                                @Override
+                                public void run() {
+                                    Alert alert = new Alert(AlertType.INFORMATION);
+                                    alert.setTitle("Blackjack");
+                                    alert.setHeaderText("Server information");
+                                    alert.setContentText("You lost the connection with the server");
+                                    alert.showAndWait();
+                                    closeAll();
+                                }
+                            });
+                            running = false;
                         }
                     }
                     return;
@@ -176,7 +187,6 @@ public class BlackjackClient extends Application{
 
     private void inbox(String msg){
         System.out.println(msg);
-       
             switch(msg.substring(0, 6)){
                 case "_id___":
                     myId = msg.substring(6);
