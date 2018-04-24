@@ -32,12 +32,9 @@ következő játékos tétnél +
 lapok más elrendezése +
 esélyszámolás +
 
-
 JAR:
 jar cfe Blackjack.jar blackjackclient.BlackjackClient blackjackclient/*.class blackjackclient/media/*
 jar cfe output.jar MainClass files
-
-
 
 DOKU:
 Külső borító
@@ -61,3 +58,12 @@ Fejlesztői doksi
 --a csinált osztályok leírása, a metódusoké, mi mit csinál, hogy működik, stb.
 -tesztelési terv és eredmények
 Irodalomjegyzék
+
+
+
+
+TODO:
+
+menü:   új játék
+        játékleírás
+        kilépés

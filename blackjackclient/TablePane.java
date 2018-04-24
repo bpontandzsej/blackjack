@@ -32,7 +32,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.text.Text;
-import sun.security.ssl.SSLContextImpl.TLS10Context;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

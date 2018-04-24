@@ -49,6 +49,7 @@ public class BlackjackClient extends Application{
 
     private ConnectPane connectPane;
     private TablePane tablePane;
+    private MenuPane menuPane;
 
     private Stage stage;
     private boolean running;
@@ -83,46 +84,67 @@ public class BlackjackClient extends Application{
         });
         stage.setTitle("Blackjack");
         stage.setResizable(false);
-        connectPane = new ConnectPane(false, "");
-        Scene scene = new Scene(connectPane, 500, 300);
+        menuPane = new MenuPane();
+        Scene scene = new Scene(menuPane, 500, 500);
+        initMenuButtons(clientProperties);
         stage.setScene(scene);
         stage.show();
-        try{
-            connectToServer(clientProperties);
-            sendMSG("");
-            Thread inputChecker = new Thread(){
-                public void run(){
-                    while(running){
-                        try{
-                            inbox(getMSG());
-                        } catch(NoSuchElementException e){
-                            System.out.println("Megszakadt a kapcsolat a szerverrel");
-                            Platform.runLater(new Runnable(){
-                                @Override
-                                public void run() {
-                                    Alert alert = new Alert(AlertType.INFORMATION);
-                                    alert.setTitle("Blackjack");
-                                    alert.setHeaderText("Server information");
-                                    alert.setContentText("You lost the connection with the server");
-                                    alert.showAndWait();
-                                    closeAll();
+        
+    }
+
+    private void initMenuButtons(Properties clientProperties){
+        menuPane.getNewGameButton().setOnAction(new EventHandler<ActionEvent>(){
+            @Override
+            public void handle(ActionEvent event){
+                connectPane = new ConnectPane(false, "");
+                Scene scene = new Scene(connectPane, 500, 300);
+                stage.setScene(scene);
+                try{
+                    connectToServer(clientProperties);
+                    sendMSG("");
+                    Thread inputChecker = new Thread(){
+                        public void run(){
+                            while(running){
+                                try{
+                                    inbox(getMSG());
+                                } catch(NoSuchElementException e){
+                                    System.out.println("Megszakadt a kapcsolat a szerverrel");
+                                    Platform.runLater(new Runnable(){
+                                        @Override
+                                        public void run() {
+                                            Alert alert = new Alert(AlertType.INFORMATION);
+                                            alert.setTitle("Blackjack");
+                                            alert.setHeaderText("Server information");
+                                            alert.setContentText("You lost the connection with the server");
+                                            alert.showAndWait();
+                                            closeAll();
+                                        }
+                                    });
+                                    running = false;
                                 }
-                            });
-                            running = false;
+                            }
+                            return;
                         }
-                    }
-                    return;
+                    };
+                    inputChecker.start();
+                    
+                } catch(UnknownHostException e){
+                    System.out.println("Nem letezo host");
+                } catch(IOException e){
+                    System.out.println("Hiba tortent a socket letrehozasa soran");
+                } catch(Exception e){
+                    System.out.println("Varatlan hiba");
                 }
-            };
-            inputChecker.start();
+            }
+        });
             
-        } catch(UnknownHostException e){
-            System.out.println("Nem letezo host");
-        } catch(IOException e){
-            System.out.println("Hiba tortent a socket letrehozasa soran");
-        } catch(Exception e){
-            System.out.println("Varatlan hiba");
-        } 
+            
+        menuPane.getExitButton().setOnAction(new EventHandler<ActionEvent>(){
+            @Override
+            public void handle(ActionEvent event){
+                closeAll();
+            }
+        });
     }
 
     static Properties getProperties(){
@@ -210,7 +232,7 @@ public class BlackjackClient extends Application{
                                             alert.close();
                                             return;
                                         }
-                                    });                                    
+                                    });
                                 }
                             }, 10*1000);
                             Optional<ButtonType> result = alert.showAndWait();
