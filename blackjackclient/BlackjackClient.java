@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import blackjackclient.ConnectPane;
+import blackjackclient.ConnectPane; 
 import blackjackclient.TablePane;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -35,7 +35,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-
 
 public class BlackjackClient extends Application{
 
@@ -66,21 +65,41 @@ public class BlackjackClient extends Application{
 
     private Timer timer = new Timer();
 
+    private Properties clientProperties;
+
     public static void main(String[] args){
         launch();
     }
 
     @Override
     public void start(Stage primarystage){
-        Properties clientProperties = getProperties();
+        clientProperties = getProperties();
         chatArray = new ArrayList<String>();
         stage = primarystage;
         stage.getIcons().add(new Image("/blackjackclient/media/sum.png"));
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
-                closeAll();
-            }
+                if(running){
+                    event.consume();
+                    confirm = new Alert(AlertType.CONFIRMATION);
+                    confirm.setTitle("Blackjack");
+                    confirm.setContentText("Are you sure you want to quit?");
+                    Optional<ButtonType> result = confirm.showAndWait();
+                    if (result.get() == ButtonType.OK){
+                        running = false;
+                        menuPane = new MenuPane();
+                        Scene scene = new Scene(menuPane, 500, 500);
+                        initMenuButtons(clientProperties);
+                        stage.setScene(scene);
+                    } else {
+                        //confirmTimer.cancel();
+                    }
+                    
+                } else {
+                    closeAll();
+                }
+           }
         });
         stage.setTitle("Blackjack");
         stage.setResizable(false);
@@ -89,7 +108,6 @@ public class BlackjackClient extends Application{
         initMenuButtons(clientProperties);
         stage.setScene(scene);
         stage.show();
-        
     }
 
     private void initMenuButtons(Properties clientProperties){
@@ -137,7 +155,6 @@ public class BlackjackClient extends Application{
                 }
             }
         });
-            
             
         menuPane.getExitButton().setOnAction(new EventHandler<ActionEvent>(){
             @Override
