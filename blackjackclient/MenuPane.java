@@ -9,7 +9,8 @@ public class MenuPane extends BorderPane{
     private Button newGameButton;
     private Button exitButton;
     public MenuPane(){
-        newGameButton = new Button("NEW GAME");
+        setStyle("-fx-background-image: url('/blackjackclient/media/currenttable.png'); -fx-font: 16px sans-serif;");
+        newGameButton = new Button("UJ JATEK");
         setSize(newGameButton, 500, 40);
         newGameButton.relocate(0, 0);
 
@@ -17,7 +18,7 @@ public class MenuPane extends BorderPane{
         setSize(description, 500, 420);
         description.relocate(0, 40);
 
-        exitButton = new Button("EXIT");
+        exitButton = new Button("KILEPES");
         setSize(exitButton, 500, 40);
         exitButton.relocate(0, 440);
         

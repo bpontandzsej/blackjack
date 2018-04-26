@@ -6,6 +6,7 @@ import javafx.geometry.Pos;
 import javafx.scene.CacheHint;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ScrollPane;
@@ -69,6 +70,8 @@ public class TablePane extends Pane{
     private Pane remainingCard;
     private Pane remainingBet;
     private ScrollPane scrollMessages;
+    private CheckBox helpCheckBox;
+    private String currentOdds = "";
 
     public TablePane(String myId){
         this.myId = myId;
@@ -132,6 +135,21 @@ public class TablePane extends Pane{
         dealerPane = new Pane();
         setSize(dealerPane, 900, 200);     
         dealerPane.relocate(200, 0);
+
+        helpCheckBox = new CheckBox("Segitseg");
+        helpCheckBox.relocate(0, 0);
+        helpCheckBox.setSelected(true);
+        helpCheckBox.setStyle("-fx-background-image: url('/blackjackclient/media/currenttable.png'); -fx-border-color: black;");
+        helpCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if(newValue){
+                    cardBTN.setText("Lapot kerek (" + currentOdds + "%)");
+                } else {
+                    cardBTN.setText("Lapot kerek");
+                }
+            }
+        });
                         
         return dealerPane;
     }
@@ -163,7 +181,7 @@ public class TablePane extends Pane{
         return s;
     }
 
-    public void updateActionPane(String whichPane, String state){
+    public void updateActionPane(String whichPane, String state, String odds){
         actionPane.getChildren().clear();
         switch(whichPane){
             case "_bet__":
@@ -171,7 +189,13 @@ public class TablePane extends Pane{
                 actionPane.getChildren().add(createBetPane(dealerAndPlayers[1]));
             break;
             case "_turn_":
+                currentOdds = odds;
                 actionPane.getChildren().add(turnPaneChild);
+                if(helpCheckBox.isSelected()){
+                    cardBTN.setText("Lapot kerek (" + odds + "%)");
+                } else {
+                    cardBTN.setText("Lapot kerek");
+                }
             break;
             default:
             break;
@@ -248,7 +272,7 @@ public class TablePane extends Pane{
         betIcon.setFitHeight(25); 
         betIcon.setFitWidth(25);
 
-        sendBet = new Button("Bet", betIcon);
+        sendBet = new Button("Tetet teszek", betIcon);
         setSize(sendBet, 200, 50);
         sendBet.relocate(0, 100);
         format(sendBet, "#7c7", "black", 1, 5);
@@ -257,7 +281,7 @@ public class TablePane extends Pane{
         skipIcon.setFitHeight(25); 
         skipIcon.setFitWidth(25);
 
-        skipBet = new Button("Skip", skipIcon);
+        skipBet = new Button("Kihagyom a kort", skipIcon);
         setSize(skipBet, 200, 50);
         skipBet.relocate(0, 150);
         format(skipBet, "#c77", "black", 1, 5);
@@ -288,7 +312,7 @@ public class TablePane extends Pane{
         cardIcon.setFitHeight(25); 
         cardIcon.setFitWidth(25);
 
-        cardBTN = new Button("Hit", cardIcon);
+        cardBTN = new Button("Lapot kerek", cardIcon);
         setSize(cardBTN, 200, 95);
         cardBTN.relocate(0, 10);
         format(cardBTN, "#7c7", "black", 1, 5);
@@ -302,7 +326,7 @@ public class TablePane extends Pane{
         stopIcon.setFitHeight(25); 
         stopIcon.setFitWidth(25);
 
-        stopBTN = new Button("Stand", stopIcon);
+        stopBTN = new Button("Megallok", stopIcon);
         setSize(stopBTN, 200, 95);
         stopBTN.relocate(0, 105);
         format(stopBTN, "#c77", "black", 1, 5);
@@ -338,7 +362,6 @@ public class TablePane extends Pane{
         Pane dealerPaneChild = new Pane();
         setSize(dealerPaneChild, 900, 200);
         dealerPaneChild.relocate(0, 0);
-
 
         HBox moneyPane = new HBox(5);
         moneyPane.setStyle("-fx-background-image: url('/blackjackclient/media/currenttable.png'); -fx-border-color: black;");
@@ -384,7 +407,7 @@ public class TablePane extends Pane{
             createCardsPane(cardsPane, data[1], false);
         }        
         
-        dealerPaneChild.getChildren().addAll(moneyPane, cardsPane, sumPane);
+        dealerPaneChild.getChildren().addAll(helpCheckBox, moneyPane, cardsPane, sumPane);
         dealerPane.getChildren().add(dealerPaneChild);
 
     }
@@ -602,4 +625,8 @@ public class TablePane extends Pane{
         }
         return cardPane;
     }
+
+    /*public boolean needHelp(){
+        return helpCheckBox.isSelected();
+    }*/
 }

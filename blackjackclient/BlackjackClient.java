@@ -15,8 +15,6 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import blackjackclient.ConnectPane; 
-import blackjackclient.TablePane;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -84,7 +82,7 @@ public class BlackjackClient extends Application{
                     event.consume();
                     confirm = new Alert(AlertType.CONFIRMATION);
                     confirm.setTitle("Blackjack");
-                    confirm.setContentText("Are you sure you want to quit?");
+                    confirm.setContentText("Biztosan tavozni szeretnel ettol az asztaltol?");
                     Optional<ButtonType> result = confirm.showAndWait();
                     if (result.get() == ButtonType.OK){
                         running = false;
@@ -132,8 +130,8 @@ public class BlackjackClient extends Application{
                                         public void run() {
                                             Alert alert = new Alert(AlertType.INFORMATION);
                                             alert.setTitle("Blackjack");
-                                            alert.setHeaderText("Server information");
-                                            alert.setContentText("You lost the connection with the server");
+                                            alert.setHeaderText("Szerver uzenet");
+                                            alert.setContentText("Megszakadt a kapcsolat a szerverrel...");
                                             alert.showAndWait();
                                             closeAll();
                                         }
@@ -148,10 +146,13 @@ public class BlackjackClient extends Application{
                     
                 } catch(UnknownHostException e){
                     System.out.println("Nem letezo host");
+                    connectPane.setNamesLabelText("Nem sikerult csatlakozni a szerverhez...");
                 } catch(IOException e){
                     System.out.println("Hiba tortent a socket letrehozasa soran");
+                    connectPane.setNamesLabelText("Nem sikerult csatlakozni a szerverhez...");
                 } catch(Exception e){
                     System.out.println("Varatlan hiba");
+                    connectPane.setNamesLabelText("Nem sikerult csatlakozni a szerverhez...");
                 }
             }
         });
@@ -232,32 +233,34 @@ public class BlackjackClient extends Application{
                     sendMSG("");
                 break;
                 case "_svms_":
-                    Platform.runLater(new Runnable(){
-                        @Override
-                        public void run() {
-                            Alert alert = new Alert(AlertType.INFORMATION);
-                            alert.setTitle("Blackjack");
-                            alert.setHeaderText("Server information");
-                            alert.setContentText(msg.substring(6));
-                            Timer timer = new Timer();
-                            timer.schedule(new TimerTask(){
-                                @Override
-                                public void run() {
-                                    Platform.runLater(new Runnable(){
-                                        @Override
-                                        public void run() {
-                                            alert.close();
-                                            return;
-                                        }
-                                    });
+                    if(running){
+                        Platform.runLater(new Runnable(){
+                            @Override
+                            public void run() {
+                                Alert alert = new Alert(AlertType.INFORMATION);
+                                alert.setTitle("Blackjack");
+                                alert.setHeaderText("Szerver uzenet");
+                                alert.setContentText(msg.substring(6));
+                                Timer timer = new Timer();
+                                timer.schedule(new TimerTask(){
+                                    @Override
+                                    public void run() {
+                                        Platform.runLater(new Runnable(){
+                                            @Override
+                                            public void run() {
+                                                alert.close();
+                                                return;
+                                            }
+                                        });
+                                    }
+                                }, 10*1000);
+                                Optional<ButtonType> result = alert.showAndWait();
+                                if(result.isPresent()){
+                                    timer.cancel();
                                 }
-                            }, 10*1000);
-                            Optional<ButtonType> result = alert.showAndWait();
-                            if(result.isPresent()){
-                                timer.cancel();
                             }
-                        }
-                    });
+                        });
+                    }
                     sendMSG("");
                 break;
                 case "_strt_":
@@ -300,7 +303,7 @@ public class BlackjackClient extends Application{
                     Platform.runLater(new Runnable(){
                         @Override
                         public void run() {
-                            tablePane.updateActionPane("_bet__", msg.substring(6));
+                            tablePane.updateActionPane("_bet__", msg.substring(6), "");
                             updateDealerAndPlayers(msg.substring(6));
                             initBetButtons();
                             timer = new Timer();
@@ -321,7 +324,7 @@ public class BlackjackClient extends Application{
                                         Platform.runLater(new Runnable(){
                                             @Override
                                             public void run() {
-                                                tablePane.updateActionPane("", "");
+                                                tablePane.updateActionPane("", "", "");
                                                 return;
                                             }
                                         });                                    
@@ -337,8 +340,12 @@ public class BlackjackClient extends Application{
                     Platform.runLater(new Runnable(){
                         @Override
                         public void run() {
-                            tablePane.updateActionPane("_turn_", msg.substring(6));
-                            tablePane.getCardButton().setText("Hit (" + Integer.toString(getOdds(msg.substring(6))) + "%)");
+                            tablePane.updateActionPane("_turn_", msg.substring(6), Integer.toString(getOdds(msg.substring(6))));
+                            /*if(tablePane.needHelp()){
+                                tablePane.getCardButton().setText("Lapot kerek (" + Integer.toString(getOdds(msg.substring(6))) + "%)");
+                            } else {
+                                tablePane.getCardButton().setText("Lapot kerek");
+                            }*/
                             updateDealerAndPlayers(msg.substring(6));
                             initButtons(msg.substring(6));
                             timer = new Timer();
@@ -359,7 +366,7 @@ public class BlackjackClient extends Application{
                                         Platform.runLater(new Runnable(){
                                             @Override
                                             public void run() {
-                                                tablePane.updateActionPane("", "");
+                                                tablePane.updateActionPane("", "", "");
                                                 confirm.close();
                                                 return;
                                             }
@@ -443,8 +450,8 @@ public class BlackjackClient extends Application{
                         public void run() {
                             confirm = new Alert(AlertType.CONFIRMATION);
                             confirm.setTitle("Blackjack");
-                            confirm.setHeaderText("You have " + Integer.toString(odds) + "% chance for success");
-                            confirm.setContentText("Do you want to Hit anyway?");
+                            confirm.setHeaderText(Integer.toString(odds) + "% eselyed van jo lapra");
+                            confirm.setContentText("Mindenkeppen lapot kersz?");
                             Timer confirmTimer = new Timer();
                             confirmTimer.schedule(new TimerTask(){
                                 @Override
@@ -461,7 +468,7 @@ public class BlackjackClient extends Application{
                             Optional<ButtonType> result = confirm.showAndWait();
                             if (result.get() == ButtonType.OK){
                                 sendMSG("#card");
-                                tablePane.updateActionPane("", "");
+                                tablePane.updateActionPane("", "", "");
                                 confirmTimer.cancel();
                             } else {
                                 confirmTimer.cancel();
@@ -470,7 +477,7 @@ public class BlackjackClient extends Application{
                     });
                 } else {
                     sendMSG("#card");
-                    tablePane.updateActionPane("", "");
+                    tablePane.updateActionPane("", "", "");
                     timer.cancel();
                 }                
             }
@@ -479,7 +486,7 @@ public class BlackjackClient extends Application{
             @Override
             public void handle(ActionEvent event) {
                 sendMSG("#stop");
-                tablePane.updateActionPane("", "");
+                tablePane.updateActionPane("", "", "");
                 timer.cancel();
             }
         });
@@ -494,7 +501,7 @@ public class BlackjackClient extends Application{
                     if(Integer.parseInt(s)>0){
                         sendMSG(s);
                         timer.cancel();
-                        tablePane.updateActionPane("", "");
+                        tablePane.updateActionPane("", "", "");
                     }
                 }
             }
@@ -503,7 +510,7 @@ public class BlackjackClient extends Application{
             @Override
             public void handle(ActionEvent event) {
                 sendMSG("#skip");
-                tablePane.updateActionPane("", "");
+                tablePane.updateActionPane("", "", "");
             }
         });
     }

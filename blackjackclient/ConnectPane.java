@@ -11,16 +11,18 @@ public class ConnectPane extends GridPane{
     private TextField nicknameInput;
     private Button connectButton;
     private Text connectingText;
+    private Label namesLabel;
 
     public ConnectPane(boolean input, String names){
+        setStyle("-fx-background-image: url('/blackjackclient/media/currenttable.png'); -fx-font: 16px sans-serif;");
         setAlignment(Pos.CENTER);
         setVgap(10);
         if(names == ""){
-            Label namesLabel = new Label("Waiting for the server...");
+            namesLabel = new Label("Varakozas a szerverre...");
             add(namesLabel, 1, 1);
         } else {
             String[] nameArray = names.split("#");
-            Label namesLabel = new Label("Connected:\n");
+            namesLabel = new Label("Csatlakozott:\n");
             for(int i = 0; i<nameArray.length; i++){
                 if(nameArray[i].length()!=0){
                     namesLabel.setText(namesLabel.getText() + nameArray[i] + "\n");
@@ -28,7 +30,7 @@ public class ConnectPane extends GridPane{
             }
             add(namesLabel, 1, 2);
             if(input){
-                Label nickname = new Label("Nickname: ");
+                Label nickname = new Label("Felhasznalonev: ");
                 add(nickname, 0, 0);
 
                 nicknameInput = new TextField();
@@ -39,10 +41,14 @@ public class ConnectPane extends GridPane{
                 });
                 add(nicknameInput, 1, 0);
 
-                connectButton = new Button("Connect");
+                connectButton = new Button("Csatlakozas");
                 add(connectButton, 2, 0);
             }
         }                
+    }
+
+    public void setNamesLabelText(String s){
+        namesLabel.setText(s);
     }
 
     public Button getConnectButton(){
@@ -55,6 +61,6 @@ public class ConnectPane extends GridPane{
 
     public void setWaitingText(){
         connectButton.setVisible(false);
-        connectingText.setText("Waiting for others...");
+        connectingText.setText("Varakozas a tobbiekre...");
     }
 }

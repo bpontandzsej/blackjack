@@ -58,12 +58,3 @@ Fejlesztői doksi
 --a csinált osztályok leírása, a metódusoké, mi mit csinál, hogy működik, stb.
 -tesztelési terv és eredmények
 Irodalomjegyzék
-
-
-
-
-TODO:
-
-menü:   új játék
-        játékleírás
-        kilépés
