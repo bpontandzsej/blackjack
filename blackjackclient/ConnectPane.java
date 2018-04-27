@@ -4,6 +4,8 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 
@@ -42,6 +44,13 @@ public class ConnectPane extends GridPane{
                 add(nicknameInput, 1, 0);
 
                 connectButton = new Button("Csatlakozas");
+
+                nicknameInput.addEventHandler(KeyEvent.KEY_PRESSED, ev -> {
+                    if (ev.getCode() == KeyCode.ENTER) {
+                        connectButton.fire();
+                        ev.consume(); 
+                    }
+                });
                 add(connectButton, 2, 0);
             }
         }                

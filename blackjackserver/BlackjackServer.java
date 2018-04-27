@@ -32,6 +32,7 @@ public class BlackjackServer {
             chatServerSocket = new ServerSocket(Integer.parseInt(serverProperties.getProperty("chatport")));
             PLAYERS_PER_TABLE = Integer.parseInt(serverProperties.getProperty("maxplayer"));
             tableProperties.setProperty("startmoney", serverProperties.getProperty("startmoney"));
+            tableProperties.setProperty("multiplier", serverProperties.getProperty("multiplier"));
             tables = new ArrayList<BlackjackTable>();
         } catch(IOException e){
             System.out.println("Nem sikerult letrehozni a szervert");

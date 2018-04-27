@@ -86,6 +86,7 @@ public class BlackjackClient extends Application{
                     Optional<ButtonType> result = confirm.showAndWait();
                     if (result.get() == ButtonType.OK){
                         running = false;
+                        sendMSG("#close");
                         menuPane = new MenuPane();
                         Scene scene = new Scene(menuPane, 500, 500);
                         initMenuButtons(clientProperties);
@@ -133,7 +134,7 @@ public class BlackjackClient extends Application{
                                             alert.setHeaderText("Szerver uzenet");
                                             alert.setContentText("Megszakadt a kapcsolat a szerverrel...");
                                             alert.showAndWait();
-                                            closeAll();
+                                            //closeAll();
                                         }
                                     });
                                     running = false;

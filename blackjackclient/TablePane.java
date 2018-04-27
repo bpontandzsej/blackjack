@@ -21,6 +21,8 @@ import javafx.scene.effect.ColorInput;
 import javafx.scene.effect.Effect;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BorderPane;
@@ -104,6 +106,7 @@ public class TablePane extends Pane{
         scrollMessages.relocate(0, 0);
 
         chatInput = new TextField();
+        
         format(chatInput, "#ccc", "black", 1, 5);
         setSize(chatInput, 150, 30);
         chatInput.relocate(0, 270);
@@ -116,6 +119,13 @@ public class TablePane extends Pane{
         sendChat.setGraphic(sendIcon);
         setSize(sendChat, 50, 30);
         sendChat.relocate(150, 270);
+
+        chatInput.addEventHandler(KeyEvent.KEY_PRESSED, ev -> {
+            if (ev.getCode() == KeyCode.ENTER) {
+                sendChat.fire();
+                ev.consume(); 
+            }
+        });
 
         chatPane.getChildren().addAll(scrollMessages, chatInput, sendChat);
 

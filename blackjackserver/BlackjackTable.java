@@ -1,10 +1,10 @@
 package blackjackserver;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
-
+import java.io.IOException;
+import java.net.Socket;
+import java.util.Properties;
 import blackjackserver.Player;
 import blackjackserver.Dealer;
 import blackjackserver.Deck;
@@ -17,12 +17,14 @@ public class BlackjackTable extends Thread{
     private ArrayList<String> names;
     private ArrayList<Player> needToDelete;
     private ArrayList<ArrayList<Socket>> sockets;
+    private final int multiplier;
 
-    public BlackjackTable(int id, ArrayList<ArrayList<Socket>> sockets, Properties serverProperties){
+    public BlackjackTable(int id, ArrayList<ArrayList<Socket>> sockets, Properties tableProperties){
         this.sockets = new ArrayList<ArrayList<Socket>>(sockets);
         players = new ArrayList<Player>();
         names = new ArrayList<String>(); 
-        startMoney = Integer.parseInt(serverProperties.getProperty("startmoney"));
+        startMoney = Integer.parseInt(tableProperties.getProperty("startmoney"));
+        multiplier = Integer.parseInt(tableProperties.getProperty("multiplier"));
         System.out.println("letrejott a szal");
     }
 
@@ -57,16 +59,20 @@ public class BlackjackTable extends Thread{
                         if(msg.equals("#skip")){
                             player.setStatus(3);
                         } else {
-                            player.setBet(Integer.parseInt(msg));
+                            try{
+                                player.setBet(Integer.parseInt(msg));
+                            } catch(NumberFormatException e){
+                                
+                            }
+                            
                             player.setStatus(2);
                         }                        
-                    } catch(Exception e){
+                    } catch(IllegalStateException e){
                         System.out.println("bet off");
-                        player.setStatus(4);
-                        needToDelete.add(player);
-                        player.flush();
-                        player.close();
-                    }                    
+                        playerLeft(player);
+                    } catch(IOException e){
+                        System.out.println("kommunikacios hiba");
+                    }
                     sendStatusToAll(true);
                 }
             }
@@ -100,12 +106,11 @@ public class BlackjackTable extends Thread{
                                 sendStatusToAll(true);                    
                             }
                             player.setRealSum(getSumInInt(player.getSum()));
-                        } catch(Exception e){
+                        } catch(IllegalStateException e){
                             System.out.println("asd7");
-                            player.setStatus(4);
-                            needToDelete.add(player);
-                            player.flush();
-                            player.close();
+                            playerLeft(player);
+                        } catch(IOException e){
+                            System.out.println("kommunikacios hiba");
                         }
                         player.setStatus(2);
                         sendStatusToAll(true);
@@ -138,28 +143,23 @@ public class BlackjackTable extends Thread{
                     if(player.getRealSum() != dealer.getRealSum()){
                         if(player.getStatus()<3){
                             if(player.getRealSum()==21 && player.getCards().size()==2){
-                                player.setMoney(player.getMoney() + (int)Math.round(player.getBet()*1.5));
-                                dealer.setMoney(dealer.getMoney() - (int)(player.getBet()*1.5));
+                                deal(dealer, player, 1.5);
                                 player.sendServerMSG("MEGNYERTED A KORT: BLACKJACK!");
                             } else {
                                 if(player.getRealSum()>21){
-                                    player.setMoney(player.getMoney() - player.getBet());
-                                    dealer.setMoney(dealer.getMoney() + player.getBet());
+                                    deal(dealer, player, -1);
                                     player.sendServerMSG("ELVESZTETTED A KORT: A lapjaid osszege: " + Integer.toString(player.getRealSum()));
                                 } else {
                                     if(dealer.getRealSum()>21){
-                                        player.setMoney(player.getMoney() + player.getBet());
-                                        dealer.setMoney(dealer.getMoney() - player.getBet());
+                                        deal(dealer, player, 1);
                                         player.sendServerMSG("MEGNYERTED A KORT: Az oszto lapjainak osszege: " + Integer.toString(dealer.getRealSum()));
                                     } else {
                                         if(player.getRealSum()>dealer.getRealSum()){
-                                            player.setMoney(player.getMoney() + player.getBet());
-                                            dealer.setMoney(dealer.getMoney() - player.getBet());
+                                            deal(dealer, player, 1);
                                             player.sendServerMSG("MEGNYERTED A KORT: A lapjaid osszege: " + Integer.toString(player.getRealSum()) + ", az oszto lapjainak osszege: " + Integer.toString(dealer.getRealSum()));
                                         } else {
                                             if(player.getRealSum()<dealer.getRealSum()){
-                                                player.setMoney(player.getMoney() - player.getBet());
-                                                dealer.setMoney(dealer.getMoney() + player.getBet());
+                                                deal(dealer, player, -1);
                                                 player.sendServerMSG("ELVESZTETTED A KORT: A lapjaid osszege: " + Integer.toString(player.getRealSum()) + ", az oszto lapjainak osszege: " + Integer.toString(dealer.getRealSum()));
                                             }
                                         }
@@ -168,8 +168,12 @@ public class BlackjackTable extends Thread{
                             }
                         }
                     } else {
-                        player.sendServerMSG("DRAW: You have: " + Integer.toString(player.getRealSum()) + ", Dealer has: " + Integer.toString(dealer.getRealSum()));
-                    }                                    
+                        try{
+                            player.sendServerMSG("DRAW: You have: " + Integer.toString(player.getRealSum()) + ", Dealer has: " + Integer.toString(dealer.getRealSum()));
+                        } catch(IllegalStateException e){
+                            System.out.println("mar lelepett");
+                        }
+                    }
                 }
             }
             sendStatusToAll(false);
@@ -177,15 +181,19 @@ public class BlackjackTable extends Thread{
             for(Player player : new ArrayList<Player>(players)){
                 if(player.getStatus()<4){
                     if(player.getMoney()<=0){
-                        player.sendServerMSG("You are out of money! You lost the game");
+                        try{
+                            player.sendServerMSG("You are out of money! You lost the game");
+                        } catch(IllegalStateException e){
+                            System.out.println("mar lelepett");
+                        }
                         player.setStatus(4);
                     }
                 }
-                
             }
             sendStatusToAll(false);
         }
 
+        needToDelete = new ArrayList<Player>();
         for(Player player : players){
             try{
                 if(player.getMoney()>0){
@@ -199,14 +207,24 @@ public class BlackjackTable extends Thread{
                 }
                 player.sayBye();            
             } catch(Exception e){
-                System.out.println("asd8");
-                player.close();
-                players.remove(player);
-                player.flush();
+                playerLeft(player);
             } 
         }
+        players.removeAll(needToDelete);
         System.out.println("lelepett mindenki");
         return;
+    }
+
+    private void deal(Dealer dealer, Player player, double toPlayer){
+        player.setMoney(player.getMoney() + (int)Math.round(player.getBet()*toPlayer));
+        dealer.setMoney(dealer.getMoney() - (int)(player.getBet()*toPlayer));
+    }
+
+    private void playerLeft(Player player){
+        player.setStatus(4);
+        needToDelete.add(player);
+        player.flush();
+        player.close();
     }
 
     private void init(){
@@ -228,12 +246,11 @@ public class BlackjackTable extends Thread{
             try{
                 player.sendMSG("_id___" + Integer.toString(player.getId()));
                 player.getMSG();
-            } catch(Exception e){
+            } catch(IllegalStateException e){
                 System.out.println("asd3");
-                player.setStatus(4);
-                needToDelete.add(player);
-                player.close();
-                player.flush();
+                playerLeft(player);
+            } catch(IOException e){
+                System.out.println("kommunikacios hiba");
             }
             Thread chatHandler = new Thread(){
                 @Override
@@ -296,7 +313,7 @@ public class BlackjackTable extends Thread{
         for(Player player : players){
             player.setMoney(startMoney);
         }
-        dealer.setMoney(startMoney*players.size()*3);
+        dealer.setMoney(startMoney*players.size()*multiplier);
     }
 
     /**
@@ -355,8 +372,10 @@ public class BlackjackTable extends Thread{
             try{
                 player.sendMSG(getStatus(hideSecond, "_stat_"));
                 player.getMSG();
-            } catch(Exception e){
+            } catch(IllegalStateException e){
                 System.out.println("status off");
+            } catch(IOException e){
+                System.out.println("kommunikacios hiba");
             }
         }
     }
@@ -371,12 +390,11 @@ public class BlackjackTable extends Thread{
             try{
                 player.sendMSG(msg);
                 player.getMSG();
-            } catch(Exception e){
+            } catch(IllegalStateException e){
                 System.out.println("asd12");
-                player.setStatus(4);
-                needToDelete.add(player);
-                player.flush();
-                player.close();
+                playerLeft(player);
+            } catch(IOException e){
+                System.out.println("kommunikacios hiba");
             }
         }
         players.removeAll(needToDelete);
