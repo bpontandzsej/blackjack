@@ -16,7 +16,7 @@ public class ConnectPane extends GridPane{
     private Label namesLabel;
 
     public ConnectPane(boolean input, String names){
-        setStyle("-fx-background-image: url('/blackjackclient/media/currenttable.png'); -fx-font: 16px sans-serif;");
+        setStyle("-fx-background-image: url('/blackjackclient/media/currenttable.png'); -fx-font: 16px sans-serif; -fx-font-weight: bold;");
         setAlignment(Pos.CENTER);
         setVgap(10);
         if(names == ""){

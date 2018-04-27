@@ -35,7 +35,6 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 public class BlackjackClient extends Application{
-
     private Socket clientSocket;
     private PrintWriter sender;
     private Scanner receiver;
@@ -91,6 +90,9 @@ public class BlackjackClient extends Application{
                         Scene scene = new Scene(menuPane, 500, 500);
                         initMenuButtons(clientProperties);
                         stage.setScene(scene);
+                        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                        stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2); 
+                        stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
                     } else {
                         //confirmTimer.cancel();
                     }
@@ -102,11 +104,15 @@ public class BlackjackClient extends Application{
         });
         stage.setTitle("Blackjack");
         stage.setResizable(false);
+        stage.show();
         menuPane = new MenuPane();
         Scene scene = new Scene(menuPane, 500, 500);
         initMenuButtons(clientProperties);
         stage.setScene(scene);
-        stage.show();
+        
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+        stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2); 
+        stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
     }
 
     private void initMenuButtons(Properties clientProperties){
@@ -116,6 +122,9 @@ public class BlackjackClient extends Application{
                 connectPane = new ConnectPane(false, "");
                 Scene scene = new Scene(connectPane, 500, 300);
                 stage.setScene(scene);
+                Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2); 
+                stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
                 try{
                     connectToServer(clientProperties);
                     sendMSG("");
@@ -401,6 +410,9 @@ public class BlackjackClient extends Application{
                             ConnectPane connectPane = new ConnectPane(true, names);
                             Scene scene = new Scene(connectPane, 500, 300);
                             stage.setScene(scene);
+                            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                            stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2); 
+                            stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
                             connectPane.getConnectButton().setOnAction(new EventHandler<ActionEvent>(){
                                 @Override
                                 public void handle(ActionEvent event) {
@@ -425,6 +437,9 @@ public class BlackjackClient extends Application{
                             ConnectPane connectPane = new ConnectPane(false, names);
                             Scene scene = new Scene(connectPane, 500, 300);
                             stage.setScene(scene);
+                            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                            stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2); 
+                            stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
                             return;
                         }
                     });
