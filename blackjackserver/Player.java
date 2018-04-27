@@ -1,8 +1,12 @@
 package blackjackserver;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.NoSuchElementException;
+import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
@@ -43,7 +47,6 @@ public class Player extends Person{
         }
         return s;
     }
-
 
     public String getName(){
         return this.name;

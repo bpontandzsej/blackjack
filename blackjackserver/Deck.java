@@ -1,7 +1,7 @@
 package blackjackserver;
 
-import java.util.*;
-import blackjackserver.Card;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class Deck{
     private ArrayList<Card> cards;

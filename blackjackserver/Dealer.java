@@ -1,24 +1,16 @@
 package blackjackserver;
 
+import java.util.ArrayList;
+
 public class Dealer extends Person{
     public Dealer(){
         super();
-        /**
-         * SET default VELUES
-         */
         this.name = "DEALER";
     }
 
-    /**
-     * RETURNS with the dealer's NAME
-     */
     public String getName(){
         return this.name;
     }
-
-    /*public void setName(String name){
-        this.name = name;
-    }*/
 
     public String cardsToString(boolean hideSecond){
         if(cards.size()>0){

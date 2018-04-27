@@ -5,9 +5,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Properties;
-import blackjackserver.Player;
-import blackjackserver.Dealer;
-import blackjackserver.Deck;
 
 public class BlackjackTable extends Thread{
     private ArrayList<Player> players;

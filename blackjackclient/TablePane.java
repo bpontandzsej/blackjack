@@ -53,8 +53,6 @@ import javafx.collections.ObservableList;
 
 public class TablePane extends Pane{
     private Pane chatPane;
-    private Pane betPane;
-    private Pane turnPane;
     private Pane dealerPane;
     private Pane playersPane;
     private Pane actionPane;
