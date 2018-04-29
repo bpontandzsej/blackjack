@@ -51,7 +51,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-public class TablePane extends Pane{
+public class TablePane extends EditablePane{
     private Pane chatPane;
     private Pane dealerPane;
     private Pane playersPane;
@@ -438,16 +438,6 @@ public class TablePane extends Pane{
         playerPaneChild.getChildren().setAll(workingCollection);
         
         playersPane.getChildren().add(playerPaneChild);
-    }
-
-    private void setSize(javafx.scene.layout.Region obj, int width, int height){
-        obj.setPrefSize(width, height);
-        obj.setMinSize(width, height);
-        obj.setMaxSize(width, height);
-    }
-
-    private void format(javafx.scene.layout.Region obj, String bgcolor, String brcolor, int brwidth, int round){
-        obj.setStyle("-fx-background-color: " + bgcolor + "; -fx-background-radius: " + Integer.toString(round) + "; -fx-border-width: " + Integer.toString(brwidth) + "; -fx-border-color: " + brcolor + "; -fx-border-radius: " + Integer.toString(round) + ";");
     }
 
     private Pane createPlayer(String player){

@@ -56,11 +56,15 @@ public class BlackjackClient extends Application{
     private String myId;
 
     private String lastState;
-    private int loop;
+    private int betLoop;
+    private int turnLoop;
+    private int nameLoop;
 
     private Alert confirm;
 
-    private Timer timer = new Timer();
+    private Timer betTimer = new Timer();
+    private Timer turnTimer = new Timer();
+    private Timer connectTimer = new Timer();
 
     private Properties clientProperties;
 
@@ -84,12 +88,17 @@ public class BlackjackClient extends Application{
                     confirm.setContentText("Biztosan tavozni szeretnel ettol az asztaltol?");
                     Optional<ButtonType> result = confirm.showAndWait();
                     if (result.get() == ButtonType.OK){
+                        turnTimer.cancel();
+                        betTimer.cancel();
+                        connectTimer.cancel();
                         running = false;
-                        sendMSG("#close");
-                        menuPane = new MenuPane();
-                        Scene scene = new Scene(menuPane, 500, 500);
-                        initMenuButtons(clientProperties);
-                        stage.setScene(scene);
+                        try{
+                            sendMSG("#close");
+                        } catch(Exception e){
+
+                        }
+                        
+                        showMenu();
                         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
                         stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2); 
                         stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
@@ -120,7 +129,7 @@ public class BlackjackClient extends Application{
             @Override
             public void handle(ActionEvent event){
                 connectPane = new ConnectPane(false, "");
-                Scene scene = new Scene(connectPane, 500, 300);
+                Scene scene = new Scene(connectPane, 500, 500);
                 stage.setScene(scene);
                 Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
                 stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2); 
@@ -153,16 +162,22 @@ public class BlackjackClient extends Application{
                         }
                     };
                     inputChecker.start();
-                    
+                    running = true;
                 } catch(UnknownHostException e){
                     System.out.println("Nem letezo host");
                     connectPane.setNamesLabelText("Nem sikerult csatlakozni a szerverhez...");
+                    alertForFailedConnect();
+                    showMenu();
                 } catch(IOException e){
                     System.out.println("Hiba tortent a socket letrehozasa soran");
                     connectPane.setNamesLabelText("Nem sikerult csatlakozni a szerverhez...");
+                    alertForFailedConnect();
+                    showMenu();
                 } catch(Exception e){
                     System.out.println("Varatlan hiba");
                     connectPane.setNamesLabelText("Nem sikerult csatlakozni a szerverhez...");
+                    alertForFailedConnect();
+                    showMenu();
                 }
             }
         });
@@ -176,7 +191,7 @@ public class BlackjackClient extends Application{
     }
 
     static Properties getProperties(){
-        final String propertiesFileName = "blackjackclient/default.properties";
+        final String propertiesFileName = "client_config.properties";
 
         Properties properties = new Properties();
         InputStream inputForConfig = null;
@@ -185,14 +200,13 @@ public class BlackjackClient extends Application{
             properties.load(inputForConfig);
             inputForConfig.close();
         } catch (IOException e) {
-            System.out.println("Nem talalhato default.properties fajl vagy nem nyithato meg");
+            System.out.println("Nem talalhato config.properties fajl vagy nem nyithato meg");
             System.exit(0);
         } 
         return properties;
     }
 
     private void connectToServer(Properties clientProperties) throws UnknownHostException, IOException, Exception{
-        running = true;
         clientSocket = new Socket(clientProperties.getProperty("host"), Integer.parseInt(clientProperties.getProperty("port")));
 
         sender = new PrintWriter(clientSocket.getOutputStream(), true);
@@ -258,7 +272,12 @@ public class BlackjackClient extends Application{
                                         Platform.runLater(new Runnable(){
                                             @Override
                                             public void run() {
-                                                alert.close();
+                                                try{
+                                                    alert.close();
+                                                } catch(Exception e){
+                                                    
+                                                }
+
                                                 return;
                                             }
                                         });
@@ -316,20 +335,20 @@ public class BlackjackClient extends Application{
                             tablePane.updateActionPane("_bet__", msg.substring(6), "");
                             updateDealerAndPlayers(msg.substring(6));
                             initBetButtons();
-                            timer = new Timer();
-                            loop = 120;
-                            timer.schedule(new TimerTask(){
+                            betTimer = new Timer();
+                            betLoop = 4*30;
+                            betTimer.schedule(new TimerTask(){
                                 @Override
                                 public void run() {
-                                    loop--;
+                                    betLoop--;
                                     Platform.runLater(new Runnable(){
                                         @Override
                                         public void run() {
-                                            tablePane.setBetRemaining((loop*100/120));
+                                            tablePane.setBetRemaining((betLoop*100/120));
                                             return;
                                         }
                                     });
-                                    if(loop==0){
+                                    if(betLoop==0){
                                         sendMSG("#skip");
                                         Platform.runLater(new Runnable(){
                                             @Override
@@ -338,7 +357,7 @@ public class BlackjackClient extends Application{
                                                 return;
                                             }
                                         });                                    
-                                        timer.cancel();                                    
+                                        betTimer.cancel();                                    
                                     }
                                 }
                             }, 250, 250);
@@ -358,30 +377,34 @@ public class BlackjackClient extends Application{
                             }*/
                             updateDealerAndPlayers(msg.substring(6));
                             initButtons(msg.substring(6));
-                            timer = new Timer();
-                            loop = 120;
-                            timer.schedule(new TimerTask(){
+                            turnTimer = new Timer();
+                            turnLoop = 4*30;
+                            turnTimer.schedule(new TimerTask(){
                                 @Override
                                 public void run() {
-                                    loop--;
+                                    turnLoop--;
                                     Platform.runLater(new Runnable(){
                                         @Override
                                         public void run() {
-                                            tablePane.setCardRemaining((loop*100/120));
+                                            tablePane.setCardRemaining((turnLoop*100/120));
                                             return;
                                         }
                                     });
-                                    if(loop==0){
+                                    if(turnLoop==0){
                                         sendMSG("#stop");
                                         Platform.runLater(new Runnable(){
                                             @Override
                                             public void run() {
                                                 tablePane.updateActionPane("", "", "");
-                                                confirm.close();
+                                                try{
+                                                    confirm.close();
+                                                } catch(Exception e){
+
+                                                }                                                
                                                 return;
                                             }
                                         });                                    
-                                        timer.cancel();                                    
+                                        turnTimer.cancel();                                    
                                     }
                                 }
                             }, 250, 250);
@@ -408,8 +431,27 @@ public class BlackjackClient extends Application{
                         public void run() {
                             String names = msg.substring(6);
                             ConnectPane connectPane = new ConnectPane(true, names);
-                            Scene scene = new Scene(connectPane, 500, 300);
+                            Scene scene = new Scene(connectPane, 500, 500);
                             stage.setScene(scene);
+                            connectTimer = new Timer();
+                            nameLoop = 4*10;
+                            connectTimer.schedule(new TimerTask(){
+                                @Override
+                                public void run() {
+                                    nameLoop--;
+                                    Platform.runLater(new Runnable(){
+                                        @Override
+                                        public void run() {
+                                            connectPane.setNameRemaining((nameLoop*100/40));
+                                            return;
+                                        }
+                                    });
+                                    if(nameLoop==0){
+                                        connectTimer.cancel();
+                                        sendMSG("#player");
+                                    }
+                                }
+                            }, 250, 250);
                             Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
                             stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2); 
                             stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
@@ -418,6 +460,7 @@ public class BlackjackClient extends Application{
                                 public void handle(ActionEvent event) {
                                     if(connectPane.getNicknameInput().length()>0){
                                         if(names.indexOf("#" + connectPane.getNicknameInput() + "#") == -1){
+                                            connectTimer.cancel();
                                             sendMSG(connectPane.getNicknameInput());
                                         }
                                     }
@@ -427,7 +470,6 @@ public class BlackjackClient extends Application{
                             return;
                         }
                     });
-                    
                 break;
                 case "_nms__":
                     Platform.runLater(new Runnable(){
@@ -455,6 +497,21 @@ public class BlackjackClient extends Application{
         tablePane.updatePlayerPane(dealerAndPlayers[1]);
     }
 
+    private void alertForFailedConnect(){
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("Blackjack");
+        alert.setHeaderText("Nem sikerult a csatlakozas");
+        alert.setContentText("Nem sikerult csatlakozni a szerverhez, kerem ellenorizze a hostot, portot es probalja ujra...");
+        alert.showAndWait();
+    }
+
+    private void showMenu(){
+        menuPane = new MenuPane();
+        initMenuButtons(clientProperties);
+        Scene scene = new Scene(menuPane, 500, 500);
+        stage.setScene(scene);
+    }
+
     private void initButtons(String state){
         tablePane.getCardButton().setOnAction(new EventHandler<ActionEvent>(){
             int odds = getOdds(state);
@@ -475,7 +532,11 @@ public class BlackjackClient extends Application{
                                     Platform.runLater(new Runnable(){
                                         @Override
                                         public void run() {
-                                            confirm.close();
+                                            try{
+                                                confirm.close();
+                                            } catch(Exception e){
+                                                
+                                            }
                                             return;
                                         }
                                     });                                    
@@ -483,27 +544,29 @@ public class BlackjackClient extends Application{
                             }, 10*1000);
                             Optional<ButtonType> result = confirm.showAndWait();
                             if (result.get() == ButtonType.OK){
-                                sendMSG("#card");
-                                tablePane.updateActionPane("", "", "");
                                 confirmTimer.cancel();
+                                sendMSG("#card");
+                                tablePane.updateActionPane("", "", "");                                
                             } else {
                                 confirmTimer.cancel();
                             }
                         }
                     });
                 } else {
+                    turnTimer.cancel();
                     sendMSG("#card");
                     tablePane.updateActionPane("", "", "");
-                    timer.cancel();
+                    
                 }                
             }
         });
         tablePane.getStopButton().setOnAction(new EventHandler<ActionEvent>(){
             @Override
             public void handle(ActionEvent event) {
+                turnTimer.cancel();
                 sendMSG("#stop");
                 tablePane.updateActionPane("", "", "");
-                timer.cancel();
+                
             }
         });
     }
@@ -516,7 +579,7 @@ public class BlackjackClient extends Application{
                 if(s.matches("[0-9]+")){
                     if(Integer.parseInt(s)>0){
                         sendMSG(s);
-                        timer.cancel();
+                        betTimer.cancel();
                         tablePane.updateActionPane("", "", "");
                     }
                 }
@@ -525,6 +588,7 @@ public class BlackjackClient extends Application{
         tablePane.getSkipBetButton().setOnAction(new EventHandler<ActionEvent>(){
             @Override
             public void handle(ActionEvent event) {
+                betTimer.cancel();
                 sendMSG("#skip");
                 tablePane.updateActionPane("", "", "");
             }

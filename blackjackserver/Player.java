@@ -36,7 +36,13 @@ public class Player extends Person{
 
         getMSG();
         sendMSG(namesToString(names));
-        this.name = getMSG();
+        String tempName = getMSG();
+        if(tempName.equals("#player")){
+            this.name = "Player" + Integer.toString(id+1);
+        } else {
+            this.name = tempName;
+        }
+        
         System.out.println("en csatlakoztam " + name);
     }
 

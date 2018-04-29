@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract  class Person{
+public abstract class Person{
     protected String name;
     private int money;
     protected ArrayList<Card> cards;

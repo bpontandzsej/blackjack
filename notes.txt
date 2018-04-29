@@ -34,6 +34,7 @@ esélyszámolás +
 
 JAR:
 jar cfe Blackjack.jar blackjackclient.BlackjackClient blackjackclient/*.class blackjackclient/media/*
+jar cfe Blackjack_server.jar blackjackserver.BlackjackServer blackjackserver/*.class
 jar cfe output.jar MainClass files
 
 DOKU:
@@ -58,3 +59,7 @@ Fejlesztői doksi
 --a csinált osztályok leírása, a metódusoké, mi mit csinál, hogy működik, stb.
 -tesztelési terv és eredmények
 Irodalomjegyzék
+
+TODO
+UTF-8 kódolás
+connect timeout

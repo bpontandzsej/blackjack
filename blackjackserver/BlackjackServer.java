@@ -108,7 +108,7 @@ public class BlackjackServer {
      * @return this method returns with a Properties object
      */
     static Properties getProperties(String[] args){
-        final String defaultPropertiesFileName = "blackjackServer/default.properties";
+        final String defaultPropertiesFileName = "default_server.properties";
 
         String propertiesFileName = null;
         try {
