@@ -13,11 +13,6 @@ import java.util.TimerTask;
 import blackjackserver.BlackjackTable;
 
 public class BlackjackServer {
-    /**
-     * BlackjackServer is the main class of the server.
-     * This class collects the connections, then starts a thread with these connections.
-     * The thread represents a table.
-     */
     private int tableId;
     private ServerSocket serverSocket;
     private ServerSocket chatServerSocket;
@@ -26,10 +21,6 @@ public class BlackjackServer {
     private Properties tableProperties;
     private ArrayList<ArrayList<Socket>> socketQueue;
 
-    /**
-     * The constructor starts  a serverSocket and creates an arraylist for the tables.
-     * @param serverProperties contains the settings of the server andthe table
-     */
     public BlackjackServer(Properties serverProperties){
         tableId = 0;
         tableProperties = new Properties();
@@ -47,22 +38,12 @@ public class BlackjackServer {
         }
     }
 
-    /**
-     * The main method collects the settings of the server from a .properties file,
-     * then creates a server with the settings, finnaly calls then run method
-     * @param args includes the location of the settings file
-     */
     public static void main(String[] args){
         Properties serverProperties = getProperties(args);
         BlackjackServer blackjackServer = new BlackjackServer(serverProperties);
         blackjackServer.run(serverProperties);
     }
 
-    /**
-     * The run method creates an arraylist for the sockets and waitings for them.
-     * When the count of sockets is enough the method adds a table to tables
-     * which extends a thread, then starts the thread
-     */
     private void run(Properties serverProperties){
         socketQueue = new ArrayList<ArrayList<Socket>>();
         Timer timer = new Timer();
@@ -101,12 +82,6 @@ public class BlackjackServer {
         socketQueue.clear();
     }
 
-    /**
-     * The getProperties reads the settings of the server from a .properties file.
-     * If the argument is missing the method uses the default settings from default.properties file
-     * @param args includes the location of the settings file (0th element of the args)
-     * @return this method returns with a Properties object
-     */
     static Properties getProperties(String[] args){
         final String defaultPropertiesFileName = "default_server.properties";
 

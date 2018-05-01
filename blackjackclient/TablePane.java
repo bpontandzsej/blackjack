@@ -144,17 +144,18 @@ public class TablePane extends EditablePane{
         setSize(dealerPane, 900, 200);     
         dealerPane.relocate(200, 0);
 
-        helpCheckBox = new CheckBox("Segitseg");
+        helpCheckBox = new CheckBox("Help");
         helpCheckBox.relocate(0, 0);
         helpCheckBox.setSelected(true);
         helpCheckBox.setStyle("-fx-background-image: url('/blackjackclient/media/currenttable.png'); -fx-border-color: black;");
+        
         helpCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if(newValue){
-                    cardBTN.setText("Lapot kerek (" + currentOdds + "%)");
+                    cardBTN.setText("Hit (" + currentOdds + "%)");
                 } else {
-                    cardBTN.setText("Lapot kerek");
+                    cardBTN.setText("Hit");
                 }
             }
         });
@@ -199,10 +200,10 @@ public class TablePane extends EditablePane{
             case "_turn_":
                 currentOdds = odds;
                 actionPane.getChildren().add(turnPaneChild);
-                if(helpCheckBox.isSelected()){
-                    cardBTN.setText("Lapot kerek (" + odds + "%)");
+                if(needHelp()){
+                    cardBTN.setText("Hit (" + odds + "%)");
                 } else {
-                    cardBTN.setText("Lapot kerek");
+                    cardBTN.setText("Hit");
                 }
             break;
             default:
@@ -280,7 +281,7 @@ public class TablePane extends EditablePane{
         betIcon.setFitHeight(25); 
         betIcon.setFitWidth(25);
 
-        sendBet = new Button("Tetet teszek", betIcon);
+        sendBet = new Button("Bet", betIcon);
         setSize(sendBet, 200, 50);
         sendBet.relocate(0, 100);
         format(sendBet, "#7c7", "black", 1, 5);
@@ -289,7 +290,7 @@ public class TablePane extends EditablePane{
         skipIcon.setFitHeight(25); 
         skipIcon.setFitWidth(25);
 
-        skipBet = new Button("Kihagyom a kort", skipIcon);
+        skipBet = new Button("Skip the round", skipIcon);
         setSize(skipBet, 200, 50);
         skipBet.relocate(0, 150);
         format(skipBet, "#c77", "black", 1, 5);
@@ -320,7 +321,7 @@ public class TablePane extends EditablePane{
         cardIcon.setFitHeight(25); 
         cardIcon.setFitWidth(25);
 
-        cardBTN = new Button("Lapot kerek", cardIcon);
+        cardBTN = new Button("Hit", cardIcon);
         setSize(cardBTN, 200, 95);
         cardBTN.relocate(0, 10);
         format(cardBTN, "#7c7", "black", 1, 5);
@@ -334,7 +335,7 @@ public class TablePane extends EditablePane{
         stopIcon.setFitHeight(25); 
         stopIcon.setFitWidth(25);
 
-        stopBTN = new Button("Megallok", stopIcon);
+        stopBTN = new Button("Stand", stopIcon);
         setSize(stopBTN, 200, 95);
         stopBTN.relocate(0, 105);
         format(stopBTN, "#c77", "black", 1, 5);
@@ -610,11 +611,10 @@ public class TablePane extends EditablePane{
             ImageView c = new ImageView(color);
             c.setFitHeight(25); 
             c.setFitWidth(25);
-            
+
             cardPane.setTop(tl);
             cardPane.setCenter(c);
             cardPane.setBottom(br);
-            
             cardPane.setAlignment(tl, Pos.TOP_LEFT);
             cardPane.setAlignment(c, Pos.CENTER);
             cardPane.setAlignment(br, Pos.BOTTOM_RIGHT);
@@ -624,7 +624,7 @@ public class TablePane extends EditablePane{
         return cardPane;
     }
 
-    /*public boolean needHelp(){
+    public boolean needHelp(){
         return helpCheckBox.isSelected();
-    }*/
+    }
 }

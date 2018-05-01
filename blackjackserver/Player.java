@@ -42,7 +42,9 @@ public class Player extends Person{
         } else {
             this.name = tempName;
         }
-        
+        sendMSG("_ynm__" + this.name);
+        getMSG();
+         
         System.out.println("en csatlakoztam " + name);
     }
 

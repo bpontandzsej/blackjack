@@ -22,34 +22,28 @@ public class ConnectPane extends EditablePane{
 
     public ConnectPane(boolean input, String names){
         setStyle("-fx-background-image: url('/blackjackclient/media/currenttable.png'); -fx-font: 16px sans-serif; -fx-font-weight: bold;");
-        /*setAlignment(Pos.CENTER);
-        setVgap(10);*/
         if(names == ""){
-            namesLabel = new Label("Varakozas a szerverre...");
+            namesLabel = new Label("Waiting for the server...");
             namesLabel.setAlignment(Pos.CENTER);
-            //add(namesLabel, 1, 1);
             namesLabel.relocate(150, 235);
             getChildren().add(namesLabel);
         } else {
             String[] nameArray = names.split("#");
-            namesLabel = new Label("Csatlakozott:\n");
+            namesLabel = new Label("Connected:\n");
             for(int i = 0; i<nameArray.length; i++){
                 if(nameArray[i].length()!=0){
                     namesLabel.setText(namesLabel.getText() + nameArray[i] + "\n");
                 }
             }
-            //center.add(namesLabel, 1, 2);
             if(input){
                 remainingName = new Pane();
                 remainingName.relocate(150, 220);
                 format(remainingName, "#48f", "transparent", 0, 5);
                 setSize(remainingName, 200, 10);
-                //center.add(remainingName, 1, 0);
-                Label nickname = new Label("Felhasznalonev: ");
-                //center.add(nickname, 0, 1);
-                nickname.relocate(150, 190);
 
                 nicknameInput = new TextField();
+                nicknameInput.setStyle("-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);");
+                nicknameInput.setPromptText("Nickname");
                 nicknameInput.setAlignment(Pos.CENTER);
                 nicknameInput.textProperty().addListener((observable, oldValue, newValue) -> {
                     if(nicknameInput.getText().length()>10){
@@ -59,13 +53,12 @@ public class ConnectPane extends EditablePane{
                             nicknameInput.setText(newValue.replaceAll("[^\\sa-zA-Z0-9]", ""));
                         }
                     }
-                    
                 });
-                //center.add(nicknameInput, 1, 1);
                 nicknameInput.relocate(150, 230);
                 setSize(nicknameInput, 200, 30);
 
-                connectButton = new Button("Csatlakozas");
+                connectButton = new Button("Connect");
+                format(connectButton, "#7c7", "black", 1, 5);
 
                 nicknameInput.addEventHandler(KeyEvent.KEY_PRESSED, ev -> {
                     if (ev.getCode() == KeyCode.ENTER) {
@@ -73,17 +66,14 @@ public class ConnectPane extends EditablePane{
                         ev.consume(); 
                     }
                 });
-                //center.add(connectButton, 2, 1);
                 connectButton.relocate(150, 265);
                 setSize(connectButton, 200, 30);
                 namesLabel.relocate(150, 300);
-                getChildren().addAll(remainingName, namesLabel, nickname, nicknameInput, connectButton);
+                getChildren().addAll(remainingName, namesLabel, nicknameInput, connectButton);
             } else {
                 namesLabel.relocate(150, 235);
                 getChildren().add(namesLabel);
             }
-            
-            
         }                
     }
 
@@ -105,6 +95,6 @@ public class ConnectPane extends EditablePane{
 
     public void setWaitingText(){
         connectButton.setVisible(false);
-        connectingText.setText("Varakozas a tobbiekre...");
+        connectingText.setText("Waiting for other players...");
     }
 }
