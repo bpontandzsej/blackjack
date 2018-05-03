@@ -5,11 +5,7 @@ import java.util.ArrayList;
 public class Dealer extends Person{
     public Dealer(){
         super();
-        this.name = "DEALER";
-    }
-
-    public String getName(){
-        return this.name;
+        name = "DEALER";
     }
 
     public String cardsToString(boolean hideSecond){

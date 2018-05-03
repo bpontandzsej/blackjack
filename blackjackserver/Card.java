@@ -10,14 +10,14 @@ public class Card{
     }
 
     public int getNumber(){
-        return this.number;
+        return number;
     }
 
     public char getColor(){
-        return this.color;
+        return color;
     }
 
     public String cardToString(){
-        return (this.color + ":" + Integer.toString(this.number));
+        return (color + ":" + Integer.toString(number));
     }
 }

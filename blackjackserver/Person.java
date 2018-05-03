@@ -12,13 +12,13 @@ public abstract class Person{
     private int realSum;
     
     public Person(){
-        this.money = 0;
-        this.realSum = 0;
-        this.cards = new ArrayList<Card>();
+        money = 0;
+        realSum = 0;
+        cards = new ArrayList<Card>();
     }
 
     public int getMoney(){
-        return this.money;
+        return money;
     }
 
     public void setMoney(int money){
@@ -26,11 +26,11 @@ public abstract class Person{
     }
 
     public int getRealSum(){
-        return this.realSum;
+        return realSum;
     }
 
     public void setRealSum(int i){
-        this.realSum = i;
+        realSum = i;
     }
 
     public void addCard(Card c){
@@ -85,7 +85,7 @@ public abstract class Person{
     }
 
     public ArrayList<Card> getCards(){
-        return this.cards;
+        return cards;
     }
 
     public String cardsToString(){
@@ -100,6 +100,6 @@ public abstract class Person{
     }
 
     public void clearCards(){
-        this.cards.clear();
+        cards.clear();
     }
 }

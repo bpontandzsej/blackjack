@@ -23,23 +23,10 @@ public class Deck{
         Collections.shuffle(cards);
     }
 
-    public ArrayList<Card> getDeck(){
-        return cards;
-    }
-
-    public String deckToString(){
-        String s = "";
-        for(Card c : cards){
-            s += c.getColor() + ":" + Integer.toString(c.getNumber()) + "; ";
-        }
-        return s;
-    }
-
     public Card takeCard(){
         Card card = cards.get(0);
         cards.remove(0);
         return card;
-
     }
 
 }

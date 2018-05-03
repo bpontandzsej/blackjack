@@ -134,4 +134,10 @@ public class Player extends Person{
         sender.flush();
         chatSender.flush();
     }
+
+    public void playerLeft(){
+        setStatus(4);
+        flush();
+        close();
+    }
 }

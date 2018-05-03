@@ -19,14 +19,6 @@ public class BlackjackTable extends Thread{
         System.out.println("letrejott a szal");
     }
 
-    private String namesToString(ArrayList<String> names){
-        String s = "_nms__#";
-        for(String name : names){
-            s += name + "#";
-        }
-        return s;
-    }
-
     public void run(){
         ArrayList<Player> players = new ArrayList<Player>();
         ArrayList<String> names = new ArrayList<String>(); 
@@ -36,10 +28,8 @@ public class BlackjackTable extends Thread{
         sendToAll(players, "_strt_");
 
         fillMoney(dealer, players);
-        int roundCount = 0;
         ArrayList<Player> needToDelete = new ArrayList<Player>();
-        while(checkEnd(dealer, players)) {
-            roundCount++;
+        while(checkEnd(dealer, players)){
             Deck deck = new Deck();
             newGame(dealer, players);
             sendStatusToAll(dealer, players, true);
@@ -59,13 +49,12 @@ public class BlackjackTable extends Thread{
                                 player.setBet(Integer.parseInt(msg));
                             } catch(NumberFormatException e){
                                 
-                            }
-                            
+                            }                            
                             player.setStatus(2);
                         }                        
                     } catch(IllegalStateException e){
                         System.out.println("bet off");
-                        playerLeft(player);
+                        player.playerLeft();
                         needToDelete.add(player);
                     } catch(IOException e){
                         System.out.println("kommunikacios hiba1");
@@ -107,7 +96,7 @@ public class BlackjackTable extends Thread{
                             player.setRealSum(getSumInInt(player.getSum()));
                         } catch(IllegalStateException e){
                             System.out.println("asd7");
-                            playerLeft(player);
+                            player.playerLeft();
                             needToDelete.add(player);
                         } catch(IOException e){
                             System.out.println("kommunikacios hiba3");
@@ -141,19 +130,19 @@ public class BlackjackTable extends Thread{
                             } else {
                                 if(player.getRealSum()>21){
                                     deal(dealer, player, -1);
-                                    player.sendServerMSG("YOU LOST THE ROUND: You have: " + Integer.toString(player.getRealSum()));
+                                    player.sendServerMSG("YOU LOST THE ROUND: You have: " + str(player.getRealSum()));
                                 } else {
                                     if(dealer.getRealSum()>21){
                                         deal(dealer, player, 1);
-                                        player.sendServerMSG("YOU WON THE ROUND: Dealer has: " + Integer.toString(dealer.getRealSum()));
+                                        player.sendServerMSG("YOU WON THE ROUND: Dealer has: " + str(dealer.getRealSum()));
                                     } else {
                                         if(player.getRealSum()>dealer.getRealSum()){
                                             deal(dealer, player, 1);
-                                            player.sendServerMSG("YOU WON THE ROUND: You have: " + Integer.toString(player.getRealSum()) + ", Dealer has: " + Integer.toString(dealer.getRealSum()));
+                                            player.sendServerMSG("YOU WON THE ROUND: You have: " + str(player.getRealSum()) + ", Dealer has: " + str(dealer.getRealSum()));
                                         } else {
                                             if(player.getRealSum()<dealer.getRealSum()){
                                                 deal(dealer, player, -1);
-                                                player.sendServerMSG("YOU LOST THE ROUND: You have: " + Integer.toString(player.getRealSum()) + ", Dealer has: " + Integer.toString(dealer.getRealSum()));
+                                                player.sendServerMSG("YOU LOST THE ROUND: You have: " + str(player.getRealSum()) + ", Dealer has: " + str(dealer.getRealSum()));
                                             }
                                         }
                                     }
@@ -162,7 +151,7 @@ public class BlackjackTable extends Thread{
                         }
                     } else {
                         try{
-                            player.sendServerMSG("DRAW: You have: " + Integer.toString(player.getRealSum()) + ", Dealer has: " + Integer.toString(dealer.getRealSum()));
+                            player.sendServerMSG("DRAW: You have: " + str(player.getRealSum()) + ", Dealer has: " + str(dealer.getRealSum()));
                         } catch(IllegalStateException e){
                             System.out.println("mar lelepett");
                         }
@@ -200,24 +189,13 @@ public class BlackjackTable extends Thread{
                 }
                 player.sayBye();            
             } catch(Exception e){
-                playerLeft(player);
+                player.playerLeft();
                 needToDelete.add(player);
             } 
         }
         players.removeAll(needToDelete);
         System.out.println("lelepett mindenki");
         return;
-    }
-
-    private void deal(Dealer dealer, Player player, double toPlayer){
-        player.setMoney(player.getMoney() + (int)Math.round(player.getBet()*toPlayer));
-        dealer.setMoney(dealer.getMoney() - (int)(player.getBet()*toPlayer));
-    }
-
-    private void playerLeft(Player player){
-        player.setStatus(4);
-        player.flush();
-        player.close();
     }
 
     private void init(ArrayList<Player> players, ArrayList<String> names){
@@ -237,11 +215,11 @@ public class BlackjackTable extends Thread{
         ArrayList<Player> needToDelete = new ArrayList<Player>();
         for(Player player : players){
             try{
-                player.sendMSG("_id___" + Integer.toString(player.getId()));
+                player.sendMSG("_id___" + str(player.getId()));
                 player.getMSG();
             } catch(IllegalStateException e){
                 System.out.println("asd3");
-                playerLeft(player);
+                player.playerLeft();
                 needToDelete.add(player);
             } catch(IOException e){
                 System.out.println("kommunikacios hiba5");
@@ -270,6 +248,56 @@ public class BlackjackTable extends Thread{
         players.removeAll(needToDelete);
     }
 
+    private void fillMoney(Dealer dealer, ArrayList<Player> players){
+        for(Player player : players){
+            player.setMoney(startMoney);
+        }
+        dealer.setMoney(startMoney*players.size()*multiplier);
+    }
+
+    public void newGame(Dealer dealer, ArrayList<Player> players){
+        for(Player player : players){
+            if(player.getStatus()<4){
+                player.setStatus(0);
+            }
+            player.setBet(0);            
+            player.setRealSum(0);
+            player.clearCards();
+        }
+        dealer.setRealSum(0);
+        dealer.clearCards();
+    }
+
+    private boolean checkEnd(Dealer dealer, ArrayList<Player> players){
+        return (activePlayers(players) > 0 && dealer.getMoney() > 0);
+    }
+
+    private int checkAll(Dealer dealer, ArrayList<Player> players){
+        int sumAll = 0;
+        for(Player player : players){
+            if(player.getRealSum()==21 && player.getCards().size()==2){
+                sumAll -= player.getBet()*1.5;
+            } else {
+                if(player.getRealSum()>21){
+                    sumAll += player.getBet();
+                } else {
+                    if(dealer.getRealSum()>21){
+                        sumAll -= player.getBet();
+                    } else {
+                        if(player.getRealSum()>dealer.getRealSum()){
+                            sumAll -= player.getBet();
+                        } else {
+                            if(player.getRealSum()<dealer.getRealSum()){
+                                sumAll += player.getBet();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return sumAll;
+    }
+
     private int activePlayers(ArrayList<Player> players){
         int n = 0;
         for(Player player : players){
@@ -290,36 +318,31 @@ public class BlackjackTable extends Thread{
         return n;
     }
 
-    private void wait(int seconds){
-        try{
-            Thread.sleep(seconds*1000);
-        } catch(InterruptedException e){
-
-        }
+    private void deal(Dealer dealer, Player player, double toPlayer){
+        player.setMoney(player.getMoney() + (int)Math.round(player.getBet()*toPlayer));
+        dealer.setMoney(dealer.getMoney() - (int)(player.getBet()*toPlayer));
     }
 
-    private void fillMoney(Dealer dealer, ArrayList<Player> players){
-        for(Player player : players){
-            player.setMoney(startMoney);
-        }
-        dealer.setMoney(startMoney*players.size()*multiplier);
-    }
-
-    private boolean checkEnd(Dealer dealer, ArrayList<Player> players){
-        return (activePlayers(players) > 0 && dealer.getMoney() > 0);
-    }
-
-    public void newGame(Dealer dealer, ArrayList<Player> players){
-        for(Player player : players){
-            if(player.getStatus()<4){
-                player.setStatus(0);
+    private int getSumInInt(String s){
+        if(s.length() <= 2){
+            return Integer.parseInt(s);
+        } else {
+            String[] strArray = s.split("/");
+            int[] intArray = new int[strArray.length];
+            for(int i = 0; i < strArray.length; i++) {
+                intArray[i] = Integer.parseInt(strArray[i]);
             }
-            player.setBet(0);            
-            player.setRealSum(0);
-            player.clearCards();
+            for(int i = 0; i < intArray.length / 2; i++){
+                int temp = intArray[i];
+                intArray[i] = intArray[intArray.length - i - 1];
+                intArray[intArray.length - i - 1] = temp;
+            }
+            int max = intArray[0];
+            for(int i=1; i<intArray.length; i++){
+                if(intArray[i] > max && intArray[i] <= 21) max = intArray[i];
+            }
+            return max;
         }
-        dealer.setRealSum(0);
-        dealer.clearCards();
     }
 
     private String getStatus(Dealer dealer, ArrayList<Player> players, boolean hideSecond, String pre){
@@ -352,6 +375,22 @@ public class BlackjackTable extends Thread{
         return Integer.toString(s);
     }
 
+    private void wait(int seconds){
+        try{
+            Thread.sleep(seconds*1000);
+        } catch(InterruptedException e){
+
+        }
+    }
+
+    private String namesToString(ArrayList<String> names){
+        String s = "_nms__#";
+        for(String name : names){
+            s += name + "#";
+        }
+        return s;
+    }
+
     private void sendStatusToAll(Dealer dealer, ArrayList<Player> players, boolean hideSecond){
         for(Player player : players){
             try{
@@ -367,10 +406,6 @@ public class BlackjackTable extends Thread{
         }
     }
 
-    private void serverMSG(ArrayList<Player> players, String msg){
-        sendToAll(players, "_svms_ " + msg);
-    }
-
     private void sendToAll(ArrayList<Player> players, String msg){
         ArrayList<Player> needToDelete = new ArrayList<Player>();
         for(Player player : players){
@@ -379,7 +414,7 @@ public class BlackjackTable extends Thread{
                 player.getMSG();
             } catch(IllegalStateException e){
                 System.out.println("asd12");
-                playerLeft(player);
+                player.playerLeft();
                 needToDelete.add(player);
             } catch(IOException e){
                 System.out.println("kommunikacios hiba8");
@@ -398,53 +433,5 @@ public class BlackjackTable extends Thread{
                 player.flush();
             }
         }
-    }
-
-    private int getSumInInt(String s){
-        if(s.length() <= 2){
-            return Integer.parseInt(s);
-        } else {
-            String[] strArray = s.split("/");
-            int[] intArray = new int[strArray.length];
-            for(int i = 0; i < strArray.length; i++) {
-                intArray[i] = Integer.parseInt(strArray[i]);
-            }
-            for(int i = 0; i < intArray.length / 2; i++){
-                int temp = intArray[i];
-                intArray[i] = intArray[intArray.length - i - 1];
-                intArray[intArray.length - i - 1] = temp;
-            }
-            int max = intArray[0];
-            for(int i=1; i<intArray.length; i++){
-                if(intArray[i] > max && intArray[i] <= 21) max = intArray[i];
-            }
-            return max;
-        }
-    }
-
-    private int checkAll(Dealer dealer, ArrayList<Player> players){
-        int sumAll = 0;
-        for(Player player : players){
-            if(player.getRealSum()==21 && player.getCards().size()==2){
-                sumAll -= player.getBet()*1.5;
-            } else {
-                if(player.getRealSum()>21){
-                    sumAll += player.getBet();
-                } else {
-                    if(dealer.getRealSum()>21){
-                        sumAll -= player.getBet();
-                    } else {
-                        if(player.getRealSum()>dealer.getRealSum()){
-                            sumAll -= player.getBet();
-                        } else {
-                            if(player.getRealSum()<dealer.getRealSum()){
-                                sumAll += player.getBet();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return sumAll;
     }
 }
