@@ -8,19 +8,12 @@ import java.net.Socket;
 import java.util.Properties;
 
 public class BlackjackTable extends Thread{
-    private ArrayList<Player> players;
-    private Dealer dealer;
     private final int startMoney;
-    private Deck deck;
-    private ArrayList<String> names;
-    private ArrayList<Player> needToDelete;
     private ArrayList<ArrayList<Socket>> sockets;
     private final int multiplier;
 
-    public BlackjackTable(int id, ArrayList<ArrayList<Socket>> sockets, Properties tableProperties){
+    public BlackjackTable(ArrayList<ArrayList<Socket>> sockets, Properties tableProperties){
         this.sockets = new ArrayList<ArrayList<Socket>>(sockets);
-        players = new ArrayList<Player>();
-        names = new ArrayList<String>(); 
         startMoney = Integer.parseInt(tableProperties.getProperty("startmoney"));
         multiplier = Integer.parseInt(tableProperties.getProperty("multiplier"));
         System.out.println("letrejott a szal");
@@ -35,24 +28,29 @@ public class BlackjackTable extends Thread{
     }
 
     public void run(){
-        init();
+        ArrayList<Player> players = new ArrayList<Player>();
+        ArrayList<String> names = new ArrayList<String>(); 
+        Dealer dealer = new Dealer();
+        init(players, names);
         System.out.println("elindult a szal");
-        sendToAll("_strt_");
+        sendToAll(players, "_strt_");
 
-        fillMoney();
+        fillMoney(dealer, players);
         int roundCount = 0;
-        while(checkEnd()) {
+        ArrayList<Player> needToDelete = new ArrayList<Player>();
+        while(checkEnd(dealer, players)) {
             roundCount++;
-            newGame();
-            sendStatusToAll(true);
+            Deck deck = new Deck();
+            newGame(dealer, players);
+            sendStatusToAll(dealer, players, true);
             
             needToDelete = new ArrayList<Player>();
             for(Player player : players){
                 if(player.getStatus()<4){
                     try{
                         player.setStatus(1);
-                        sendStatusToAll(true);
-                        player.sendMSG(getStatus(true, "_bet__"));
+                        sendStatusToAll(dealer, players, true);
+                        player.sendMSG(getStatus(dealer, players, true, "_bet__"));
                         String msg = player.getMSG();
                         if(msg.equals("#skip")){
                             player.setStatus(3);
@@ -68,16 +66,17 @@ public class BlackjackTable extends Thread{
                     } catch(IllegalStateException e){
                         System.out.println("bet off");
                         playerLeft(player);
+                        needToDelete.add(player);
                     } catch(IOException e){
                         System.out.println("kommunikacios hiba1");
                     } catch(NoSuchElementException e){
                         System.out.println("kommunikacios hiba2");
                     }
-                    sendStatusToAll(true);
+                    sendStatusToAll(dealer, players, true);
                 }
             }
             players.removeAll(needToDelete);
-            if(notSkippers()>0){
+            if(notSkippers(players)>0){
                 for(Player player : players){
                     if(player.getStatus()<3){
                         player.addCard(deck.takeCard());
@@ -88,49 +87,50 @@ public class BlackjackTable extends Thread{
                 }
                 dealer.addCard(deck.takeCard());
                 dealer.addCard(deck.takeCard());
-                sendStatusToAll(true);
+                sendStatusToAll(dealer, players, true);
                 needToDelete = new ArrayList<Player>();
                 for(Player player : players){
                     if(player.getStatus()<3){
                         player.setStatus(1);
-                        sendStatusToAll(true);
+                        sendStatusToAll(dealer, players, true);
                         String s = "";
                         try{
                             while(!(s.equals("#stop")) && (getSumInInt(player.getSum())<21) && !(s.equals("#skip"))){
-                                player.sendMSG(getStatus(true, "_turn_"));
+                                player.sendMSG(getStatus(dealer, players, true, "_turn_"));
                                 s = player.getMSG();
                                 if(s.equals("#card")){
                                     player.addCard(deck.takeCard());
                                 }
                                 player.setRealSum(getSumInInt(player.getSum()));
-                                sendStatusToAll(true);                    
+                                sendStatusToAll(dealer, players, true);                    
                             }
                             player.setRealSum(getSumInInt(player.getSum()));
                         } catch(IllegalStateException e){
                             System.out.println("asd7");
                             playerLeft(player);
+                            needToDelete.add(player);
                         } catch(IOException e){
                             System.out.println("kommunikacios hiba3");
                         } catch(NoSuchElementException e){
                             System.out.println("kommunikacios hiba4");
                         }
                         player.setStatus(2);
-                        sendStatusToAll(true);
+                        sendStatusToAll(dealer, players, true);
                     }                
                 }
                 players.removeAll(needToDelete);
                 dealer.setRealSum(getSumInInt(dealer.getSum()));
-                sendStatusToAll(false);
-                System.out.println(checkAll());
+                sendStatusToAll(dealer, players, false);
+                System.out.println(checkAll(dealer, players));
                 wait(2);
-                while(getSumInInt(dealer.getSum())<17 && checkAll()<=0){
-                    System.out.println(checkAll());
+                while(getSumInInt(dealer.getSum())<17 && checkAll(dealer, players)<=0){
+                    System.out.println(checkAll(dealer, players));
                     dealer.addCard(deck.takeCard());
                     dealer.setRealSum(getSumInInt(dealer.getSum()));
-                    sendStatusToAll(false);
+                    sendStatusToAll(dealer, players, false);
                     wait(2);
                 }
-                System.out.println(checkAll());
+                System.out.println(checkAll(dealer, players));
                 
                 for(Player player : players){
                     if(player.getRealSum() != dealer.getRealSum()){
@@ -169,7 +169,7 @@ public class BlackjackTable extends Thread{
                     }
                 }
             }
-            sendStatusToAll(false);
+            sendStatusToAll(dealer, players, false);
             wait(2);
             for(Player player : new ArrayList<Player>(players)){
                 if(player.getStatus()<4){
@@ -183,7 +183,7 @@ public class BlackjackTable extends Thread{
                     }
                 }
             }
-            sendStatusToAll(false);
+            sendStatusToAll(dealer, players, false);
         }
 
         needToDelete = new ArrayList<Player>();
@@ -201,6 +201,7 @@ public class BlackjackTable extends Thread{
                 player.sayBye();            
             } catch(Exception e){
                 playerLeft(player);
+                needToDelete.add(player);
             } 
         }
         players.removeAll(needToDelete);
@@ -215,18 +216,17 @@ public class BlackjackTable extends Thread{
 
     private void playerLeft(Player player){
         player.setStatus(4);
-        needToDelete.add(player);
         player.flush();
         player.close();
     }
 
-    private void init(){
+    private void init(ArrayList<Player> players, ArrayList<String> names){
         int playerId = 0;
         for(ArrayList<Socket> socket : sockets){
             try{
                 players.add(new Player(socket, playerId, names));
                 names.add(players.get(players.size()-1).getName());
-                sendToAll(namesToString(names));
+                sendToAll(players, namesToString(names));
                 playerId++;
             } catch(IOException e){
                 System.out.print("Nem sikerult a kommunikacio megteremtese a klienssel");
@@ -234,7 +234,7 @@ public class BlackjackTable extends Thread{
 
             }
         }
-        needToDelete = new ArrayList<Player>();
+        ArrayList<Player> needToDelete = new ArrayList<Player>();
         for(Player player : players){
             try{
                 player.sendMSG("_id___" + Integer.toString(player.getId()));
@@ -242,6 +242,7 @@ public class BlackjackTable extends Thread{
             } catch(IllegalStateException e){
                 System.out.println("asd3");
                 playerLeft(player);
+                needToDelete.add(player);
             } catch(IOException e){
                 System.out.println("kommunikacios hiba5");
             }
@@ -253,7 +254,7 @@ public class BlackjackTable extends Thread{
                     try{
                         msg = player.getChatMSG();
                         while(msg!="bye"){
-                                sendChatToAll(msg);
+                                sendChatToAll(players, msg);
                                 msg = player.getChatMSG();
                         }
                     } catch(Exception e){
@@ -267,11 +268,9 @@ public class BlackjackTable extends Thread{
             chatHandler.start();
         }
         players.removeAll(needToDelete);
-
-        dealer = new Dealer();        
     }
 
-    private int activePlayers(){
+    private int activePlayers(ArrayList<Player> players){
         int n = 0;
         for(Player player : players){
             if(player.getStatus()<4){
@@ -281,7 +280,7 @@ public class BlackjackTable extends Thread{
         return n;
     }
 
-    private int notSkippers(){
+    private int notSkippers(ArrayList<Player> players){
         int n = 0;
         for(Player player : players){
             if(player.getStatus()<3){
@@ -299,19 +298,18 @@ public class BlackjackTable extends Thread{
         }
     }
 
-    private void fillMoney(){
+    private void fillMoney(Dealer dealer, ArrayList<Player> players){
         for(Player player : players){
             player.setMoney(startMoney);
         }
         dealer.setMoney(startMoney*players.size()*multiplier);
     }
 
-    private boolean checkEnd(){
-        return (activePlayers() > 0 && dealer.getMoney() > 0);
+    private boolean checkEnd(Dealer dealer, ArrayList<Player> players){
+        return (activePlayers(players) > 0 && dealer.getMoney() > 0);
     }
 
-    public void newGame(){
-        deck = new Deck();
+    public void newGame(Dealer dealer, ArrayList<Player> players){
         for(Player player : players){
             if(player.getStatus()<4){
                 player.setStatus(0);
@@ -324,7 +322,7 @@ public class BlackjackTable extends Thread{
         dealer.clearCards();
     }
 
-    private String getStatus(boolean hideSecond, String pre){
+    private String getStatus(Dealer dealer, ArrayList<Player> players, boolean hideSecond, String pre){
         String status = pre;
         status += str(dealer.getMoney()) + ";";
         status += dealer.cardsToString(hideSecond) + ";";
@@ -354,10 +352,10 @@ public class BlackjackTable extends Thread{
         return Integer.toString(s);
     }
 
-    private void sendStatusToAll(boolean hideSecond){
+    private void sendStatusToAll(Dealer dealer, ArrayList<Player> players, boolean hideSecond){
         for(Player player : players){
             try{
-                player.sendMSG(getStatus(hideSecond, "_stat_"));
+                player.sendMSG(getStatus(dealer, players, hideSecond, "_stat_"));
                 player.getMSG();
             } catch(IllegalStateException e){
                 System.out.println("status off");
@@ -369,12 +367,12 @@ public class BlackjackTable extends Thread{
         }
     }
 
-    private void serverMSG(String msg){
-        sendToAll("_svms_ " + msg);
+    private void serverMSG(ArrayList<Player> players, String msg){
+        sendToAll(players, "_svms_ " + msg);
     }
 
-    private void sendToAll(String msg){
-        needToDelete = new ArrayList<Player>();
+    private void sendToAll(ArrayList<Player> players, String msg){
+        ArrayList<Player> needToDelete = new ArrayList<Player>();
         for(Player player : players){
             try{
                 player.sendMSG(msg);
@@ -382,6 +380,7 @@ public class BlackjackTable extends Thread{
             } catch(IllegalStateException e){
                 System.out.println("asd12");
                 playerLeft(player);
+                needToDelete.add(player);
             } catch(IOException e){
                 System.out.println("kommunikacios hiba8");
             }
@@ -389,7 +388,7 @@ public class BlackjackTable extends Thread{
         players.removeAll(needToDelete);
     }
 
-    private void sendChatToAll(String msg){
+    private void sendChatToAll(ArrayList<Player> players, String msg){
         for(Player player : players){
             try{
                 player.sendChatMSG(msg);
@@ -423,7 +422,7 @@ public class BlackjackTable extends Thread{
         }
     }
 
-    private int checkAll(){
+    private int checkAll(Dealer dealer, ArrayList<Player> players){
         int sumAll = 0;
         for(Player player : players){
             if(player.getRealSum()==21 && player.getCards().size()==2){
