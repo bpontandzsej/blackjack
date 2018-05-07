@@ -76,7 +76,22 @@ public class BlackjackClient extends Application{
     public void start(Stage primarystage){
         clientProperties = getProperties();
         stage = primarystage;
+        stage.setScene(new Scene(new Pane(), 500, 500));
+        
         stage.getIcons().add(new Image("/blackjackclient/media/sum.png"));
+        stage.setTitle("Blackjack");
+        stage.setResizable(false);
+        
+        menuPane = new MenuPane();
+        Scene scene = new Scene(menuPane, 500, 500);
+        initMenuButtons(clientProperties);
+        stage.show();
+        stage.setScene(scene);
+
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+        stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2); 
+        stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
+
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
@@ -102,23 +117,11 @@ public class BlackjackClient extends Application{
                         stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
                     } else {
                     }
-                    
                 } else {
                     closeAll();
                 }
            }
         });
-        stage.setTitle("Blackjack");
-        stage.setResizable(false);
-        stage.show();
-        menuPane = new MenuPane();
-        Scene scene = new Scene(menuPane, 500, 500);
-        initMenuButtons(clientProperties);
-        stage.setScene(scene);
-        
-        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-        stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2); 
-        stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
     }
 
     private void initMenuButtons(Properties clientProperties){
@@ -149,6 +152,7 @@ public class BlackjackClient extends Application{
                                             alert.setHeaderText("Server message");
                                             alert.setContentText("You have lost the connection with sthe server...");
                                             alert.showAndWait();
+                                            showMenu();
                                         }
                                     });
                                     running = false;

@@ -258,7 +258,6 @@ public class TablePane extends EditablePane{
         betInput.setText(Integer.toString((int)Math.round(betSlider.getValue())));
         betInput.textProperty().addListener((observable, oldValue, newValue) -> {
             int l = Integer.toString(finalMaxBet).length();
-            
             if(!newValue.matches("\\d*")) {
                 betInput.setText(newValue.replaceAll("[^\\d]", ""));
             } else {
