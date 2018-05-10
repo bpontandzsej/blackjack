@@ -11,12 +11,10 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.text.Text;
 
 public class ConnectPane extends EditablePane{
     private TextField nicknameInput;
     private Button connectButton;
-    private Text connectingText;
     private Label namesLabel;
     private Pane remainingName;
 
@@ -91,10 +89,5 @@ public class ConnectPane extends EditablePane{
 
     public String getNicknameInput(){
         return nicknameInput.getText();
-    }
-
-    public void setWaitingText(){
-        connectButton.setVisible(false);
-        connectingText.setText("Waiting for other players...");
     }
 }

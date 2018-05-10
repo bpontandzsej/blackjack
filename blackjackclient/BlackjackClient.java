@@ -55,7 +55,6 @@ public class BlackjackClient extends Application{
     private String myName;
     private String myId;
 
-    private String lastState;
     private int betLoop;
     private int turnLoop;
     private int nameLoop;
@@ -143,19 +142,21 @@ public class BlackjackClient extends Application{
                                 try{
                                     inbox(getMSG());
                                 } catch(Exception e){
-                                    System.out.println("Megszakadt a kapcsolat a szerverrel");
-                                    Platform.runLater(new Runnable(){
-                                        @Override
-                                        public void run() {
-                                            Alert alert = new Alert(AlertType.INFORMATION);
-                                            alert.setTitle("Blackjack");
-                                            alert.setHeaderText("Server message");
-                                            alert.setContentText("You have lost the connection with sthe server...");
-                                            alert.showAndWait();
-                                            showMenu();
-                                        }
-                                    });
-                                    running = false;
+                                    if(running){
+                                        System.out.println("Megszakadt a kapcsolat a szerverrel1");
+                                        Platform.runLater(new Runnable(){
+                                            @Override
+                                            public void run() {
+                                                Alert alert = new Alert(AlertType.INFORMATION);
+                                                alert.setTitle("Blackjack");
+                                                alert.setHeaderText("Server message");
+                                                alert.setContentText("You have lost the connection with sthe server...");
+                                                alert.showAndWait();
+                                                showMenu();
+                                            }
+                                        });
+                                        running = false;
+                                    }
                                 }
                             }
                             return;
@@ -486,7 +487,6 @@ public class BlackjackClient extends Application{
                     sendMSG("");
                 break;
             }
-        if(!msg.substring(0, 6).equals("_chat_")) lastState = msg;        
     }
 
     private void updateDealerAndPlayers(String state){
@@ -558,7 +558,6 @@ public class BlackjackClient extends Application{
                     turnTimer.cancel();
                     sendMSG("#card");
                     tablePane.updateActionPane("", "", "");
-                    
                 }                
             }
         });
@@ -568,7 +567,6 @@ public class BlackjackClient extends Application{
                 turnTimer.cancel();
                 sendMSG("#stop");
                 tablePane.updateActionPane("", "", "");
-                
             }
         });
     }
